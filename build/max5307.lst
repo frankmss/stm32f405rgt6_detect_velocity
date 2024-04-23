@@ -1,0 +1,612 @@
+ARM GAS  /tmp/ccjxrueq.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"max5307.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.init_max5307,"ax",%progbits
+  18              		.align	1
+  19              		.global	init_max5307
+  20              		.arch armv7e-m
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  24              		.fpu fpv4-sp-d16
+  26              	init_max5307:
+  27              	.LFB130:
+  28              		.file 1 "Core/Src/max5307.c"
+   1:Core/Src/max5307.c **** #include "max5307.h"
+   2:Core/Src/max5307.c **** 
+   3:Core/Src/max5307.c **** extern SPI_HandleTypeDef hspi2;
+   4:Core/Src/max5307.c **** 
+   5:Core/Src/max5307.c **** static uint16_t outputList; //recode output reg
+   6:Core/Src/max5307.c **** 
+   7:Core/Src/max5307.c **** void init_max5307(void){
+  29              		.loc 1 7 24 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 8
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33 0000 30B5     		push	{r4, r5, lr}
+  34              	.LCFI0:
+  35              		.cfi_def_cfa_offset 12
+  36              		.cfi_offset 4, -12
+  37              		.cfi_offset 5, -8
+  38              		.cfi_offset 14, -4
+  39 0002 83B0     		sub	sp, sp, #12
+  40              	.LCFI1:
+  41              		.cfi_def_cfa_offset 24
+   8:Core/Src/max5307.c **** 	uint16_t dat;
+  42              		.loc 1 8 2 view .LVU1
+   9:Core/Src/max5307.c **** 	HAL_GPIO_WritePin(DAC_LOAD_GPIO_Port, DAC_LOAD_Pin, GPIO_PIN_SET);
+  43              		.loc 1 9 2 view .LVU2
+  44 0004 214C     		ldr	r4, .L3
+  45 0006 0122     		movs	r2, #1
+  46 0008 4FF48071 		mov	r1, #256
+  47 000c 2046     		mov	r0, r4
+  48 000e FFF7FEFF 		bl	HAL_GPIO_WritePin
+  49              	.LVL0:
+ARM GAS  /tmp/ccjxrueq.s 			page 2
+
+
+  10:Core/Src/max5307.c **** 	HAL_GPIO_WritePin(DAC_CS_GPIO_Port, DAC_CS_Pin, GPIO_PIN_SET);
+  50              		.loc 1 10 2 view .LVU3
+  51 0012 0122     		movs	r2, #1
+  52 0014 4FF40071 		mov	r1, #512
+  53 0018 2046     		mov	r0, r4
+  54 001a FFF7FEFF 		bl	HAL_GPIO_WritePin
+  55              	.LVL1:
+  11:Core/Src/max5307.c **** 	HAL_Delay(2);
+  56              		.loc 1 11 2 view .LVU4
+  57 001e 0220     		movs	r0, #2
+  58 0020 FFF7FEFF 		bl	HAL_Delay
+  59              	.LVL2:
+  12:Core/Src/max5307.c **** 	dat = 0x01;
+  60              		.loc 1 12 2 view .LVU5
+  13:Core/Src/max5307.c **** 	dat = dat<<12;
+  61              		.loc 1 13 2 view .LVU6
+  62              		.loc 1 13 6 is_stmt 0 view .LVU7
+  63 0024 4FF48053 		mov	r3, #4096
+  64 0028 ADF80630 		strh	r3, [sp, #6]	@ movhi
+  14:Core/Src/max5307.c **** 	HAL_GPIO_WritePin(DAC_CS_GPIO_Port, DAC_CS_Pin, GPIO_PIN_RESET);
+  65              		.loc 1 14 2 is_stmt 1 view .LVU8
+  66 002c 0022     		movs	r2, #0
+  67 002e 4FF40071 		mov	r1, #512
+  68 0032 2046     		mov	r0, r4
+  69 0034 FFF7FEFF 		bl	HAL_GPIO_WritePin
+  70              	.LVL3:
+  15:Core/Src/max5307.c **** 
+  16:Core/Src/max5307.c **** 	HAL_SPI_Transmit(&hspi2, (uint8_t *)&dat, 1, 10);
+  71              		.loc 1 16 2 view .LVU9
+  72 0038 154D     		ldr	r5, .L3+4
+  73 003a 0A23     		movs	r3, #10
+  74 003c 0122     		movs	r2, #1
+  75 003e 0DF10601 		add	r1, sp, #6
+  76 0042 2846     		mov	r0, r5
+  77 0044 FFF7FEFF 		bl	HAL_SPI_Transmit
+  78              	.LVL4:
+  17:Core/Src/max5307.c **** 	HAL_GPIO_WritePin(DAC_CS_GPIO_Port, DAC_CS_Pin, GPIO_PIN_SET);
+  79              		.loc 1 17 2 view .LVU10
+  80 0048 0122     		movs	r2, #1
+  81 004a 4FF40071 		mov	r1, #512
+  82 004e 2046     		mov	r0, r4
+  83 0050 FFF7FEFF 		bl	HAL_GPIO_WritePin
+  84              	.LVL5:
+  18:Core/Src/max5307.c **** 	HAL_GPIO_WritePin(DAC_CS_GPIO_Port, DAC_CS_Pin, GPIO_PIN_RESET);
+  85              		.loc 1 18 2 view .LVU11
+  86 0054 0022     		movs	r2, #0
+  87 0056 4FF40071 		mov	r1, #512
+  88 005a 2046     		mov	r0, r4
+  89 005c FFF7FEFF 		bl	HAL_GPIO_WritePin
+  90              	.LVL6:
+  19:Core/Src/max5307.c **** 	dat = 0x0f;
+  91              		.loc 1 19 2 view .LVU12
+  20:Core/Src/max5307.c **** 	dat = dat<<12 | 0xfff;
+  92              		.loc 1 20 2 view .LVU13
+  93              		.loc 1 20 6 is_stmt 0 view .LVU14
+  94 0060 4FF6FF73 		movw	r3, #65535
+  95 0064 ADF80630 		strh	r3, [sp, #6]	@ movhi
+ARM GAS  /tmp/ccjxrueq.s 			page 3
+
+
+  21:Core/Src/max5307.c **** 	HAL_SPI_Transmit(&hspi2, (uint8_t *)&dat, 1, 10);
+  96              		.loc 1 21 2 is_stmt 1 view .LVU15
+  97 0068 0A23     		movs	r3, #10
+  98 006a 0122     		movs	r2, #1
+  99 006c 0DF10601 		add	r1, sp, #6
+ 100 0070 2846     		mov	r0, r5
+ 101 0072 FFF7FEFF 		bl	HAL_SPI_Transmit
+ 102              	.LVL7:
+  22:Core/Src/max5307.c **** 	HAL_GPIO_WritePin(DAC_CS_GPIO_Port, DAC_CS_Pin, GPIO_PIN_SET);
+ 103              		.loc 1 22 2 view .LVU16
+ 104 0076 0122     		movs	r2, #1
+ 105 0078 4FF40071 		mov	r1, #512
+ 106 007c 2046     		mov	r0, r4
+ 107 007e FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 108              	.LVL8:
+  23:Core/Src/max5307.c **** 	outputList=0x0;
+ 109              		.loc 1 23 2 view .LVU17
+ 110              		.loc 1 23 12 is_stmt 0 view .LVU18
+ 111 0082 044B     		ldr	r3, .L3+8
+ 112 0084 0022     		movs	r2, #0
+ 113 0086 1A80     		strh	r2, [r3]	@ movhi
+  24:Core/Src/max5307.c **** }
+ 114              		.loc 1 24 1 view .LVU19
+ 115 0088 03B0     		add	sp, sp, #12
+ 116              	.LCFI2:
+ 117              		.cfi_def_cfa_offset 12
+ 118              		@ sp needed
+ 119 008a 30BD     		pop	{r4, r5, pc}
+ 120              	.L4:
+ 121              		.align	2
+ 122              	.L3:
+ 123 008c 00040240 		.word	1073873920
+ 124 0090 00000000 		.word	hspi2
+ 125 0094 00000000 		.word	.LANCHOR0
+ 126              		.cfi_endproc
+ 127              	.LFE130:
+ 129              		.section	.text.max5307_loadpin,"ax",%progbits
+ 130              		.align	1
+ 131              		.global	max5307_loadpin
+ 132              		.syntax unified
+ 133              		.thumb
+ 134              		.thumb_func
+ 135              		.fpu fpv4-sp-d16
+ 137              	max5307_loadpin:
+ 138              	.LFB131:
+  25:Core/Src/max5307.c **** //all output enable
+  26:Core/Src/max5307.c **** void max5307_loadpin(void){
+ 139              		.loc 1 26 27 is_stmt 1 view -0
+ 140              		.cfi_startproc
+ 141              		@ args = 0, pretend = 0, frame = 0
+ 142              		@ frame_needed = 0, uses_anonymous_args = 0
+ 143 0000 10B5     		push	{r4, lr}
+ 144              	.LCFI3:
+ 145              		.cfi_def_cfa_offset 8
+ 146              		.cfi_offset 4, -8
+ 147              		.cfi_offset 14, -4
+  27:Core/Src/max5307.c **** 	HAL_GPIO_WritePin(DAC_LOAD_GPIO_Port, DAC_LOAD_Pin, GPIO_PIN_RESET);
+ARM GAS  /tmp/ccjxrueq.s 			page 4
+
+
+ 148              		.loc 1 27 2 view .LVU21
+ 149 0002 074C     		ldr	r4, .L7
+ 150 0004 0022     		movs	r2, #0
+ 151 0006 4FF48071 		mov	r1, #256
+ 152 000a 2046     		mov	r0, r4
+ 153 000c FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 154              	.LVL9:
+  28:Core/Src/max5307.c **** 	HAL_GPIO_WritePin(DAC_LOAD_GPIO_Port, DAC_LOAD_Pin, GPIO_PIN_SET);
+ 155              		.loc 1 28 2 view .LVU22
+ 156 0010 0122     		movs	r2, #1
+ 157 0012 4FF48071 		mov	r1, #256
+ 158 0016 2046     		mov	r0, r4
+ 159 0018 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 160              	.LVL10:
+  29:Core/Src/max5307.c **** }
+ 161              		.loc 1 29 1 is_stmt 0 view .LVU23
+ 162 001c 10BD     		pop	{r4, pc}
+ 163              	.L8:
+ 164 001e 00BF     		.align	2
+ 165              	.L7:
+ 166 0020 00040240 		.word	1073873920
+ 167              		.cfi_endproc
+ 168              	.LFE131:
+ 170              		.section	.text.max5307_w_chanel,"ax",%progbits
+ 171              		.align	1
+ 172              		.global	max5307_w_chanel
+ 173              		.syntax unified
+ 174              		.thumb
+ 175              		.thumb_func
+ 176              		.fpu fpv4-sp-d16
+ 178              	max5307_w_chanel:
+ 179              	.LVL11:
+ 180              	.LFB132:
+  30:Core/Src/max5307.c **** 
+  31:Core/Src/max5307.c **** void max5307_w_chanel(enum max5306_chanel chanel, uint32_t val, enum max5306_ouput enable ){
+ 181              		.loc 1 31 92 is_stmt 1 view -0
+ 182              		.cfi_startproc
+ 183              		@ args = 0, pretend = 0, frame = 8
+ 184              		@ frame_needed = 0, uses_anonymous_args = 0
+ 185              		.loc 1 31 92 is_stmt 0 view .LVU25
+ 186 0000 70B5     		push	{r4, r5, r6, lr}
+ 187              	.LCFI4:
+ 188              		.cfi_def_cfa_offset 16
+ 189              		.cfi_offset 4, -16
+ 190              		.cfi_offset 5, -12
+ 191              		.cfi_offset 6, -8
+ 192              		.cfi_offset 14, -4
+ 193 0002 82B0     		sub	sp, sp, #8
+ 194              	.LCFI5:
+ 195              		.cfi_def_cfa_offset 24
+ 196 0004 0446     		mov	r4, r0
+ 197 0006 1546     		mov	r5, r2
+  32:Core/Src/max5307.c **** 	uint16_t dat;
+ 198              		.loc 1 32 2 is_stmt 1 view .LVU26
+  33:Core/Src/max5307.c **** 
+  34:Core/Src/max5307.c **** 	dat = chanel;
+ 199              		.loc 1 34 2 view .LVU27
+ARM GAS  /tmp/ccjxrueq.s 			page 5
+
+
+  35:Core/Src/max5307.c **** 	dat = dat<<12;
+ 200              		.loc 1 35 2 view .LVU28
+ 201              		.loc 1 35 11 is_stmt 0 view .LVU29
+ 202 0008 0303     		lsls	r3, r0, #12
+ 203 000a 9BB2     		uxth	r3, r3
+  36:Core/Src/max5307.c **** 	dat = dat | val;
+ 204              		.loc 1 36 2 is_stmt 1 view .LVU30
+ 205              		.loc 1 36 12 is_stmt 0 view .LVU31
+ 206 000c 0B43     		orrs	r3, r3, r1
+ 207              		.loc 1 36 6 view .LVU32
+ 208 000e ADF80630 		strh	r3, [sp, #6]	@ movhi
+  37:Core/Src/max5307.c **** 	//HAL_Delay(2);
+  38:Core/Src/max5307.c ****   HAL_GPIO_WritePin(DAC_CS_GPIO_Port, DAC_CS_Pin, GPIO_PIN_RESET);
+ 209              		.loc 1 38 3 is_stmt 1 view .LVU33
+ 210 0012 1D4E     		ldr	r6, .L13
+ 211 0014 0022     		movs	r2, #0
+ 212              	.LVL12:
+ 213              		.loc 1 38 3 is_stmt 0 view .LVU34
+ 214 0016 4FF40071 		mov	r1, #512
+ 215              	.LVL13:
+ 216              		.loc 1 38 3 view .LVU35
+ 217 001a 3046     		mov	r0, r6
+ 218              	.LVL14:
+ 219              		.loc 1 38 3 view .LVU36
+ 220 001c FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 221              	.LVL15:
+  39:Core/Src/max5307.c ****     
+  40:Core/Src/max5307.c ****   HAL_SPI_Transmit(&hspi2, (uint8_t *)&dat, 1, 10);
+ 222              		.loc 1 40 3 is_stmt 1 view .LVU37
+ 223 0020 0A23     		movs	r3, #10
+ 224 0022 0122     		movs	r2, #1
+ 225 0024 0DF10601 		add	r1, sp, #6
+ 226 0028 1848     		ldr	r0, .L13+4
+ 227 002a FFF7FEFF 		bl	HAL_SPI_Transmit
+ 228              	.LVL16:
+  41:Core/Src/max5307.c ****   HAL_GPIO_WritePin(DAC_CS_GPIO_Port, DAC_CS_Pin, GPIO_PIN_SET);
+ 229              		.loc 1 41 3 view .LVU38
+ 230 002e 0122     		movs	r2, #1
+ 231 0030 4FF40071 		mov	r1, #512
+ 232 0034 3046     		mov	r0, r6
+ 233 0036 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 234              	.LVL17:
+  42:Core/Src/max5307.c **** 	HAL_GPIO_WritePin(DAC_CS_GPIO_Port, DAC_CS_Pin, GPIO_PIN_RESET);
+ 235              		.loc 1 42 2 view .LVU39
+ 236 003a 0022     		movs	r2, #0
+ 237 003c 4FF40071 		mov	r1, #512
+ 238 0040 3046     		mov	r0, r6
+ 239 0042 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 240              	.LVL18:
+  43:Core/Src/max5307.c ****   if(enable == max_outenable){
+ 241              		.loc 1 43 3 view .LVU40
+ 242              		.loc 1 43 5 is_stmt 0 view .LVU41
+ 243 0046 012D     		cmp	r5, #1
+ 244 0048 07D0     		beq	.L12
+ 245              	.L10:
+  44:Core/Src/max5307.c **** 		dat = 0xe000 | 0x01<<(chanel+2) | outputList;
+  45:Core/Src/max5307.c **** 		outputList = outputList | 0x01<<(chanel+2);
+ARM GAS  /tmp/ccjxrueq.s 			page 6
+
+
+  46:Core/Src/max5307.c **** 		HAL_SPI_Transmit(&hspi2, (uint8_t *)&dat, 1, 10);
+  47:Core/Src/max5307.c **** 	}
+  48:Core/Src/max5307.c ****   //HAL_Delay(3);
+  49:Core/Src/max5307.c ****   HAL_GPIO_WritePin(DAC_CS_GPIO_Port, DAC_CS_Pin, GPIO_PIN_SET);
+ 246              		.loc 1 49 3 is_stmt 1 view .LVU42
+ 247 004a 0122     		movs	r2, #1
+ 248 004c 4FF40071 		mov	r1, #512
+ 249 0050 0D48     		ldr	r0, .L13
+ 250 0052 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 251              	.LVL19:
+  50:Core/Src/max5307.c ****   //HAL_Delay(2);
+  51:Core/Src/max5307.c **** }
+ 252              		.loc 1 51 1 is_stmt 0 view .LVU43
+ 253 0056 02B0     		add	sp, sp, #8
+ 254              	.LCFI6:
+ 255              		.cfi_remember_state
+ 256              		.cfi_def_cfa_offset 16
+ 257              		@ sp needed
+ 258 0058 70BD     		pop	{r4, r5, r6, pc}
+ 259              	.L12:
+ 260              	.LCFI7:
+ 261              		.cfi_restore_state
+  44:Core/Src/max5307.c **** 		dat = 0xe000 | 0x01<<(chanel+2) | outputList;
+ 262              		.loc 1 44 3 is_stmt 1 view .LVU44
+  44:Core/Src/max5307.c **** 		dat = 0xe000 | 0x01<<(chanel+2) | outputList;
+ 263              		.loc 1 44 31 is_stmt 0 view .LVU45
+ 264 005a 0234     		adds	r4, r4, #2
+  44:Core/Src/max5307.c **** 		dat = 0xe000 | 0x01<<(chanel+2) | outputList;
+ 265              		.loc 1 44 22 view .LVU46
+ 266 005c 0122     		movs	r2, #1
+ 267 005e 02FA04F4 		lsl	r4, r2, r4
+  44:Core/Src/max5307.c **** 		dat = 0xe000 | 0x01<<(chanel+2) | outputList;
+ 268              		.loc 1 44 35 view .LVU47
+ 269 0062 0B49     		ldr	r1, .L13+8
+ 270 0064 0888     		ldrh	r0, [r1]
+ 271 0066 40EA0403 		orr	r3, r0, r4
+ 272 006a 6FEAC343 		mvn	r3, r3, lsl #19
+ 273 006e 6FEAD343 		mvn	r3, r3, lsr #19
+  44:Core/Src/max5307.c **** 		dat = 0xe000 | 0x01<<(chanel+2) | outputList;
+ 274              		.loc 1 44 7 view .LVU48
+ 275 0072 ADF80630 		strh	r3, [sp, #6]	@ movhi
+  45:Core/Src/max5307.c **** 		HAL_SPI_Transmit(&hspi2, (uint8_t *)&dat, 1, 10);
+ 276              		.loc 1 45 3 is_stmt 1 view .LVU49
+  45:Core/Src/max5307.c **** 		HAL_SPI_Transmit(&hspi2, (uint8_t *)&dat, 1, 10);
+ 277              		.loc 1 45 27 is_stmt 0 view .LVU50
+ 278 0076 0443     		orrs	r4, r4, r0
+  45:Core/Src/max5307.c **** 		HAL_SPI_Transmit(&hspi2, (uint8_t *)&dat, 1, 10);
+ 279              		.loc 1 45 14 view .LVU51
+ 280 0078 0C80     		strh	r4, [r1]	@ movhi
+  46:Core/Src/max5307.c **** 	}
+ 281              		.loc 1 46 3 is_stmt 1 view .LVU52
+ 282 007a 0A23     		movs	r3, #10
+ 283 007c 0DF10601 		add	r1, sp, #6
+ 284 0080 0248     		ldr	r0, .L13+4
+ 285 0082 FFF7FEFF 		bl	HAL_SPI_Transmit
+ 286              	.LVL20:
+ 287 0086 E0E7     		b	.L10
+ARM GAS  /tmp/ccjxrueq.s 			page 7
+
+
+ 288              	.L14:
+ 289              		.align	2
+ 290              	.L13:
+ 291 0088 00040240 		.word	1073873920
+ 292 008c 00000000 		.word	hspi2
+ 293 0090 00000000 		.word	.LANCHOR0
+ 294              		.cfi_endproc
+ 295              	.LFE132:
+ 297              		.section	.text.max5307_enable_chanel,"ax",%progbits
+ 298              		.align	1
+ 299              		.global	max5307_enable_chanel
+ 300              		.syntax unified
+ 301              		.thumb
+ 302              		.thumb_func
+ 303              		.fpu fpv4-sp-d16
+ 305              	max5307_enable_chanel:
+ 306              	.LVL21:
+ 307              	.LFB133:
+  52:Core/Src/max5307.c **** 
+  53:Core/Src/max5307.c **** void max5307_enable_chanel(enum max5306_chanel chanel){
+ 308              		.loc 1 53 55 view -0
+ 309              		.cfi_startproc
+ 310              		@ args = 0, pretend = 0, frame = 8
+ 311              		@ frame_needed = 0, uses_anonymous_args = 0
+ 312              		.loc 1 53 55 is_stmt 0 view .LVU54
+ 313 0000 30B5     		push	{r4, r5, lr}
+ 314              	.LCFI8:
+ 315              		.cfi_def_cfa_offset 12
+ 316              		.cfi_offset 4, -12
+ 317              		.cfi_offset 5, -8
+ 318              		.cfi_offset 14, -4
+ 319 0002 83B0     		sub	sp, sp, #12
+ 320              	.LCFI9:
+ 321              		.cfi_def_cfa_offset 24
+ 322 0004 0446     		mov	r4, r0
+  54:Core/Src/max5307.c **** 	uint16_t dat;
+ 323              		.loc 1 54 2 is_stmt 1 view .LVU55
+  55:Core/Src/max5307.c **** 	HAL_GPIO_WritePin(DAC_CS_GPIO_Port, DAC_CS_Pin, GPIO_PIN_RESET);
+ 324              		.loc 1 55 2 view .LVU56
+ 325 0006 134D     		ldr	r5, .L17
+ 326 0008 0022     		movs	r2, #0
+ 327 000a 4FF40071 		mov	r1, #512
+ 328 000e 2846     		mov	r0, r5
+ 329              	.LVL22:
+ 330              		.loc 1 55 2 is_stmt 0 view .LVU57
+ 331 0010 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 332              	.LVL23:
+  56:Core/Src/max5307.c ****   
+  57:Core/Src/max5307.c **** 	dat = 0xe000 | 0x01<<(chanel+2) | outputList;
+ 333              		.loc 1 57 2 is_stmt 1 view .LVU58
+ 334              		.loc 1 57 30 is_stmt 0 view .LVU59
+ 335 0014 A01C     		adds	r0, r4, #2
+ 336              		.loc 1 57 21 view .LVU60
+ 337 0016 0124     		movs	r4, #1
+ 338 0018 04FA00F0 		lsl	r0, r4, r0
+ 339              		.loc 1 57 34 view .LVU61
+ 340 001c 0E4A     		ldr	r2, .L17+4
+ARM GAS  /tmp/ccjxrueq.s 			page 8
+
+
+ 341 001e 1188     		ldrh	r1, [r2]
+ 342 0020 41EA0003 		orr	r3, r1, r0
+ 343 0024 6FEAC343 		mvn	r3, r3, lsl #19
+ 344 0028 6FEAD343 		mvn	r3, r3, lsr #19
+ 345              		.loc 1 57 6 view .LVU62
+ 346 002c ADF80630 		strh	r3, [sp, #6]	@ movhi
+  58:Core/Src/max5307.c **** 	outputList = outputList | 0x01<<(chanel+2);
+ 347              		.loc 1 58 2 is_stmt 1 view .LVU63
+ 348              		.loc 1 58 26 is_stmt 0 view .LVU64
+ 349 0030 0843     		orrs	r0, r0, r1
+ 350              		.loc 1 58 13 view .LVU65
+ 351 0032 1080     		strh	r0, [r2]	@ movhi
+  59:Core/Src/max5307.c **** 	HAL_SPI_Transmit(&hspi2, (uint8_t *)&dat, 1, 10);
+ 352              		.loc 1 59 2 is_stmt 1 view .LVU66
+ 353 0034 0A23     		movs	r3, #10
+ 354 0036 2246     		mov	r2, r4
+ 355 0038 0DF10601 		add	r1, sp, #6
+ 356 003c 0748     		ldr	r0, .L17+8
+ 357 003e FFF7FEFF 		bl	HAL_SPI_Transmit
+ 358              	.LVL24:
+  60:Core/Src/max5307.c **** 	
+  61:Core/Src/max5307.c ****   //HAL_Delay(3);
+  62:Core/Src/max5307.c ****   HAL_GPIO_WritePin(DAC_CS_GPIO_Port, DAC_CS_Pin, GPIO_PIN_SET);
+ 359              		.loc 1 62 3 view .LVU67
+ 360 0042 2246     		mov	r2, r4
+ 361 0044 4FF40071 		mov	r1, #512
+ 362 0048 2846     		mov	r0, r5
+ 363 004a FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 364              	.LVL25:
+  63:Core/Src/max5307.c **** }
+ 365              		.loc 1 63 1 is_stmt 0 view .LVU68
+ 366 004e 03B0     		add	sp, sp, #12
+ 367              	.LCFI10:
+ 368              		.cfi_def_cfa_offset 12
+ 369              		@ sp needed
+ 370 0050 30BD     		pop	{r4, r5, pc}
+ 371              	.L18:
+ 372 0052 00BF     		.align	2
+ 373              	.L17:
+ 374 0054 00040240 		.word	1073873920
+ 375 0058 00000000 		.word	.LANCHOR0
+ 376 005c 00000000 		.word	hspi2
+ 377              		.cfi_endproc
+ 378              	.LFE133:
+ 380              		.section	.text.max5307_disable_chanel,"ax",%progbits
+ 381              		.align	1
+ 382              		.global	max5307_disable_chanel
+ 383              		.syntax unified
+ 384              		.thumb
+ 385              		.thumb_func
+ 386              		.fpu fpv4-sp-d16
+ 388              	max5307_disable_chanel:
+ 389              	.LVL26:
+ 390              	.LFB134:
+  64:Core/Src/max5307.c **** 
+  65:Core/Src/max5307.c **** void max5307_disable_chanel(enum max5306_chanel chanel){
+ 391              		.loc 1 65 56 is_stmt 1 view -0
+ARM GAS  /tmp/ccjxrueq.s 			page 9
+
+
+ 392              		.cfi_startproc
+ 393              		@ args = 0, pretend = 0, frame = 8
+ 394              		@ frame_needed = 0, uses_anonymous_args = 0
+ 395              		.loc 1 65 56 is_stmt 0 view .LVU70
+ 396 0000 30B5     		push	{r4, r5, lr}
+ 397              	.LCFI11:
+ 398              		.cfi_def_cfa_offset 12
+ 399              		.cfi_offset 4, -12
+ 400              		.cfi_offset 5, -8
+ 401              		.cfi_offset 14, -4
+ 402 0002 83B0     		sub	sp, sp, #12
+ 403              	.LCFI12:
+ 404              		.cfi_def_cfa_offset 24
+ 405 0004 0446     		mov	r4, r0
+  66:Core/Src/max5307.c **** 	uint16_t dat;
+ 406              		.loc 1 66 2 is_stmt 1 view .LVU71
+  67:Core/Src/max5307.c **** 	HAL_GPIO_WritePin(DAC_CS_GPIO_Port, DAC_CS_Pin, GPIO_PIN_RESET);
+ 407              		.loc 1 67 2 view .LVU72
+ 408 0006 114D     		ldr	r5, .L21
+ 409 0008 0022     		movs	r2, #0
+ 410 000a 4FF40071 		mov	r1, #512
+ 411 000e 2846     		mov	r0, r5
+ 412              	.LVL27:
+ 413              		.loc 1 67 2 is_stmt 0 view .LVU73
+ 414 0010 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 415              	.LVL28:
+  68:Core/Src/max5307.c ****   dat = 0xe000 & (0xfffffffe<<(chanel+2)) | outputList;
+ 416              		.loc 1 68 3 is_stmt 1 view .LVU74
+ 417              		.loc 1 68 38 is_stmt 0 view .LVU75
+ 418 0014 0234     		adds	r4, r4, #2
+ 419              		.loc 1 68 29 view .LVU76
+ 420 0016 6FF00100 		mvn	r0, #1
+ 421 001a A040     		lsls	r0, r0, r4
+ 422              		.loc 1 68 16 view .LVU77
+ 423 001c 00F46043 		and	r3, r0, #57344
+ 424              		.loc 1 68 43 view .LVU78
+ 425 0020 0B4A     		ldr	r2, .L21+4
+ 426 0022 1188     		ldrh	r1, [r2]
+ 427 0024 0B43     		orrs	r3, r3, r1
+ 428              		.loc 1 68 7 view .LVU79
+ 429 0026 ADF80630 		strh	r3, [sp, #6]	@ movhi
+  69:Core/Src/max5307.c **** 	outputList = outputList & (0xfffffffe<<(chanel+2));
+ 430              		.loc 1 69 2 is_stmt 1 view .LVU80
+ 431              		.loc 1 69 26 is_stmt 0 view .LVU81
+ 432 002a 0840     		ands	r0, r0, r1
+ 433              		.loc 1 69 13 view .LVU82
+ 434 002c 1080     		strh	r0, [r2]	@ movhi
+  70:Core/Src/max5307.c **** 	
+  71:Core/Src/max5307.c **** 	HAL_SPI_Transmit(&hspi2, (uint8_t *)&dat, 1, 10);
+ 435              		.loc 1 71 2 is_stmt 1 view .LVU83
+ 436 002e 0A23     		movs	r3, #10
+ 437 0030 0122     		movs	r2, #1
+ 438 0032 0DF10601 		add	r1, sp, #6
+ 439 0036 0748     		ldr	r0, .L21+8
+ 440 0038 FFF7FEFF 		bl	HAL_SPI_Transmit
+ 441              	.LVL29:
+  72:Core/Src/max5307.c **** 	
+ARM GAS  /tmp/ccjxrueq.s 			page 10
+
+
+  73:Core/Src/max5307.c ****   //HAL_Delay(3);
+  74:Core/Src/max5307.c ****   HAL_GPIO_WritePin(DAC_CS_GPIO_Port, DAC_CS_Pin, GPIO_PIN_SET);
+ 442              		.loc 1 74 3 view .LVU84
+ 443 003c 0122     		movs	r2, #1
+ 444 003e 4FF40071 		mov	r1, #512
+ 445 0042 2846     		mov	r0, r5
+ 446 0044 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 447              	.LVL30:
+  75:Core/Src/max5307.c **** }
+ 448              		.loc 1 75 1 is_stmt 0 view .LVU85
+ 449 0048 03B0     		add	sp, sp, #12
+ 450              	.LCFI13:
+ 451              		.cfi_def_cfa_offset 12
+ 452              		@ sp needed
+ 453 004a 30BD     		pop	{r4, r5, pc}
+ 454              	.L22:
+ 455              		.align	2
+ 456              	.L21:
+ 457 004c 00040240 		.word	1073873920
+ 458 0050 00000000 		.word	.LANCHOR0
+ 459 0054 00000000 		.word	hspi2
+ 460              		.cfi_endproc
+ 461              	.LFE134:
+ 463              		.section	.bss.outputList,"aw",%nobits
+ 464              		.align	1
+ 465              		.set	.LANCHOR0,. + 0
+ 468              	outputList:
+ 469 0000 0000     		.space	2
+ 470              		.text
+ 471              	.Letext0:
+ 472              		.file 2 "/home/cahill/stm32cubeMx/install_bin/gcc-arm-none-eabi-9-2020-q2-update/arm-none-eabi/inc
+ 473              		.file 3 "/home/cahill/stm32cubeMx/install_bin/gcc-arm-none-eabi-9-2020-q2-update/arm-none-eabi/inc
+ 474              		.file 4 "Drivers/CMSIS/Include/core_cm4.h"
+ 475              		.file 5 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h"
+ 476              		.file 6 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f405xx.h"
+ 477              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 478              		.file 8 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h"
+ 479              		.file 9 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 480              		.file 10 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h"
+ 481              		.file 11 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h"
+ 482              		.file 12 "Core/Inc/max5307.h"
+ARM GAS  /tmp/ccjxrueq.s 			page 11
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 max5307.c
+     /tmp/ccjxrueq.s:18     .text.init_max5307:0000000000000000 $t
+     /tmp/ccjxrueq.s:26     .text.init_max5307:0000000000000000 init_max5307
+     /tmp/ccjxrueq.s:123    .text.init_max5307:000000000000008c $d
+     /tmp/ccjxrueq.s:130    .text.max5307_loadpin:0000000000000000 $t
+     /tmp/ccjxrueq.s:137    .text.max5307_loadpin:0000000000000000 max5307_loadpin
+     /tmp/ccjxrueq.s:166    .text.max5307_loadpin:0000000000000020 $d
+     /tmp/ccjxrueq.s:171    .text.max5307_w_chanel:0000000000000000 $t
+     /tmp/ccjxrueq.s:178    .text.max5307_w_chanel:0000000000000000 max5307_w_chanel
+     /tmp/ccjxrueq.s:291    .text.max5307_w_chanel:0000000000000088 $d
+     /tmp/ccjxrueq.s:298    .text.max5307_enable_chanel:0000000000000000 $t
+     /tmp/ccjxrueq.s:305    .text.max5307_enable_chanel:0000000000000000 max5307_enable_chanel
+     /tmp/ccjxrueq.s:374    .text.max5307_enable_chanel:0000000000000054 $d
+     /tmp/ccjxrueq.s:381    .text.max5307_disable_chanel:0000000000000000 $t
+     /tmp/ccjxrueq.s:388    .text.max5307_disable_chanel:0000000000000000 max5307_disable_chanel
+     /tmp/ccjxrueq.s:457    .text.max5307_disable_chanel:000000000000004c $d
+     /tmp/ccjxrueq.s:464    .bss.outputList:0000000000000000 $d
+     /tmp/ccjxrueq.s:468    .bss.outputList:0000000000000000 outputList
+
+UNDEFINED SYMBOLS
+HAL_GPIO_WritePin
+HAL_Delay
+HAL_SPI_Transmit
+hspi2

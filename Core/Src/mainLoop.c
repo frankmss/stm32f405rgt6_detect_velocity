@@ -14,17 +14,22 @@ extern TIM_HandleTypeDef htim5; //用来做1s的定时器
 extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
 // floating point support in printf isn't enabled by default. To enable, add -u _printf_float to your LDFLAGS.
-//int _write(int fd, char* ptr, int len) {
-//    HAL_UART_Transmit(&huart2, (uint8_t *) ptr, len, HAL_MAX_DELAY);
-//    return len;
-//}
-
-int fputc(int ch, FILE *f)
-{
-  /* Your implementation of fputc(). */
-	HAL_UART_Transmit(&huart2, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
-  return ch;
+//for ubuntu arm-none-eabi-gcc compile
+int _write(int fd, char* ptr, int len) {
+   HAL_UART_Transmit(&huart2, (uint8_t *) ptr, len, HAL_MAX_DELAY);
+   return len;
 }
+
+//for windows keil compile
+// int fputc(int ch, FILE *f)
+// {
+//   /* Your implementation of fputc(). */
+// 	HAL_UART_Transmit(&huart2, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
+//   return ch;
+// }
+
+
+
 
 #define CAPNUM 100
 uint32_t chanl1_capNum[CAPNUM] ;
@@ -487,7 +492,7 @@ void insertMeanVal(int32_t val, struct adc_buf_t* adc_buf){
 	
 	
 }
-
+struct log_para_t logPara; //用于向host发送调试过程数据，在cal_cp_output_dac_ext过程中保存
 int32_t meanVal_view = 0;
 int32_t difVal_view = 0;
 #define RUN_30S 180000 //about 90S
@@ -495,13 +500,15 @@ void cal_cp_output_dac_ext(struct adc_buf_t* adc_buf, uint32_t *dacP, uint32_t *
 	int32_t i=0;
 	int32_t N=ADC_BUF_T_SIZE*2;
 	int32_t allSum=0;
+	uint16_t forSaveAllSum=0;
 	uint32_t tmpUint32=0;
 	int32_t deltNoisV = 0;
 	for(i=0; i<N; i++){
 		allSum += (int32_t) ((adc_buf->buf[i/2]&0x0fff));
 	}
-	
-	allSum = allSum/N - TARGET_CPV;
+	allSum = allSum/N;
+	forSaveAllSum = allSum;
+	allSum = allSum - TARGET_CPV;
 	insertMeanVal(allSum,adc_buf);
 	meanVal_view = adc_buf->adcMeanVal;
 	difVal_view  = adc_buf->adcDif2;
@@ -545,6 +552,9 @@ void cal_cp_output_dac_ext(struct adc_buf_t* adc_buf, uint32_t *dacP, uint32_t *
 	for(i=0; i<ADC_BUF_T_SIZE; i++){
 		adc_buf->buf[i]=0;
 	}
+	logPara.mean_adc_val = forSaveAllSum;
+	logPara.dac_val_n = (*dacN);
+	logPara.dac_val_p = (*dacP);
 }
 
 uint32_t adc1_ok=0,adc2_ok=0;
@@ -562,7 +572,7 @@ void fakeDelay(int32_t delay){
 		}
 	}
 }
-
+uint8_t logBufDma[20];
 uint16_t ad9520_reg=0;
 uint32_t locked = 0;
 uint32_t adcVal,lastAdcVal;
@@ -587,20 +597,23 @@ void mainLoop1(void){
 		max5307_w_chanel(DACN_1K,(value_dacN&0xFFF),max_outenable);
 	}while(0);
 		
-//HAL_DAC_Start(&hdac1,DAC_CHANNEL_2);
-	//HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
-	//HAL_ADC_Start_DMA(&hadc1,(uint32_t*)value_adc1,ADC_TIMES_N);
-	//HAL_Delay(1);	
-	//HAL_ADC_Start_DMA(&hadc2,(uint32_t*)value_adc2,ADC_TIMES_N); 
-	
+
 	init_ad9520();
-	SystemClock_Config();//from main.c
+	//SystemClock_Config();//from main.c
+	//fprintf(logBufDma,"helloworld");
+	for(int i=0;i<10;i++){
+		logBufDma[i] = 65 + i;
+	}
+	logBufDma[0] = 35;//'#'
+	
+	HAL_UART_IRQHandler(&huart2); //must add this, ornot uart2 dma not work
+	HAL_UART_Transmit_DMA(&huart2, logBufDma, 11);
+	
 	HAL_Delay(1);
 	adc1_ok=0;adc2_ok=0;
-	//HAL_ADC_Start_DMA(&hadc1,(uint32_t*)value_adc1,ADC_TIMES_N);
+	
 	HAL_ADC_Start_DMA(&hadc1,(uint32_t*)adc1_t1.buf ,ADC_BUF_T_SIZE*2);
-	//HAL_Delay(1);	
-	//HAL_ADC_Start_DMA(&hadc2,(uint32_t*)value_adc2,ADC_TIMES_N); 
+	
 /* USER CODE END 2 */
 	
 	while(1){
@@ -622,7 +635,8 @@ void mainLoop1(void){
 			adc1_t2.adc_cap_ok = CALOK;
 			runTimes++; //log run time runTimes+1 = 500us,
 		}
-		
+		//printf("hello stm32 detect vel\n");
+		//HAL_Delay(100);
 	}
 }
 
@@ -642,10 +656,24 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
 			HAL_ADC_Start_DMA(&hadc1,(uint32_t*)adc1_t2.buf ,ADC_BUF_T_SIZE*2);
 			adc1_t2.adc_cap_ok = ADCCAPOK;
 		}else{
-			HAL_GPIO_TogglePin(LED4_GPIO_Port, LED4_Pin);
+			
 		}
 		HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
+	}
+}
+     
+//void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef *huart){
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
+	if(huart == &huart2){
+		uint16_t *padcv = (uint16_t *)(&logBufDma[1]);
+		uint32_t *pdacp = (uint32_t *)(&logBufDma[3]);
+		uint32_t *pdacn = (uint32_t *)(&logBufDma[7]);
+		*padcv = logPara.mean_adc_val;
+		*pdacp = logPara.dac_val_p;
+		*pdacn = logPara.dac_val_n;
 
-		//HAL_ADC_Start_DMA(&hadc1,(uint32_t*)value_adc1,ADC_TIMES_N);
+		HAL_UART_Transmit_DMA(&huart2, logBufDma, 11);
+		
+		HAL_GPIO_TogglePin(LED4_GPIO_Port, LED4_Pin);
 	}
 }

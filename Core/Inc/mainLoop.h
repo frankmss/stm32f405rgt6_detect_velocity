@@ -15,6 +15,13 @@ struct adc_buf_t{
 	int32_t adcDif2;
 };
 
+//用于通过uart2向host发送过程数据
+struct log_para_t{
+	uint16_t mean_adc_val;
+	uint32_t dac_val_p;
+	uint32_t dac_val_n;
+};
+
 void mainLoop(void);
 void mainLoop1(void);
 #endif

@@ -26,7 +26,7 @@
         }
       ],
       "miDebuggerPath": "/home/cahill/stm32cubeMx/install_bin/gcc-arm-none-eabi-9-2020-q2-update/bin/arm-none-eabi-gdb",
-      "miDebuggerServerAddress": "192.168.0.60:3330"
+      "miDebuggerServerAddress": "192.168.0.70:3340"
       //"miDebuggerServerAddress": "10.10.0.1:3330"
     }
   ]
