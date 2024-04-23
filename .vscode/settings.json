@@ -1,0 +1,9 @@
+{
+  "files.associations": {
+    "*.lsp": "html",
+    "typeinfo": "cpp",
+    "main.h": "c",
+    "stm32f4xx_hal.h": "c",
+    "mainloop.h": "c"
+  }
+}

@@ -1,0 +1,41 @@
+mar 29/14:16:57.700 DEBUG2 : 		
+
+StartSession()
+
+mar 29/14:16:57.700 INFO   : Debug Log(info): Loading the CMSIS-DAP driver
+mar 29/14:16:58.262 DEBUG2 : 		-> ConnectToHardware()
+mar 29/14:16:58.262 DEBUG2 : 		-> CreateJetTerminal()
+mar 29/14:16:58.262 DEBUG2 : 		<- CreateJetTerminal()
+mar 29/14:16:58.262 DEBUG2 : 		-> AcquireSigAPIPtr()
+mar 29/14:16:58.262 DEBUG2 : 		  SigAPISetPath('C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.1\arm\bin\jet\bin')
+mar 29/14:16:58.336 DEBUG2 : 		<- AcquireSigAPIPtr()
+mar 29/14:16:58.336 DEBUG2 : 		-> AcquireSigProbe()
+mar 29/14:16:58.425 DEBUG2 : 		  SigProbe version: 1.13
+mar 29/14:16:58.425 DEBUG2 : 		<- AcquireSigProbe()
+mar 29/14:16:58.425 DEBUG2 : 		-> SigProbeInit()
+mar 29/14:16:58.426 INFO   : Debug Log(info): Probe: CMSIS-DAP probe SW module ver 1.13
+
+mar 29/14:16:58.426 INFO   : Probe: CMSIS-DAP probe SW module ver 1.13
+
+mar 29/14:16:58.426 DEBUG2 : 		<- SigProbeInit()
+mar 29/14:16:58.426 DEBUG2 : 		-> ConnectToProbe()
+mar 29/14:16:58.429 DEBUG2 : 		  ISigProbe::EnumScan()
+mar 29/14:16:58.433 DEBUG2 : 		  scanning finished: found 0 probes
+mar 29/14:17:03.025 INFO   : Debug Log(error): Fatal error: Probe not found   Session aborted!
+mar 29/14:17:03.025 DEBUG2 : 		<- ConnectToProbe()
+mar 29/14:17:03.025 DEBUG2 : 		<- ConnectToHardware()
+mar 29/14:17:03.026 DEBUG2 : 		********** 'Controlled' exception (1) caught in DbBeginSession
+mar 29/14:17:03.026 INFO   : Debug Log(info): Unloaded macro file: C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.1\arm\config\flashloader\ST\FlashSTM32F4xxx.mac
+mar 29/14:17:03.215 DEBUG2 : 		-> AboutToStopSession()
+mar 29/14:17:03.217 DEBUG2 : 		<- AboutToStopSession()
+mar 29/14:17:03.524 DEBUG2 : 		-> PrepareStopSession()
+mar 29/14:17:03.524 DEBUG2 : 		<- PrepareStopSession()
+mar 29/14:17:03.573 DEBUG2 : 		StopGui()
+mar 29/14:17:03.760 DEBUG2 : 		-> StopSession()
+mar 29/14:17:03.764 DEBUG2 : 		-> TerminateHardware()
+mar 29/14:17:03.765 DEBUG2 : 		  SigAPITerm()
+mar 29/14:17:03.766 DEBUG2 : 		<- TerminateHardware()
+mar 29/14:17:03.766 DEBUG2 : 		<- StopSession()
+mar 29/14:17:03.766 DEBUG2 : 		-> ~TdJetDriver()
+mar 29/14:17:03.766 DEBUG2 : 		-> TerminateHardware()
+mar 29/14:17:03.766 DEBUG2 : 		<- TerminateHardware()

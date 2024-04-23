@@ -1,0 +1,764 @@
+#include "ad9520_function.h"
+
+extern SPI_HandleTypeDef hspi1;
+// 初始化stm32f4到ad9520的spi接口
+
+// #define spi1_cs_Pin GPIO_PIN_4
+// #define spi1_cs_GPIO_Port GPIOC
+
+ad9520_regs_t ad9520_regs = {
+    .serial_port_conf = {0x00, 0x00,0x00},
+    .part_id = {0x03, 0x00,0x00},
+    .eeprom_custom_id_0 = {0x05, 0x00   ,0x00},
+    .eeprom_custom_id_1 = {0x06, 0x00   ,0x00},
+
+    .PFD_charge_pump= {0x010, 0x00  ,0x00},
+    .R_counter_l = {0x011, 0x00 ,0x00},
+    .R_counter_h = {0x012, 0x00 ,0x00},
+    .A_counter = {0x013, 0x00   ,0x00},
+    .B_counter_l = {0x014, 0x00 ,0x00},
+    .B_counter_h = {0x015, 0x00 ,0x00},
+    .pll_ctrl_1 = {0x016, 0x00  ,0x00},
+    .pll_ctrl_2 = {0x017, 0x00  ,0x00},
+    .pll_ctrl_3 = {0x018, 0x00  ,0x00},
+    .pll_ctrl_4 = {0x019, 0x00  ,0x00},
+    .pll_ctrl_5 = {0x01a, 0x00  ,0x00},
+    .pll_ctrl_6 = {0x01b, 0x00  ,0x00},
+    .pll_ctrl_7 = {0x01c, 0x00  ,0x00},
+    .pll_ctrl_8 = {0x01d, 0x00  ,0x00},
+    .pll_ctrl_9 = {0x01e, 0x00  ,0x00},
+    .pll_readback = {0x01f, 0x00    ,0x00},
+
+    .out0_control = {0x0f0, 0x00    ,0x00},
+    .out1_control = {0x0f1, 0x00    ,0x00},
+    .out2_control = {0x0f2, 0x00    ,0x00},
+    .out3_control = {0x0f3, 0x00    ,0x00},
+    .out4_control = {0x0f4, 0x00    ,0x00},
+    .out5_control = {0x0f5, 0x00    ,0x00},
+    .out6_control = {0x0f6, 0x00    ,0x00},
+    .out7_control = {0x0f7, 0x00    ,0x00},
+    .out8_control = {0x0f8, 0x00    ,0x00},
+    .out9_control = {0x0f9, 0x00    ,0x00},
+    .out10_control = {0x0fa, 0x00   ,0x00},
+    .out11_control = {0x0fb, 0x00   ,0x00},
+    .enable_output_on_csdld_l = {0x0fc, 0x00    ,0x00},
+    .enable_output_on_csdld_h = {0x0fd, 0x00    ,0x00},
+
+    .divider_0_0 = {0x190, 0x00 ,0x00},
+    .divider_0_1 = {0x191, 0x00,0x00},
+    .divider_0_2 = {0x192, 0x00,0x00},
+
+    .divider_1_0 = {0x193, 0x00,0x00},
+    .divider_1_1 = {0x194, 0x00,0x00},
+    .divider_1_2 = {0x195, 0x00,0x00},
+
+    .divider_2_0 = {0x196, 0x00,0x00},
+    .divider_2_1 = {0x197, 0x00,0x00},
+    .divider_2_2 = {0x198, 0x00,0x00},
+
+    .divider_3_0 = {0x199, 0x00,0x00},
+    .divider_3_1 = {0x19a, 0x00,0x00},
+    .divider_3_2 = {0x19b, 0x00,0x00},
+
+    .vco_divider = {0x1e0, 0x00,0x00},
+    .input_clks = {0x1e1, 0x00,0x00},
+    
+    .power_down = {0x230, 0x00,0x00},
+    .io_update = {0x232, 0x00,0x00},
+
+};
+
+void init_ad9520_spiport(void){
+    // 初始化spi_cs引脚状态，设置这个引脚为高电平
+    HAL_GPIO_WritePin(spi1_cs_GPIO_Port, spi1_cs_Pin, GPIO_PIN_SET);
+}
+
+// 写ad9520寄存器
+void write_ad9520_reg(uint16_t reg_addr, uint16_t reg_data){
+    // 1. 设置spi_cs引脚为低电平
+    HAL_GPIO_WritePin(spi1_cs_GPIO_Port, spi1_cs_Pin, GPIO_PIN_RESET);
+    // 2. 发送寄存器地址
+    HAL_Delay(3);
+    HAL_SPI_Transmit(&hspi1, (uint8_t *)&reg_addr, 1, 100);
+    // 3. 发送寄存器数据
+    HAL_SPI_Transmit(&hspi1, (uint8_t *)&reg_data, 1, 100);
+    // 4. 设置spi_cs引脚为高电平
+    HAL_Delay(3);
+    HAL_GPIO_WritePin(spi1_cs_GPIO_Port, spi1_cs_Pin, GPIO_PIN_SET);
+}
+// 读ad9520寄存器
+void read_ad9520_reg(uint16_t reg_addr, uint16_t *reg_data){
+    //uint16_t read_data;
+    // 1. 设置spi_cs引脚为低电平
+    HAL_GPIO_WritePin(spi1_cs_GPIO_Port, spi1_cs_Pin, GPIO_PIN_RESET);
+    // 2. 发送寄存器地址
+    HAL_Delay(1);
+    HAL_SPI_Transmit(&hspi1, (uint8_t *)&reg_addr, 1, 100);
+    // 3. 发送寄存器数据
+    HAL_SPI_Receive(&hspi1, (uint8_t *)reg_data, 1, 100);
+    // 4. 设置spi_cs引脚为高电平
+    HAL_Delay(1);
+    HAL_GPIO_WritePin(spi1_cs_GPIO_Port, spi1_cs_Pin, GPIO_PIN_SET);
+    //return read_data;
+}
+
+// 读ad9520所有寄存器的默认值,并保存到ad9520_regs数组中的reg_setval成员中
+void read_ad9520_all_regs_setdefaultVal(void){
+    int32_t i;
+    int32_t sizes = sizeof(ad9520_regs)/sizeof(struct ad9520_reg);
+    uint16_t tmp_add_read1byte, tmp_data_read1byte;
+    ad9520_reg_t *pad9520_reg = (ad9520_reg_t *)(&ad9520_regs);
+    for(i=0; i<sizes; i++){
+        tmp_add_read1byte = (pad9520_reg+i)->reg_addr | RD_OPR;
+        
+        read_ad9520_reg(tmp_add_read1byte, &tmp_data_read1byte);
+        (pad9520_reg+i)->reg_data = tmp_data_read1byte>>8;
+        (pad9520_reg+i)->reg_setval = (pad9520_reg+i)->reg_data;
+
+    }
+}
+
+
+uint16_t tmpx=0;
+void update_ad9520_regs(void){
+    //write_ad9520_reg(ad9520_regs.serial_port_conf.reg_addr|WR_OPR2, 0xa0a0); //set spi sdo mode
+    //HAL_Delay(30);
+    //write_ad9520_reg(ad9520_regs.io_update.reg_addr|WR_OPR2, 0x0000);
+    //HAL_Delay(30);
+    write_ad9520_reg(ad9520_regs.io_update.reg_addr|WR_OPR2, 0x0100);
+    //HAL_Delay(30);
+    write_ad9520_reg(ad9520_regs.io_update.reg_addr|WR_OPR2, 0x0000);
+}
+
+//设置ad9520的spi端口
+void set_ad9520_spiport(void){
+
+    write_ad9520_reg(ad9520_regs.serial_port_conf.reg_addr|WR_OPR2, 0x0202); //soft reset
+    //HAL_Delay(30);
+    write_ad9520_reg(ad9520_regs.serial_port_conf.reg_addr|WR_OPR2, 0xa0a0); //set spi sdo mode
+    //HAL_Delay(30);
+    write_ad9520_reg(ad9520_regs.io_update.reg_addr|WR_OPR2, 0x0000);
+    //HAL_Delay(30);
+    write_ad9520_reg(ad9520_regs.io_update.reg_addr|WR_OPR2, 0x0100);
+    //HAL_Delay(30);
+    write_ad9520_reg(ad9520_regs.io_update.reg_addr|WR_OPR2, 0x0000);
+    //HAL_Delay(30);
+    
+
+}
+
+//设置ad9520的EEPROM custom id reg
+void set_ad9520_eeprom_custom_id_reg(uint16_t custom_id){
+    read_ad9520_reg(ad9520_regs.eeprom_custom_id_1.reg_addr|RD_OPR, &tmpx);
+    HAL_Delay(30);
+    write_ad9520_reg(ad9520_regs.eeprom_custom_id_1.reg_addr|WR_OPR2, custom_id);
+    HAL_Delay(30);
+    read_ad9520_reg(ad9520_regs.eeprom_custom_id_1.reg_addr|RD_OPR, &tmpx);
+    HAL_Delay(30);
+}
+
+//设置ad9520寄存器的用户值
+void set_custom_val(void){
+    ad9520_regs.divider_3_0.reg_setval = 0x22;
+    ad9520_regs.input_clks.reg_setval = 1;//ad9520_regs.input_clks.reg_setval & (~(0x1<<4)); // page74,Power down clock input section bit =0
+    ad9520_regs.divider_3_2.reg_setval = 0x1<<1;;
+    int32_t i=0;
+    int32_t sizes = sizeof(ad9520_regs)/sizeof(struct ad9520_reg);
+    //uint16_t tmp_add_read1byte, tmp_data_read1byte;
+    ad9520_reg_t *pad9520_reg = (ad9520_reg_t *)(&ad9520_regs);
+    for(i=0; i<sizes; i++){
+        if((pad9520_reg+i)->reg_data != (pad9520_reg+i)->reg_setval){
+            write_ad9520_reg((pad9520_reg+i)->reg_addr|WR_OPR1, ((pad9520_reg+i)->reg_setval)<<8);   
+            
+        }
+
+    }
+    //set_ad9520_spiport();
+    update_ad9520_regs();
+}
+
+// ad9520寄存器初始化
+void init_ad9520(){
+    init_ad9520_spiport();
+    set_ad9520_spiport();
+    set_ad9520_eeprom_custom_id_reg(0xeb90);
+    read_ad9520_all_regs_setdefaultVal();
+    
+    HAL_Delay(30);
+    set_custom_val();
+    HAL_Delay(30);
+    read_ad9520_all_regs_setdefaultVal();
+    HAL_Delay(30);
+}
+
+
+//########################################################################
+
+#include "main.h"
+#include "AD9520.h"
+#include <stdio.h>
+#include <string.h>
+
+#include "ad9520_function.h"
+
+extern SPI_HandleTypeDef hspi1;
+
+
+
+void init_ad9520_spiport(void){
+    // 初始化spi_cs引脚状态，设置这个引脚为高电平
+    HAL_GPIO_WritePin(spi1_cs_GPIO_Port, spi1_cs_Pin, GPIO_PIN_SET);
+}
+
+
+ad9520_regs_t ad9520_regs = {
+    .serial_port_conf = {0x00, 0x00,0x00},
+    .part_id = {0x03, 0x00,0x00},
+    .eeprom_custom_id_0 = {0x05, 0x00   ,0x00},
+    .eeprom_custom_id_1 = {0x06, 0x00   ,0x00},
+
+    .PFD_charge_pump= {0x010, 0x00  ,0x00},
+    .R_counter_l = {0x011, 0x00 ,0x00},
+    .R_counter_h = {0x012, 0x00 ,0x00},
+    .A_counter = {0x013, 0x00   ,0x00},
+    .B_counter_l = {0x014, 0x00 ,0x00},
+    .B_counter_h = {0x015, 0x00 ,0x00},
+    .pll_ctrl_1 = {0x016, 0x00  ,0x00},
+    .pll_ctrl_2 = {0x017, 0x00  ,0x00},
+    .pll_ctrl_3 = {0x018, 0x00  ,0x00},
+    .pll_ctrl_4 = {0x019, 0x00  ,0x00},
+    .pll_ctrl_5 = {0x01a, 0x00  ,0x00},
+    .pll_ctrl_6 = {0x01b, 0x00  ,0x00},
+    .pll_ctrl_7 = {0x01c, 0x00  ,0x00},
+    .pll_ctrl_8 = {0x01d, 0x00  ,0x00},
+    .pll_ctrl_9 = {0x01e, 0x00  ,0x00},
+    .pll_readback = {0x01f, 0x00    ,0x00},
+
+    .out0_control = {0x0f0, 0x00    ,0x00},
+    .out1_control = {0x0f1, 0x00    ,0x00},
+    .out2_control = {0x0f2, 0x00    ,0x00},
+    .out3_control = {0x0f3, 0x00    ,0x00},
+    .out4_control = {0x0f4, 0x00    ,0x00},
+    .out5_control = {0x0f5, 0x00    ,0x00},
+    .out6_control = {0x0f6, 0x00    ,0x00},
+    .out7_control = {0x0f7, 0x00    ,0x00},
+    .out8_control = {0x0f8, 0x00    ,0x00},
+    .out9_control = {0x0f9, 0x00    ,0x00},
+    .out10_control = {0x0fa, 0x00   ,0x00},
+    .out11_control = {0x0fb, 0x00   ,0x00},
+    .enable_output_on_csdld_l = {0x0fc, 0x00    ,0x00},
+    .enable_output_on_csdld_h = {0x0fd, 0x00    ,0x00},
+
+    .divider_0_0 = {0x190, 0x00 ,0x00},
+    .divider_0_1 = {0x191, 0x00,0x00},
+    .divider_0_2 = {0x192, 0x00,0x00},
+
+    .divider_1_0 = {0x193, 0x00,0x00},
+    .divider_1_1 = {0x194, 0x00,0x00},
+    .divider_1_2 = {0x195, 0x00,0x00},
+
+    .divider_2_0 = {0x196, 0x00,0x00},
+    .divider_2_1 = {0x197, 0x00,0x00},
+    .divider_2_2 = {0x198, 0x00,0x00},
+
+    .divider_3_0 = {0x199, 0x00,0x00},
+    .divider_3_1 = {0x19a, 0x00,0x00},
+    .divider_3_2 = {0x19b, 0x00,0x00},
+
+    .vco_divider = {0x1e0, 0x00,0x00},
+    .input_clks = {0x1e1, 0x00,0x00},
+    
+    .power_down = {0x230, 0x00,0x00},
+    .io_update = {0x232, 0x00,0x00},
+
+};
+
+
+
+// 写ad9520寄存器
+void write_ad9520_reg(uint16_t reg_addr, uint16_t reg_data){
+    // 1. 设置spi_cs引脚为低电平
+    HAL_GPIO_WritePin(spi1_cs_GPIO_Port, spi1_cs_Pin, GPIO_PIN_RESET);
+    // 2. 发送寄存器地址
+    HAL_Delay(3);
+    HAL_SPI_Transmit(&hspi1, (uint8_t *)&reg_addr, 1, 100);
+    // 3. 发送寄存器数据
+    HAL_SPI_Transmit(&hspi1, (uint8_t *)&reg_data, 1, 100);
+    // 4. 设置spi_cs引脚为高电平
+    HAL_Delay(3);
+    HAL_GPIO_WritePin(spi1_cs_GPIO_Port, spi1_cs_Pin, GPIO_PIN_SET);
+}
+// 读ad9520寄存器
+void read_ad9520_reg(uint16_t reg_addr, uint16_t *reg_data){
+    //uint16_t read_data;
+    // 1. 设置spi_cs引脚为低电平
+    HAL_GPIO_WritePin(spi1_cs_GPIO_Port, spi1_cs_Pin, GPIO_PIN_RESET);
+    // 2. 发送寄存器地址
+    HAL_Delay(1);
+    HAL_SPI_Transmit(&hspi1, (uint8_t *)&reg_addr, 1, 100);
+    // 3. 发送寄存器数据
+    HAL_SPI_Receive(&hspi1, (uint8_t *)reg_data, 1, 100);
+    // 4. 设置spi_cs引脚为高电平
+    HAL_Delay(1);
+    HAL_GPIO_WritePin(spi1_cs_GPIO_Port, spi1_cs_Pin, GPIO_PIN_SET);
+    //return read_data;
+}
+
+// 读ad9520所有寄存器的默认值,并保存到ad9520_regs数组中的reg_setval成员中
+void read_ad9520_all_regs_setdefaultVal(void){
+    int32_t i;
+    int32_t sizes = sizeof(ad9520_regs)/sizeof(struct ad9520_reg);
+    uint16_t tmp_add_read1byte, tmp_data_read1byte;
+    ad9520_reg_t *pad9520_reg = (ad9520_reg_t *)(&ad9520_regs);
+    for(i=0; i<sizes; i++){
+        tmp_add_read1byte = (pad9520_reg+i)->reg_addr | RD_OPR1;
+        
+        read_ad9520_reg(tmp_add_read1byte, &tmp_data_read1byte);
+        (pad9520_reg+i)->reg_data = tmp_data_read1byte>>8;
+        (pad9520_reg+i)->reg_setval = (pad9520_reg+i)->reg_data;
+
+    }
+}
+
+//设置ad9520的spi端口
+void set_ad9520_spiport(void){
+
+    //write_ad9520_reg(ad9520_regs.serial_port_conf.reg_addr|WR_OPR2, 0x0202); //soft reset
+    //HAL_Delay(30);
+    write_ad9520_reg(AD9520_SERIAL_PORT_CONFIG|WR_OPR2, 0xa0a0); //set spi sdo mode
+    //write_ad9520_reg(AD9520_SERIAL_PORT_CONFIG|WR_OPR2, 0x00a0); //set spi sdo mode
+    //HAL_Delay(30);
+    write_ad9520_reg(AD9520_IO_UPDATE|WR_OPR2, 0x0000);
+    //HAL_Delay(30);
+    write_ad9520_reg(AD9520_IO_UPDATE|WR_OPR2, 0x0100);
+    //HAL_Delay(30);
+    write_ad9520_reg(AD9520_IO_UPDATE|WR_OPR2, 0x0000);
+    //HAL_Delay(30);
+    
+
+}
+
+//read the ID register
+char * get_ad9520_id(){
+    
+    uint16_t id;
+    read_ad9520_reg(AD9520_PART_ID|RD_OPR2, &id);
+    //printf("ad9520 id:0x%x\r", id);
+    id = id >> 8;    
+    switch (id) {
+    case 0x20:
+        return "AD9520-0";
+    case 0x60:
+        return "AD9520-1";
+    case 0xA0:
+        return "AD9520-2";
+    case 0x61:
+        return "AD9520-3";
+    case 0xE1:
+        return "AD9520-4";
+    case 0xE0:
+        return "AD9520-5";
+    default:
+        return "unknown";
+    }
+
+    return "unknown";
+}
+
+void get_ad9520_printStatus(void)
+{
+    uint16_t status;
+    read_ad9520_reg(AD9520_PLL_READBACK_READ_ONLY|RD_OPR2, &status);
+    status = status >> 8;
+    printf("AD9520 status register decode value %02x:\n", status);
+    printf(" VCO cal [%s]finished\n", (status & 0x40) ? "" : "un");
+    printf(" holdover %sactive\n", (status & 20) ? "" : "not ");
+    printf(" REF%d selected\n", (status & 0x10) ? 2 : 1);
+    printf(" VCO freq %c thresn\n", (status & 0x08) ? '>' : '<');
+    printf(" REF2 freq %c thresh\n", (status & 0x04) ? '>' : '<');
+    printf(" REF1 freq %c thresh\n", (status & 0x02) ? '>' : '<');
+    printf(" PLL %slocked\n", (status & 0x01) ? "" : "un");
+}
+
+//via spi write ad9520 register stream
+    // writeBuffer(AD9520_PFD_CHARGE_PUMP, &cache[AD9520_PFD_CHARGE_PUMP],
+    //         AD9520_PLL_READBACK_READ_ONLY - AD9520_PFD_CHARGE_PUMP);
+
+int32_t ad9520_writeBuffer(uint16_t address, uint16_t *buffer, uint16_t length)
+{
+    uint16_t i;
+    uint16_t tmpData=0;
+    uint16_t addr =0;// address | WR_OPRs;
+
+   
+    // 2. 发送寄存器地址
+    //HAL_SPI_Transmit(&hspi1, (uint8_t *)&addr, 1, 100);
+
+    for(i=0; i<length; i++){
+        HAL_GPIO_WritePin(spi1_cs_GPIO_Port, spi1_cs_Pin, GPIO_PIN_RESET);
+        HAL_Delay(1);
+        addr =(address+i) | WR_OPR1;
+        HAL_SPI_Transmit(&hspi1, (uint8_t *)&addr, 1, 100);
+        tmpData = buffer[i]  | buffer[i]<< 8;
+        HAL_SPI_Transmit(&hspi1, (uint8_t *)(&tmpData), 1, 100);
+        //i=i+2;
+            // 4. 设置spi_cs引脚为高电平
+        HAL_Delay(1);
+        HAL_GPIO_WritePin(spi1_cs_GPIO_Port, spi1_cs_Pin, GPIO_PIN_SET);
+        HAL_Delay(10);
+    }
+
+
+    return 0;
+}
+
+
+
+/*
+ * We do this instead of reading in a binary blob generated by the ADI tools
+ * because there are bugs in the ADI tools I can't fix because it's closed
+ * source and ADI offers no support :-(
+ */
+int Ad9520_selfConfig(enum speed speed)
+{
+    // if speed = 0, set to 500 MHz ADC clock; if speed = 1, set to 1GHz clock
+    uint16_t cache[4096]; // only 2820 strictly needed
+    int i;
+    uint16_t status;
+
+    memset(cache, 0, sizeof(cache));
+
+    do{
+    // 0    PFD polarity = positive
+    // 011  CP current = 2.4mA
+    // 11   CP mode normal
+    // 00   PLL power down is normal operation
+    cache[AD9520_PFD_CHARGE_PUMP] = 0x3c;
+
+    // R counter = 1
+    cache[AD9520_R_COUNTER_LSB] = 0x01;
+    cache[AD9520_R_COUNTER_MSB] = 0x00;
+
+    // A counter = 16 (counter is lower 6 bit only)
+    cache[AD9520_A_COUNTER] = 16;
+
+    // B counter = 23 (counter is 14 bits)
+    cache[AD9520_B_COUNTER_LSB] = 23;
+    cache[AD9520_B_COUNTER_MSB] = 0x00;
+
+    // 0    CP pin set to normal operation
+    // 0    R counter is not held in reset
+    // 0    A and B counters are not held in reset
+    // 0    R, A, and B counters are not held in reset
+    // 0    B counter is not bypassed
+    // 100  Prescaler is in dual-modulus mode, div 8/9
+    cache[AD9520_PLL_CTRL_1] = 0x04;
+
+    // .0001 01  PFD up pulse
+    // .0001 00  prescaler output
+    // .0000 10  status pin is R divider output, after delay
+    // .0000 01  status pin is N divider output, after delay
+    // 00       anti-backlash pulse width is 2.9ns
+    cache[AD9520_PLL_CTRL_2] = 0x04;
+
+    // 1   enable DC offset on CMOS ref input
+    // 00  5 PFD cycles to determine lock
+    // 0   digital lock window detect is high range, 3.5ns
+    // 0   normal lock detect operation
+    // 11  VCO clock cal divider 16
+    // 0   VCO calibrate now
+    cache[AD9520_PLL_CTRL_3] = 0x86;
+
+    // 00   do nothing with SYNC_N
+    // 000  R path delay = 0ns
+    // 000  N path delay = 0ns
+    cache[AD9520_PLL_CTRL_4] = 0x00;
+
+    // 0       divde-by-4 disabled on STATUS
+    // 0       frequency valid if freq above 1.02MHz
+    // 000000  LD pin in normal operation
+    cache[AD9520_PLL_CTRL_5] = 0x00;
+
+    // 0     VCO freq mon off
+    // 0     ref2 freq mon off
+    // 0     ref1 freq mon off
+    // 00000 REFMON is set to GND
+    cache[AD9520_PLL_CTRL_6] = 0x00;
+
+    // 0   enable switchover deglitch
+    // 0   select REF1
+    // 0   use this register to select reference clock (as opposed to pin strap)
+    // 0   manual reference switchover
+    // 0   return to ref1 when ref1 status is good again
+    // 0   ref2 power off
+    // 1   ref1 power on
+    // 0   single-ended reference mode
+    cache[AD9520_PLL_CTRL_7] = 0x02;
+
+    // 0   status pin is controlled by STATUS register (not EEPROM)
+    // 0   crystal oscillator is disabled
+    // 0   refclk doubler disabled
+    // 0   PLL status register enabled
+    // 0   disable LD pin comparator
+    // -
+    // 0   automatic holdover
+    // 0   holdover disabled
+    cache[AD9520_PLL_CTRL_8] = 0x00;
+
+    // ---  unused
+    // 00   select channel divider 0 for zero-delay path
+    // 0    enables internal delay if next bit is 1
+    // 0    disable zero delay function
+    // -
+    cache[AD9520_PLL_CTRL_9] = 0x00;
+
+    // 0   LVPECL
+    // 11  OUTnA on, OUTnB on
+    // 00  LVPECL -> OUTnA non-inverting, OUTnB inverting
+    // 10  LVPECL level is 0.78V
+    // 1   channel in safe-powerdown
+    cache[AD9520_OUT0_CONTROL] = 0x65;
+
+    cache[AD9520_OUT1_CONTROL] = 0x65;
+    cache[AD9520_OUT2_CONTROL] = 0x65;
+
+    // 0   LVPECL
+    // 11  OUTnA on, OUTnB on
+    // 00  LVPECL -> OUTnA non-inverting, OUTnB inverting
+    // 10  LVPECL level is 0.78V
+    // 0   channel in normal operation
+    cache[AD9520_OUT3_CONTROL] = 0x64;
+
+    cache[AD9520_OUT4_CONTROL] = 0x65;
+    cache[AD9520_OUT5_CONTROL] = 0x65;
+
+    cache[AD9520_OUT6_CONTROL] = 0x65;
+    cache[AD9520_OUT7_CONTROL] = 0x65;
+    cache[AD9520_OUT8_CONTROL] = 0x65;
+
+    cache[AD9520_OUT9_CONTROL] = 0x65;
+    cache[AD9520_OUT10_CONTROL] = 0x65;
+    cache[AD9520_OUT11_CONTROL] = 0x65;
+
+    // not affected by CSDLD
+    cache[AD9520_ENABLE_OUTPUT_ON_CSDLD_LSB] = 0x00;
+    cache[AD9520_ENABLE_OUTPUT_ON_CSDLD_MSB] = 0x00;
+
+    // 0001  divider 0 is low for 2 cycles 
+    // 0001  divider 0 is high for 2 cycles
+    // total: divide-by-2 off of 1GHz ref = 500MHz
+    cache[AD9520_DIVIDER_0_PECL] = 0x11;  // fpga clock channel
+
+    // 0     use divider
+    // 0     obey chip-level SYNC
+    // 0     divider output forced to low
+    // 0     divider starts low
+    // 0000  phase offset
+    cache[AD9520_DIVIDER_0_BYPASS] = 0x00;
+
+    // ----- unused
+    // 1     powered down -- FPGA gets clock from ADC mirror
+    // 0     OUT0, OUT1, OUT2 connected to divider 0
+    // 0     duty-cycle correction enabled
+    cache[AD9520_DIVIDER_0_POWER] = 0x04;
+
+    // 0000  divider 0 is low for 1 cycles 
+    // 0000  divider 0 is high for 1 cycles
+    cache[AD9520_DIVIDER_1_PECL] = 0x00;  // adc clock channel
+
+    // 1     bypass divider
+    // 0     obey chip-level SYNC
+    // 0     divider output forced to low
+    // 0     divider starts low
+    // 0000  phase offset
+    cache[AD9520_DIVIDER_1_BYPASS] = 0x80;
+
+    // ----- unused
+    // 0     normal operation
+    // 0/1   OUT3, OUT4, OUT5 connected to 1 = VCO output / 0 = divider 1
+    // 1     duty-cycle correction disabled
+
+    cache[AD9520_DIVIDER_1_POWER] = 0x01;
+
+    cache[AD9520_DIVIDER_2_PECL] = 0x11;
+    cache[AD9520_DIVIDER_2_BYPASS] = 0x00;
+
+    // ----- unused
+    // 1     powered down
+    // 0     OUT0, OUT1, OUT2 connected to divider 2
+    // 0     duty-cycle correction enabled
+    cache[AD9520_DIVIDER_2_POWER] = 0x04;
+
+    cache[AD9520_DIVIDER_3_PECL] = 0x00;
+    cache[AD9520_DIVIDER_3_BYPASS] = 0x00;
+    cache[AD9520_DIVIDER_3_POWER] = 0x04;
+
+    // 000   divide by 2 
+    // 001   divide by 3
+    // 010   divide by 4
+    // 110   bypass (divide by 1)
+    if (speed == Speed1GHz)
+        cache[AD9520_VCO_DIVIDER] = 0x00; 
+    else
+        cache[AD9520_VCO_DIVIDER] = 0x02; 
+
+    // ---   unused - but tool generates 001
+    // 0     clock input section is in normal operation
+    // 0     VCO clock interface normal operation
+    // 0     VCO and clock input not powered down
+    // 1     selects VCO as input to VCO divider
+    // 0     use VCO divider
+    cache[AD9520_INPUT_CLKS] = 0x22;
+
+    // ----  unused
+    // 0     enable antiruntpulse circuitry
+    // 0     normal operation of sync function
+    // 0     normal operation of reference distribution
+    // 0     soft sync not asserted
+    cache[AD9520_POWER_DOWN_AND_SYNC] = 0x00;
+
+    cache[AD9520_IO_UPDATE] = 0;  // just commit, then update later
+    }while(0);
+    
+    cache[AD9520_SERIAL_PORT_CONFIG] = 0xa0a0;
+    write_ad9520_reg(AD9520_SERIAL_PORT_CONFIG|WR_OPR2, cache[AD9520_SERIAL_PORT_CONFIG]);
+    cache[AD9520_SERIAL_PORT_CONFIG] = 0x00;
+    // give it 30 ms to recover from reset
+    HAL_Delay(30);
+
+    // blast out bytes in chunks based on active memory areas in AD9520
+    // determine the relevant chunks by looking at address space locations in .h file
+
+    // chunk 1: memory region bounded by PFD_CHARGE_PUMP and PLL_READBACK_READ_ONLY, e.g. 0x010-0x01f
+    //qDebug() << "program PFD & PLL";
+    ad9520_writeBuffer(AD9520_PFD_CHARGE_PUMP, &cache[AD9520_PFD_CHARGE_PUMP],
+            AD9520_PLL_READBACK_READ_ONLY - AD9520_PFD_CHARGE_PUMP);
+
+    //qDebug() << "program output control";
+    // next region is from 0x0f0-0x0fc, OUT0_CONTROL - ENABLE_OUTPUT_ON_CSDLD
+    ad9520_writeBuffer(AD9520_OUT0_CONTROL, &cache[AD9520_OUT0_CONTROL],
+            AD9520_ENABLE_OUTPUT_ON_CSDLD_MSB - AD9520_OUT0_CONTROL + 1);
+
+    //qDebug() << "program output mode and dividers";
+    // next region is LVPECL driver configs
+    ad9520_writeBuffer(AD9520_DIVIDER_0_PECL, &cache[AD9520_DIVIDER_0_PECL],
+            AD9520_DIVIDER_3_POWER - AD9520_DIVIDER_0_PECL + 1);
+
+    //qDebug() << "program VCO divider";
+    // next region is VCO divider
+    ad9520_writeBuffer(AD9520_VCO_DIVIDER, &cache[AD9520_VCO_DIVIDER],
+            AD9520_INPUT_CLKS - AD9520_VCO_DIVIDER + 1);
+
+    //qDebug() << "program system power control";
+    // next region is system power control (it's just one register)
+    ad9520_writeBuffer(AD9520_POWER_DOWN_AND_SYNC, &cache[AD9520_POWER_DOWN_AND_SYNC],
+            AD9520_POWER_DOWN_AND_SYNC - AD9520_POWER_DOWN_AND_SYNC + 1);
+
+    //qDebug() << "commit data to PLL";
+    // finally, commit data to PLL
+    cache[AD9520_IO_UPDATE] = 1; // set to 1 to update, 0 just for testing (no commit)
+    cache[AD9520_IO_UPDATE] = cache[AD9520_IO_UPDATE]<<8 | cache[AD9520_IO_UPDATE];
+    write_ad9520_reg(AD9520_IO_UPDATE|WR_OPR2, cache[AD9520_IO_UPDATE]);
+
+    //qDebug() << "calibrate VCO";
+    // do a VCO calibrate
+    cache[AD9520_PLL_CTRL_3] &= 0xFE; // set bit 0 to 0 to start calibration
+    cache[AD9520_PLL_CTRL_3] = cache[AD9520_PLL_CTRL_3]<<8 | cache[AD9520_PLL_CTRL_3];
+    write_ad9520_reg(AD9520_PLL_CTRL_3|WR_OPR2, cache[AD9520_PLL_CTRL_3]);
+    cache[AD9520_IO_UPDATE] = 1;  // send an update
+    cache[AD9520_IO_UPDATE] = cache[AD9520_IO_UPDATE]<<8 | cache[AD9520_IO_UPDATE];
+    write_ad9520_reg(AD9520_IO_UPDATE|WR_OPR2, cache[AD9520_IO_UPDATE]);
+    cache[AD9520_PLL_CTRL_3] |= 0x01; // now set to 1 to force the cal immediately
+    cache[AD9520_PLL_CTRL_3] = cache[AD9520_PLL_CTRL_3]<<8 | cache[AD9520_PLL_CTRL_3];
+    write_ad9520_reg(AD9520_PLL_CTRL_3|WR_OPR2, cache[AD9520_PLL_CTRL_3]);
+    cache[AD9520_IO_UPDATE] = 1;  // send an update
+    cache[AD9520_IO_UPDATE] = cache[AD9520_IO_UPDATE]<<8 | cache[AD9520_IO_UPDATE];
+    write_ad9520_reg(AD9520_IO_UPDATE|WR_OPR2, cache[AD9520_IO_UPDATE]);
+
+    // wait for cal to finish
+    status = 0;
+    i = 0;
+    do {
+        read_ad9520_reg(AD9520_PLL_READBACK_READ_ONLY|RD_OPR2, &status);
+        i++;
+        status >>= 8;
+    } while (((status & 0x40) == 0) && (i < 1000));
+    if (i >= 1000) {
+        printf( "Calibration timed out!\n" );
+        return 1;
+    }
+
+    return 0;
+}
+
+
+
+void set_ad9520_device(){
+    init_ad9520_spiport();
+    set_ad9520_spiport();
+    printf("VCO device: %s\n",get_ad9520_id());
+    read_ad9520_all_regs_setdefaultVal();
+    get_ad9520_printStatus();
+    Ad9520_selfConfig(Speed500Mhz);
+    printf("VCO device: %s\n",get_ad9520_id());
+    get_ad9520_printStatus();
+    read_ad9520_all_regs_setdefaultVal();
+}
+
+
+
+
+
+
+
+
+//徐老师提供的参考参数
+int AD_Ram[35] = {0x0010, 0x0011, 0x0014, 0x0016, 0x0018, 0x0232, 0x0232, 0x0232, 0x0018, 0x0232, 0x0232, 0x0232,
+                  0x001C, 0x001E, 0x00F0, 0x00F1, 0x00F2, 0x00F3, 0x00F4, 0x00F5, 0x00F6, 0x00F7, 0x00F8, 0x00F9,
+                  0x00FA, 0x00FB, 0x0192, 0x0195, 0x0196, 0x019B, 0x01E0, 0x01E1, 0x0232, 0x0232, 0x0232};
+char Ram_Value[35] = {0x7C, 0x02, 0x01, 0x09, 0x06, 0x00, 0x01, 0x00, 0x06, 0x00, 0x01, 0x00,
+                      0x02, 0x16, 0x65, 0x65, 0x65, 0x65, 0x65, 0x65, 0xA4, 0x65, 0x65, 0x65,
+                      0x65, 0x65, 0x04, 0x04, 0xFF, 0x04, 0x02, 0x22, 0x00, 0x01, 0x00};
+
+16 :0x0010： 0x7C, //PLL: 4.8mA default,  CP mode-> normal operation(default), PLL power-down-> Normal operation; this mode must be selected to use the PLL.
+17 :0x0011： 0x02，//14-bit R counter,Bits[7:0] (LSB): 0x02
+20 :0x0014： 0x01，//13-bit B counter,Bits[7:0] (LSB): 0x01
+22 :0x0016： 0x09, //  :1: B counter is set to divide-by-1. This allows the prescaler setting to determine the divide for the N divider.. Divide-by-2.
+24 :0x0018： 0x06, //Enable CMOS reference input dc offset: 0: normal lock detect operation (default).16 (default). This setting is fine for any PFD frequency, but it also results in the longest VCO calibration time,VCO calibration=0
+0x0232： 0x00, //IO_UPDATE
+0x0232： 0x01，//IO_UPDATE
+0x0232： 0x00, //IO_UPDATE
+0x0018： 0x06, //Enable CMOS reference input dc offset:
+0x0232： 0x00,
+0x0232： 0x01,
+0x0232： 0x00,
+
+
+28 :0x001C：0x02, // 1: REF1 power on.
+0x001E：0x16，// Selects Channel Divider 2. 1: enables external zero delay mode if Register 0x01E[1] = 1. 1: enables zero delay function.
+0x00F0：0x65, //
+0x00F1：0x65,
+0x00F2：0x65,
+0x00F3：0x65,
+0x00F4：0x65,
+0x00F5：0x65,
+0x00F6：0xA4,
+0x00F7：0x65,
+0x00F8：0x65,
+0x00F9：0x65,
+
+0x00FA： 0x65,
+0x00FB： 0x65,
+0x0192： 0x04, //1: powered down. (Setting this bit puts OUT0/OUT0, OUT1/OUT1, and OUT2/OUT2 into safe power-down mode.)
+0x0195： 0x04, //1: powered down. (Setting this bit puts OUT3/OUT3, OUT4/OUT4, and OUT5/OUT5 into safe power-down mode.)
+0x0196： 0xFF, //Number of clock cycles (minus 1) of the divider input during which the divider output stays low.
+                A value of 0x1 means that the divider is low for two input clock cycles (default: 0x1).
+              //Number of clock cycles (minus 1) of the divider input during which the divider output stays high.
+                A value of 0x1 means that the divider is high for two input clock cycles (default: 0x1).
+0x019B： 0x04, //1: powered down. (Setting this bit puts OUT9/OUT9, OUT10/OUT10, and OUT11/OUT11 into safe power-down mode.)
+0x01E0： 0x02, // DIVIDE 4
+0x01E1： 0x22, //1: selects VCO as input to VCO divider; VCO divider cannot be bypassed when this bit is set. This bit must be set to use the PLL with the internal VCO.
+0x0232： 0x00,
+0x0232： 0x01,
+0x0232： 0x00,
+

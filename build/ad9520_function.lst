@@ -1,0 +1,2049 @@
+ARM GAS  /tmp/ccUXEJVU.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"ad9520_function.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.init_ad9520_spiport,"ax",%progbits
+  18              		.align	1
+  19              		.global	init_ad9520_spiport
+  20              		.arch armv7e-m
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  24              		.fpu fpv4-sp-d16
+  26              	init_ad9520_spiport:
+  27              	.LFB130:
+  28              		.file 1 "Core/Src/ad9520_function.c"
+   1:Core/Src/ad9520_function.c **** #include "ad9520_function.h"
+   2:Core/Src/ad9520_function.c **** 
+   3:Core/Src/ad9520_function.c **** extern SPI_HandleTypeDef hspi1;
+   4:Core/Src/ad9520_function.c **** // 初始化stm32f4到ad9520的spi接口
+   5:Core/Src/ad9520_function.c **** 
+   6:Core/Src/ad9520_function.c **** // #define spi1_cs_Pin GPIO_PIN_4
+   7:Core/Src/ad9520_function.c **** // #define spi1_cs_GPIO_Port GPIOC
+   8:Core/Src/ad9520_function.c **** 
+   9:Core/Src/ad9520_function.c **** ad9520_regs_t ad9520_regs = {
+  10:Core/Src/ad9520_function.c ****     .serial_port_conf = {0x00, 0x00,0x00},
+  11:Core/Src/ad9520_function.c ****     .part_id = {0x03, 0x00,0x00},
+  12:Core/Src/ad9520_function.c ****     .eeprom_custom_id_0 = {0x05, 0x00   ,0x00},
+  13:Core/Src/ad9520_function.c ****     .eeprom_custom_id_1 = {0x06, 0x00   ,0x00},
+  14:Core/Src/ad9520_function.c **** 
+  15:Core/Src/ad9520_function.c ****     .PFD_charge_pump= {0x010, 0x00  ,0x00},
+  16:Core/Src/ad9520_function.c ****     .R_counter_l = {0x011, 0x00 ,0x00},
+  17:Core/Src/ad9520_function.c ****     .R_counter_h = {0x012, 0x00 ,0x00},
+  18:Core/Src/ad9520_function.c ****     .A_counter = {0x013, 0x00   ,0x00},
+  19:Core/Src/ad9520_function.c ****     .B_counter_l = {0x014, 0x00 ,0x00},
+  20:Core/Src/ad9520_function.c ****     .B_counter_h = {0x015, 0x00 ,0x00},
+  21:Core/Src/ad9520_function.c ****     .pll_ctrl_1 = {0x016, 0x00  ,0x00},
+  22:Core/Src/ad9520_function.c ****     .pll_ctrl_2 = {0x017, 0x00  ,0x00},
+  23:Core/Src/ad9520_function.c ****     .pll_ctrl_3 = {0x018, 0x00  ,0x00},
+  24:Core/Src/ad9520_function.c ****     .pll_ctrl_4 = {0x019, 0x00  ,0x00},
+  25:Core/Src/ad9520_function.c ****     .pll_ctrl_5 = {0x01a, 0x00  ,0x00},
+  26:Core/Src/ad9520_function.c ****     .pll_ctrl_6 = {0x01b, 0x00  ,0x00},
+  27:Core/Src/ad9520_function.c ****     .pll_ctrl_7 = {0x01c, 0x00  ,0x00},
+  28:Core/Src/ad9520_function.c ****     .pll_ctrl_8 = {0x01d, 0x00  ,0x00},
+  29:Core/Src/ad9520_function.c ****     .pll_ctrl_9 = {0x01e, 0x00  ,0x00},
+  30:Core/Src/ad9520_function.c ****     .pll_readback = {0x01f, 0x00    ,0x00},
+ARM GAS  /tmp/ccUXEJVU.s 			page 2
+
+
+  31:Core/Src/ad9520_function.c **** 
+  32:Core/Src/ad9520_function.c ****     .out0_control = {0x0f0, 0x00    ,0x00},
+  33:Core/Src/ad9520_function.c ****     .out1_control = {0x0f1, 0x00    ,0x00},
+  34:Core/Src/ad9520_function.c ****     .out2_control = {0x0f2, 0x00    ,0x00},
+  35:Core/Src/ad9520_function.c ****     .out3_control = {0x0f3, 0x00    ,0x00},
+  36:Core/Src/ad9520_function.c ****     .out4_control = {0x0f4, 0x00    ,0x00},
+  37:Core/Src/ad9520_function.c ****     .out5_control = {0x0f5, 0x00    ,0x00},
+  38:Core/Src/ad9520_function.c ****     .out6_control = {0x0f6, 0x00    ,0x00},
+  39:Core/Src/ad9520_function.c ****     .out7_control = {0x0f7, 0x00    ,0x00},
+  40:Core/Src/ad9520_function.c ****     .out8_control = {0x0f8, 0x00    ,0x00},
+  41:Core/Src/ad9520_function.c ****     .out9_control = {0x0f9, 0x00    ,0x00},
+  42:Core/Src/ad9520_function.c ****     .out10_control = {0x0fa, 0x00   ,0x00},
+  43:Core/Src/ad9520_function.c ****     .out11_control = {0x0fb, 0x00   ,0x00},
+  44:Core/Src/ad9520_function.c ****     .enable_output_on_csdld_l = {0x0fc, 0x00    ,0x00},
+  45:Core/Src/ad9520_function.c ****     .enable_output_on_csdld_h = {0x0fd, 0x00    ,0x00},
+  46:Core/Src/ad9520_function.c **** 
+  47:Core/Src/ad9520_function.c ****     .divider_0_0 = {0x190, 0x00 ,0x00},
+  48:Core/Src/ad9520_function.c ****     .divider_0_1 = {0x191, 0x00,0x00},
+  49:Core/Src/ad9520_function.c ****     .divider_0_2 = {0x192, 0x00,0x00},
+  50:Core/Src/ad9520_function.c ****     .divider_1_0 = {0x193, 0x00,0x00},
+  51:Core/Src/ad9520_function.c ****     .divider_1_1 = {0x194, 0x00,0x00},
+  52:Core/Src/ad9520_function.c ****     .divider_1_2 = {0x195, 0x00,0x00},
+  53:Core/Src/ad9520_function.c ****     .divider_2_0 = {0x196, 0x00,0x00},
+  54:Core/Src/ad9520_function.c ****     .divider_2_1 = {0x197, 0x00,0x00},
+  55:Core/Src/ad9520_function.c ****     .divider_2_2 = {0x198, 0x00,0x00},
+  56:Core/Src/ad9520_function.c ****     .divider_3_0 = {0x199, 0x00,0x00},
+  57:Core/Src/ad9520_function.c ****     .divider_3_1 = {0x19a, 0x00,0x00},
+  58:Core/Src/ad9520_function.c ****     .divider_3_2 = {0x19b, 0x00,0x00},
+  59:Core/Src/ad9520_function.c **** 
+  60:Core/Src/ad9520_function.c ****     .vco_divider = {0x1e0, 0x00,0x00},
+  61:Core/Src/ad9520_function.c ****     .input_clks = {0x1e1, 0x00,0x00},
+  62:Core/Src/ad9520_function.c ****     
+  63:Core/Src/ad9520_function.c ****     .power_down = {0x230, 0x00,0x00},
+  64:Core/Src/ad9520_function.c ****     .io_update = {0x232, 0x00,0x00},
+  65:Core/Src/ad9520_function.c **** 
+  66:Core/Src/ad9520_function.c **** };
+  67:Core/Src/ad9520_function.c **** 
+  68:Core/Src/ad9520_function.c **** void init_ad9520_spiport(void){
+  29              		.loc 1 68 31 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33 0000 08B5     		push	{r3, lr}
+  34              	.LCFI0:
+  35              		.cfi_def_cfa_offset 8
+  36              		.cfi_offset 3, -8
+  37              		.cfi_offset 14, -4
+  69:Core/Src/ad9520_function.c ****     // 初始化spi_cs引脚状态，设置这个引脚为高电平
+  70:Core/Src/ad9520_function.c ****     HAL_GPIO_WritePin(spi1_cs_GPIO_Port, spi1_cs_Pin, GPIO_PIN_SET);
+  38              		.loc 1 70 5 view .LVU1
+  39 0002 0122     		movs	r2, #1
+  40 0004 1021     		movs	r1, #16
+  41 0006 0248     		ldr	r0, .L3
+  42 0008 FFF7FEFF 		bl	HAL_GPIO_WritePin
+  43              	.LVL0:
+  71:Core/Src/ad9520_function.c **** }
+  44              		.loc 1 71 1 is_stmt 0 view .LVU2
+ARM GAS  /tmp/ccUXEJVU.s 			page 3
+
+
+  45 000c 08BD     		pop	{r3, pc}
+  46              	.L4:
+  47 000e 00BF     		.align	2
+  48              	.L3:
+  49 0010 00080240 		.word	1073874944
+  50              		.cfi_endproc
+  51              	.LFE130:
+  53              		.section	.text.write_ad9520_reg,"ax",%progbits
+  54              		.align	1
+  55              		.global	write_ad9520_reg
+  56              		.syntax unified
+  57              		.thumb
+  58              		.thumb_func
+  59              		.fpu fpv4-sp-d16
+  61              	write_ad9520_reg:
+  62              	.LVL1:
+  63              	.LFB131:
+  72:Core/Src/ad9520_function.c **** 
+  73:Core/Src/ad9520_function.c **** // 写ad9520寄存器
+  74:Core/Src/ad9520_function.c **** void write_ad9520_reg(uint16_t reg_addr, uint16_t reg_data){
+  64              		.loc 1 74 60 is_stmt 1 view -0
+  65              		.cfi_startproc
+  66              		@ args = 0, pretend = 0, frame = 8
+  67              		@ frame_needed = 0, uses_anonymous_args = 0
+  68              		.loc 1 74 60 is_stmt 0 view .LVU4
+  69 0000 30B5     		push	{r4, r5, lr}
+  70              	.LCFI1:
+  71              		.cfi_def_cfa_offset 12
+  72              		.cfi_offset 4, -12
+  73              		.cfi_offset 5, -8
+  74              		.cfi_offset 14, -4
+  75 0002 83B0     		sub	sp, sp, #12
+  76              	.LCFI2:
+  77              		.cfi_def_cfa_offset 24
+  78 0004 ADF80600 		strh	r0, [sp, #6]	@ movhi
+  79 0008 ADF80410 		strh	r1, [sp, #4]	@ movhi
+  75:Core/Src/ad9520_function.c ****     // 1. 设置spi_cs引脚为低电平
+  76:Core/Src/ad9520_function.c ****     HAL_Delay(2);
+  80              		.loc 1 76 5 is_stmt 1 view .LVU5
+  81 000c 0220     		movs	r0, #2
+  82              	.LVL2:
+  83              		.loc 1 76 5 is_stmt 0 view .LVU6
+  84 000e FFF7FEFF 		bl	HAL_Delay
+  85              	.LVL3:
+  77:Core/Src/ad9520_function.c ****     HAL_GPIO_WritePin(spi1_cs_GPIO_Port, spi1_cs_Pin, GPIO_PIN_RESET);
+  86              		.loc 1 77 5 is_stmt 1 view .LVU7
+  87 0012 124C     		ldr	r4, .L7
+  88 0014 0022     		movs	r2, #0
+  89 0016 1021     		movs	r1, #16
+  90 0018 2046     		mov	r0, r4
+  91 001a FFF7FEFF 		bl	HAL_GPIO_WritePin
+  92              	.LVL4:
+  78:Core/Src/ad9520_function.c ****     // 2. 发送寄存器地址
+  79:Core/Src/ad9520_function.c ****     HAL_Delay(3);
+  93              		.loc 1 79 5 view .LVU8
+  94 001e 0320     		movs	r0, #3
+  95 0020 FFF7FEFF 		bl	HAL_Delay
+ARM GAS  /tmp/ccUXEJVU.s 			page 4
+
+
+  96              	.LVL5:
+  80:Core/Src/ad9520_function.c ****     HAL_SPI_Transmit(&hspi1, (uint8_t *)&reg_addr, 1, 100);
+  97              		.loc 1 80 5 view .LVU9
+  98 0024 0E4D     		ldr	r5, .L7+4
+  99 0026 6423     		movs	r3, #100
+ 100 0028 0122     		movs	r2, #1
+ 101 002a 0DF10601 		add	r1, sp, #6
+ 102 002e 2846     		mov	r0, r5
+ 103 0030 FFF7FEFF 		bl	HAL_SPI_Transmit
+ 104              	.LVL6:
+  81:Core/Src/ad9520_function.c ****     // 3. 发送寄存器数据
+  82:Core/Src/ad9520_function.c ****     HAL_SPI_Transmit(&hspi1, (uint8_t *)&reg_data, 1, 100);
+ 105              		.loc 1 82 5 view .LVU10
+ 106 0034 6423     		movs	r3, #100
+ 107 0036 0122     		movs	r2, #1
+ 108 0038 01A9     		add	r1, sp, #4
+ 109 003a 2846     		mov	r0, r5
+ 110 003c FFF7FEFF 		bl	HAL_SPI_Transmit
+ 111              	.LVL7:
+  83:Core/Src/ad9520_function.c ****     // 4. 设置spi_cs引脚为高电平
+  84:Core/Src/ad9520_function.c ****     HAL_Delay(3);
+ 112              		.loc 1 84 5 view .LVU11
+ 113 0040 0320     		movs	r0, #3
+ 114 0042 FFF7FEFF 		bl	HAL_Delay
+ 115              	.LVL8:
+  85:Core/Src/ad9520_function.c ****     HAL_GPIO_WritePin(spi1_cs_GPIO_Port, spi1_cs_Pin, GPIO_PIN_SET);
+ 116              		.loc 1 85 5 view .LVU12
+ 117 0046 0122     		movs	r2, #1
+ 118 0048 1021     		movs	r1, #16
+ 119 004a 2046     		mov	r0, r4
+ 120 004c FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 121              	.LVL9:
+  86:Core/Src/ad9520_function.c ****     HAL_Delay(2);
+ 122              		.loc 1 86 5 view .LVU13
+ 123 0050 0220     		movs	r0, #2
+ 124 0052 FFF7FEFF 		bl	HAL_Delay
+ 125              	.LVL10:
+  87:Core/Src/ad9520_function.c **** }
+ 126              		.loc 1 87 1 is_stmt 0 view .LVU14
+ 127 0056 03B0     		add	sp, sp, #12
+ 128              	.LCFI3:
+ 129              		.cfi_def_cfa_offset 12
+ 130              		@ sp needed
+ 131 0058 30BD     		pop	{r4, r5, pc}
+ 132              	.L8:
+ 133 005a 00BF     		.align	2
+ 134              	.L7:
+ 135 005c 00080240 		.word	1073874944
+ 136 0060 00000000 		.word	hspi1
+ 137              		.cfi_endproc
+ 138              	.LFE131:
+ 140              		.section	.text.read_ad9520_reg,"ax",%progbits
+ 141              		.align	1
+ 142              		.global	read_ad9520_reg
+ 143              		.syntax unified
+ 144              		.thumb
+ 145              		.thumb_func
+ARM GAS  /tmp/ccUXEJVU.s 			page 5
+
+
+ 146              		.fpu fpv4-sp-d16
+ 148              	read_ad9520_reg:
+ 149              	.LVL11:
+ 150              	.LFB132:
+  88:Core/Src/ad9520_function.c **** // 读ad9520寄存器
+  89:Core/Src/ad9520_function.c **** void read_ad9520_reg(uint16_t reg_addr, uint16_t *reg_data){
+ 151              		.loc 1 89 60 is_stmt 1 view -0
+ 152              		.cfi_startproc
+ 153              		@ args = 0, pretend = 0, frame = 8
+ 154              		@ frame_needed = 0, uses_anonymous_args = 0
+ 155              		.loc 1 89 60 is_stmt 0 view .LVU16
+ 156 0000 70B5     		push	{r4, r5, r6, lr}
+ 157              	.LCFI4:
+ 158              		.cfi_def_cfa_offset 16
+ 159              		.cfi_offset 4, -16
+ 160              		.cfi_offset 5, -12
+ 161              		.cfi_offset 6, -8
+ 162              		.cfi_offset 14, -4
+ 163 0002 82B0     		sub	sp, sp, #8
+ 164              	.LCFI5:
+ 165              		.cfi_def_cfa_offset 24
+ 166 0004 0C46     		mov	r4, r1
+ 167 0006 ADF80600 		strh	r0, [sp, #6]	@ movhi
+  90:Core/Src/ad9520_function.c ****     //uint16_t read_data;
+  91:Core/Src/ad9520_function.c ****     // 1. 设置spi_cs引脚为低电平
+  92:Core/Src/ad9520_function.c ****     HAL_Delay(2);
+ 168              		.loc 1 92 5 is_stmt 1 view .LVU17
+ 169 000a 0220     		movs	r0, #2
+ 170              	.LVL12:
+ 171              		.loc 1 92 5 is_stmt 0 view .LVU18
+ 172 000c FFF7FEFF 		bl	HAL_Delay
+ 173              	.LVL13:
+  93:Core/Src/ad9520_function.c ****     HAL_GPIO_WritePin(spi1_cs_GPIO_Port, spi1_cs_Pin, GPIO_PIN_RESET);
+ 174              		.loc 1 93 5 is_stmt 1 view .LVU19
+ 175 0010 114D     		ldr	r5, .L11
+ 176 0012 0022     		movs	r2, #0
+ 177 0014 1021     		movs	r1, #16
+ 178 0016 2846     		mov	r0, r5
+ 179 0018 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 180              	.LVL14:
+  94:Core/Src/ad9520_function.c ****     // 2. 发送寄存器地址
+  95:Core/Src/ad9520_function.c ****     HAL_Delay(1);
+ 181              		.loc 1 95 5 view .LVU20
+ 182 001c 0120     		movs	r0, #1
+ 183 001e FFF7FEFF 		bl	HAL_Delay
+ 184              	.LVL15:
+  96:Core/Src/ad9520_function.c ****     HAL_SPI_Transmit(&hspi1, (uint8_t *)&reg_addr, 1, 100);
+ 185              		.loc 1 96 5 view .LVU21
+ 186 0022 0E4E     		ldr	r6, .L11+4
+ 187 0024 6423     		movs	r3, #100
+ 188 0026 0122     		movs	r2, #1
+ 189 0028 0DF10601 		add	r1, sp, #6
+ 190 002c 3046     		mov	r0, r6
+ 191 002e FFF7FEFF 		bl	HAL_SPI_Transmit
+ 192              	.LVL16:
+  97:Core/Src/ad9520_function.c ****     // 3. 发送寄存器数据
+  98:Core/Src/ad9520_function.c ****     HAL_SPI_Receive(&hspi1, (uint8_t *)reg_data, 1, 100);
+ARM GAS  /tmp/ccUXEJVU.s 			page 6
+
+
+ 193              		.loc 1 98 5 view .LVU22
+ 194 0032 6423     		movs	r3, #100
+ 195 0034 0122     		movs	r2, #1
+ 196 0036 2146     		mov	r1, r4
+ 197 0038 3046     		mov	r0, r6
+ 198 003a FFF7FEFF 		bl	HAL_SPI_Receive
+ 199              	.LVL17:
+  99:Core/Src/ad9520_function.c ****     // 4. 设置spi_cs引脚为高电平
+ 100:Core/Src/ad9520_function.c ****     HAL_Delay(1);
+ 200              		.loc 1 100 5 view .LVU23
+ 201 003e 0120     		movs	r0, #1
+ 202 0040 FFF7FEFF 		bl	HAL_Delay
+ 203              	.LVL18:
+ 101:Core/Src/ad9520_function.c ****     HAL_GPIO_WritePin(spi1_cs_GPIO_Port, spi1_cs_Pin, GPIO_PIN_SET);
+ 204              		.loc 1 101 5 view .LVU24
+ 205 0044 0122     		movs	r2, #1
+ 206 0046 1021     		movs	r1, #16
+ 207 0048 2846     		mov	r0, r5
+ 208 004a FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 209              	.LVL19:
+ 102:Core/Src/ad9520_function.c ****     HAL_Delay(2);
+ 210              		.loc 1 102 5 view .LVU25
+ 211 004e 0220     		movs	r0, #2
+ 212 0050 FFF7FEFF 		bl	HAL_Delay
+ 213              	.LVL20:
+ 103:Core/Src/ad9520_function.c ****     //return read_data;
+ 104:Core/Src/ad9520_function.c **** }
+ 214              		.loc 1 104 1 is_stmt 0 view .LVU26
+ 215 0054 02B0     		add	sp, sp, #8
+ 216              	.LCFI6:
+ 217              		.cfi_def_cfa_offset 16
+ 218              		@ sp needed
+ 219 0056 70BD     		pop	{r4, r5, r6, pc}
+ 220              	.LVL21:
+ 221              	.L12:
+ 222              		.loc 1 104 1 view .LVU27
+ 223              		.align	2
+ 224              	.L11:
+ 225 0058 00080240 		.word	1073874944
+ 226 005c 00000000 		.word	hspi1
+ 227              		.cfi_endproc
+ 228              	.LFE132:
+ 230              		.section	.text.read_ad9520_all_regs_setdefaultVal,"ax",%progbits
+ 231              		.align	1
+ 232              		.global	read_ad9520_all_regs_setdefaultVal
+ 233              		.syntax unified
+ 234              		.thumb
+ 235              		.thumb_func
+ 236              		.fpu fpv4-sp-d16
+ 238              	read_ad9520_all_regs_setdefaultVal:
+ 239              	.LVL22:
+ 240              	.LFB133:
+ 105:Core/Src/ad9520_function.c **** 
+ 106:Core/Src/ad9520_function.c **** // 读ad9520所有寄存器的默认值,并保存到ad9520_regs数组中的reg_setval成员中
+ 107:Core/Src/ad9520_function.c **** // setDefaultVal: 0:不保存默认值，1:保存默认值
+ 108:Core/Src/ad9520_function.c **** #define SAVE_DEFAULT_VAL 1
+ 109:Core/Src/ad9520_function.c **** #define NOT_SAVE_DEFAULT_VAL 0
+ARM GAS  /tmp/ccUXEJVU.s 			page 7
+
+
+ 110:Core/Src/ad9520_function.c **** void read_ad9520_all_regs_setdefaultVal(uint32_t setDefaultVal){
+ 241              		.loc 1 110 64 is_stmt 1 view -0
+ 242              		.cfi_startproc
+ 243              		@ args = 0, pretend = 0, frame = 8
+ 244              		@ frame_needed = 0, uses_anonymous_args = 0
+ 245              		.loc 1 110 64 is_stmt 0 view .LVU29
+ 246 0000 70B5     		push	{r4, r5, r6, lr}
+ 247              	.LCFI7:
+ 248              		.cfi_def_cfa_offset 16
+ 249              		.cfi_offset 4, -16
+ 250              		.cfi_offset 5, -12
+ 251              		.cfi_offset 6, -8
+ 252              		.cfi_offset 14, -4
+ 253 0002 82B0     		sub	sp, sp, #8
+ 254              	.LCFI8:
+ 255              		.cfi_def_cfa_offset 24
+ 256 0004 0646     		mov	r6, r0
+ 111:Core/Src/ad9520_function.c ****     int32_t i;
+ 257              		.loc 1 111 5 is_stmt 1 view .LVU30
+ 112:Core/Src/ad9520_function.c ****     int32_t sizes = sizeof(ad9520_regs)/sizeof(struct ad9520_reg);
+ 258              		.loc 1 112 5 view .LVU31
+ 259              	.LVL23:
+ 113:Core/Src/ad9520_function.c ****     uint16_t tmp_add_read1byte, tmp_data_read1byte;
+ 260              		.loc 1 113 5 view .LVU32
+ 114:Core/Src/ad9520_function.c ****     ad9520_reg_t *pad9520_reg = (ad9520_reg_t *)(&ad9520_regs);
+ 261              		.loc 1 114 5 view .LVU33
+ 115:Core/Src/ad9520_function.c ****     for(i=0; i<sizes; i++){
+ 262              		.loc 1 115 5 view .LVU34
+ 263              		.loc 1 115 10 is_stmt 0 view .LVU35
+ 264 0006 0024     		movs	r4, #0
+ 265              		.loc 1 115 5 view .LVU36
+ 266 0008 00E0     		b	.L14
+ 267              	.LVL24:
+ 268              	.L15:
+ 269              		.loc 1 115 23 is_stmt 1 discriminator 2 view .LVU37
+ 270              		.loc 1 115 24 is_stmt 0 discriminator 2 view .LVU38
+ 271 000a 0134     		adds	r4, r4, #1
+ 272              	.LVL25:
+ 273              	.L14:
+ 274              		.loc 1 115 14 is_stmt 1 discriminator 1 view .LVU39
+ 275              		.loc 1 115 5 is_stmt 0 discriminator 1 view .LVU40
+ 276 000c 312C     		cmp	r4, #49
+ 277 000e 14DC     		bgt	.L18
+ 116:Core/Src/ad9520_function.c ****         tmp_add_read1byte = (pad9520_reg+i)->reg_addr | RD_OPR2;
+ 278              		.loc 1 116 9 is_stmt 1 view .LVU41
+ 279              		.loc 1 116 41 is_stmt 0 view .LVU42
+ 280 0010 0B4B     		ldr	r3, .L19
+ 281 0012 04EB4402 		add	r2, r4, r4, lsl #1
+ 282 0016 03EB4205 		add	r5, r3, r2, lsl #1
+ 283              		.loc 1 116 44 view .LVU43
+ 284 001a 33F81200 		ldrh	r0, [r3, r2, lsl #1]
+ 285              	.LVL26:
+ 117:Core/Src/ad9520_function.c ****         
+ 118:Core/Src/ad9520_function.c ****         read_ad9520_reg(tmp_add_read1byte, &tmp_data_read1byte);
+ 286              		.loc 1 118 9 is_stmt 1 view .LVU44
+ 287 001e 0DF10601 		add	r1, sp, #6
+ 288 0022 40F42040 		orr	r0, r0, #40960
+ARM GAS  /tmp/ccUXEJVU.s 			page 8
+
+
+ 289              	.LVL27:
+ 290              		.loc 1 118 9 is_stmt 0 view .LVU45
+ 291 0026 FFF7FEFF 		bl	read_ad9520_reg
+ 292              	.LVL28:
+ 119:Core/Src/ad9520_function.c ****         (pad9520_reg+i)->reg_data = tmp_data_read1byte>>8;
+ 293              		.loc 1 119 9 is_stmt 1 view .LVU46
+ 294              		.loc 1 119 35 is_stmt 0 view .LVU47
+ 295 002a BDF80630 		ldrh	r3, [sp, #6]
+ 296 002e 1B0A     		lsrs	r3, r3, #8
+ 297 0030 6B80     		strh	r3, [r5, #2]	@ movhi
+ 120:Core/Src/ad9520_function.c ****         if(setDefaultVal == 1){
+ 298              		.loc 1 120 9 is_stmt 1 view .LVU48
+ 299              		.loc 1 120 11 is_stmt 0 view .LVU49
+ 300 0032 012E     		cmp	r6, #1
+ 301 0034 E9D1     		bne	.L15
+ 121:Core/Src/ad9520_function.c ****             (pad9520_reg+i)->reg_setval = (pad9520_reg+i)->reg_data;
+ 302              		.loc 1 121 13 is_stmt 1 view .LVU50
+ 303              		.loc 1 121 41 is_stmt 0 view .LVU51
+ 304 0036 AB80     		strh	r3, [r5, #4]	@ movhi
+ 305 0038 E7E7     		b	.L15
+ 306              	.L18:
+ 122:Core/Src/ad9520_function.c ****         }
+ 123:Core/Src/ad9520_function.c **** 
+ 124:Core/Src/ad9520_function.c ****     }
+ 125:Core/Src/ad9520_function.c **** }
+ 307              		.loc 1 125 1 view .LVU52
+ 308 003a 02B0     		add	sp, sp, #8
+ 309              	.LCFI9:
+ 310              		.cfi_def_cfa_offset 16
+ 311              		@ sp needed
+ 312 003c 70BD     		pop	{r4, r5, r6, pc}
+ 313              	.LVL29:
+ 314              	.L20:
+ 315              		.loc 1 125 1 view .LVU53
+ 316 003e 00BF     		.align	2
+ 317              	.L19:
+ 318 0040 00000000 		.word	.LANCHOR0
+ 319              		.cfi_endproc
+ 320              	.LFE133:
+ 322              		.section	.text.update_ad9520_regs,"ax",%progbits
+ 323              		.align	1
+ 324              		.global	update_ad9520_regs
+ 325              		.syntax unified
+ 326              		.thumb
+ 327              		.thumb_func
+ 328              		.fpu fpv4-sp-d16
+ 330              	update_ad9520_regs:
+ 331              	.LFB134:
+ 126:Core/Src/ad9520_function.c **** 
+ 127:Core/Src/ad9520_function.c **** 
+ 128:Core/Src/ad9520_function.c **** 
+ 129:Core/Src/ad9520_function.c **** void update_ad9520_regs(void){
+ 332              		.loc 1 129 30 is_stmt 1 view -0
+ 333              		.cfi_startproc
+ 334              		@ args = 0, pretend = 0, frame = 0
+ 335              		@ frame_needed = 0, uses_anonymous_args = 0
+ 336 0000 10B5     		push	{r4, lr}
+ARM GAS  /tmp/ccUXEJVU.s 			page 9
+
+
+ 337              	.LCFI10:
+ 338              		.cfi_def_cfa_offset 8
+ 339              		.cfi_offset 4, -8
+ 340              		.cfi_offset 14, -4
+ 130:Core/Src/ad9520_function.c ****     //write_ad9520_reg(ad9520_regs.serial_port_conf.reg_addr|WR_OPR2, 0xa0a0); //set spi sdo mode
+ 131:Core/Src/ad9520_function.c ****     //HAL_Delay(30);
+ 132:Core/Src/ad9520_function.c ****     //write_ad9520_reg(ad9520_regs.io_update.reg_addr|WR_OPR2, 0x0000);
+ 133:Core/Src/ad9520_function.c ****     //HAL_Delay(30);
+ 134:Core/Src/ad9520_function.c ****     write_ad9520_reg(ad9520_regs.io_update.reg_addr|WR_OPR2, 0x0100);
+ 341              		.loc 1 134 5 view .LVU55
+ 342              		.loc 1 134 43 is_stmt 0 view .LVU56
+ 343 0002 084C     		ldr	r4, .L23
+ 344 0004 B4F82601 		ldrh	r0, [r4, #294]
+ 345              		.loc 1 134 5 view .LVU57
+ 346 0008 4FF48071 		mov	r1, #256
+ 347 000c 40F40050 		orr	r0, r0, #8192
+ 348 0010 FFF7FEFF 		bl	write_ad9520_reg
+ 349              	.LVL30:
+ 135:Core/Src/ad9520_function.c ****     //HAL_Delay(30);
+ 136:Core/Src/ad9520_function.c ****     write_ad9520_reg(ad9520_regs.io_update.reg_addr|WR_OPR2, 0x0000);
+ 350              		.loc 1 136 5 is_stmt 1 view .LVU58
+ 351              		.loc 1 136 43 is_stmt 0 view .LVU59
+ 352 0014 B4F82601 		ldrh	r0, [r4, #294]
+ 353              		.loc 1 136 5 view .LVU60
+ 354 0018 0021     		movs	r1, #0
+ 355 001a 40F40050 		orr	r0, r0, #8192
+ 356 001e FFF7FEFF 		bl	write_ad9520_reg
+ 357              	.LVL31:
+ 137:Core/Src/ad9520_function.c **** }
+ 358              		.loc 1 137 1 view .LVU61
+ 359 0022 10BD     		pop	{r4, pc}
+ 360              	.L24:
+ 361              		.align	2
+ 362              	.L23:
+ 363 0024 00000000 		.word	.LANCHOR0
+ 364              		.cfi_endproc
+ 365              	.LFE134:
+ 367              		.section	.text.set_ad9520_spiport,"ax",%progbits
+ 368              		.align	1
+ 369              		.global	set_ad9520_spiport
+ 370              		.syntax unified
+ 371              		.thumb
+ 372              		.thumb_func
+ 373              		.fpu fpv4-sp-d16
+ 375              	set_ad9520_spiport:
+ 376              	.LFB135:
+ 138:Core/Src/ad9520_function.c **** 
+ 139:Core/Src/ad9520_function.c **** //设置ad9520的spi端口
+ 140:Core/Src/ad9520_function.c **** void set_ad9520_spiport(void){
+ 377              		.loc 1 140 30 is_stmt 1 view -0
+ 378              		.cfi_startproc
+ 379              		@ args = 0, pretend = 0, frame = 0
+ 380              		@ frame_needed = 0, uses_anonymous_args = 0
+ 381 0000 10B5     		push	{r4, lr}
+ 382              	.LCFI11:
+ 383              		.cfi_def_cfa_offset 8
+ 384              		.cfi_offset 4, -8
+ARM GAS  /tmp/ccUXEJVU.s 			page 10
+
+
+ 385              		.cfi_offset 14, -4
+ 141:Core/Src/ad9520_function.c **** 
+ 142:Core/Src/ad9520_function.c ****     write_ad9520_reg(ad9520_regs.serial_port_conf.reg_addr|WR_OPR2, 0x0202); //soft reset
+ 386              		.loc 1 142 5 view .LVU63
+ 387              		.loc 1 142 50 is_stmt 0 view .LVU64
+ 388 0002 134C     		ldr	r4, .L27
+ 389 0004 2088     		ldrh	r0, [r4]
+ 390              		.loc 1 142 5 view .LVU65
+ 391 0006 40F20221 		movw	r1, #514
+ 392 000a 40F40050 		orr	r0, r0, #8192
+ 393 000e FFF7FEFF 		bl	write_ad9520_reg
+ 394              	.LVL32:
+ 143:Core/Src/ad9520_function.c ****     //HAL_Delay(30);
+ 144:Core/Src/ad9520_function.c ****     write_ad9520_reg(ad9520_regs.serial_port_conf.reg_addr|WR_OPR2, 0xa0a0); //set spi sdo mode
+ 395              		.loc 1 144 5 is_stmt 1 view .LVU66
+ 396              		.loc 1 144 50 is_stmt 0 view .LVU67
+ 397 0012 2088     		ldrh	r0, [r4]
+ 398              		.loc 1 144 5 view .LVU68
+ 399 0014 4AF2A001 		movw	r1, #41120
+ 400 0018 40F40050 		orr	r0, r0, #8192
+ 401 001c FFF7FEFF 		bl	write_ad9520_reg
+ 402              	.LVL33:
+ 145:Core/Src/ad9520_function.c ****     //HAL_Delay(30);
+ 146:Core/Src/ad9520_function.c ****     write_ad9520_reg(ad9520_regs.io_update.reg_addr|WR_OPR2, 0x0000);
+ 403              		.loc 1 146 5 is_stmt 1 view .LVU69
+ 404              		.loc 1 146 43 is_stmt 0 view .LVU70
+ 405 0020 B4F82601 		ldrh	r0, [r4, #294]
+ 406              		.loc 1 146 5 view .LVU71
+ 407 0024 0021     		movs	r1, #0
+ 408 0026 40F40050 		orr	r0, r0, #8192
+ 409 002a FFF7FEFF 		bl	write_ad9520_reg
+ 410              	.LVL34:
+ 147:Core/Src/ad9520_function.c ****     //HAL_Delay(30);
+ 148:Core/Src/ad9520_function.c ****     write_ad9520_reg(ad9520_regs.io_update.reg_addr|WR_OPR2, 0x0100);
+ 411              		.loc 1 148 5 is_stmt 1 view .LVU72
+ 412              		.loc 1 148 43 is_stmt 0 view .LVU73
+ 413 002e B4F82601 		ldrh	r0, [r4, #294]
+ 414              		.loc 1 148 5 view .LVU74
+ 415 0032 4FF48071 		mov	r1, #256
+ 416 0036 40F40050 		orr	r0, r0, #8192
+ 417 003a FFF7FEFF 		bl	write_ad9520_reg
+ 418              	.LVL35:
+ 149:Core/Src/ad9520_function.c ****     //HAL_Delay(30);
+ 150:Core/Src/ad9520_function.c ****     write_ad9520_reg(ad9520_regs.io_update.reg_addr|WR_OPR2, 0x0000);
+ 419              		.loc 1 150 5 is_stmt 1 view .LVU75
+ 420              		.loc 1 150 43 is_stmt 0 view .LVU76
+ 421 003e B4F82601 		ldrh	r0, [r4, #294]
+ 422              		.loc 1 150 5 view .LVU77
+ 423 0042 0021     		movs	r1, #0
+ 424 0044 40F40050 		orr	r0, r0, #8192
+ 425 0048 FFF7FEFF 		bl	write_ad9520_reg
+ 426              	.LVL36:
+ 151:Core/Src/ad9520_function.c ****     //HAL_Delay(30);
+ 152:Core/Src/ad9520_function.c ****     
+ 153:Core/Src/ad9520_function.c **** 
+ 154:Core/Src/ad9520_function.c **** }
+ 427              		.loc 1 154 1 view .LVU78
+ARM GAS  /tmp/ccUXEJVU.s 			page 11
+
+
+ 428 004c 10BD     		pop	{r4, pc}
+ 429              	.L28:
+ 430 004e 00BF     		.align	2
+ 431              	.L27:
+ 432 0050 00000000 		.word	.LANCHOR0
+ 433              		.cfi_endproc
+ 434              	.LFE135:
+ 436              		.section	.text.set_ad9520_eeprom_custom_id_reg,"ax",%progbits
+ 437              		.align	1
+ 438              		.global	set_ad9520_eeprom_custom_id_reg
+ 439              		.syntax unified
+ 440              		.thumb
+ 441              		.thumb_func
+ 442              		.fpu fpv4-sp-d16
+ 444              	set_ad9520_eeprom_custom_id_reg:
+ 445              	.LVL37:
+ 446              	.LFB136:
+ 155:Core/Src/ad9520_function.c **** 
+ 156:Core/Src/ad9520_function.c **** //设置ad9520的EEPROM custom id reg
+ 157:Core/Src/ad9520_function.c **** void set_ad9520_eeprom_custom_id_reg(uint16_t custom_id){
+ 447              		.loc 1 157 57 is_stmt 1 view -0
+ 448              		.cfi_startproc
+ 449              		@ args = 0, pretend = 0, frame = 0
+ 450              		@ frame_needed = 0, uses_anonymous_args = 0
+ 451              		.loc 1 157 57 is_stmt 0 view .LVU80
+ 452 0000 08B5     		push	{r3, lr}
+ 453              	.LCFI12:
+ 454              		.cfi_def_cfa_offset 8
+ 455              		.cfi_offset 3, -8
+ 456              		.cfi_offset 14, -4
+ 457 0002 0146     		mov	r1, r0
+ 158:Core/Src/ad9520_function.c **** 
+ 159:Core/Src/ad9520_function.c ****     write_ad9520_reg(ad9520_regs.eeprom_custom_id_1.reg_addr|WR_OPR2, custom_id);
+ 458              		.loc 1 159 5 is_stmt 1 view .LVU81
+ 459              		.loc 1 159 52 is_stmt 0 view .LVU82
+ 460 0004 034B     		ldr	r3, .L31
+ 461 0006 588A     		ldrh	r0, [r3, #18]
+ 462              	.LVL38:
+ 463              		.loc 1 159 5 view .LVU83
+ 464 0008 40F40050 		orr	r0, r0, #8192
+ 465 000c FFF7FEFF 		bl	write_ad9520_reg
+ 466              	.LVL39:
+ 160:Core/Src/ad9520_function.c **** 
+ 161:Core/Src/ad9520_function.c **** }
+ 467              		.loc 1 161 1 view .LVU84
+ 468 0010 08BD     		pop	{r3, pc}
+ 469              	.L32:
+ 470 0012 00BF     		.align	2
+ 471              	.L31:
+ 472 0014 00000000 		.word	.LANCHOR0
+ 473              		.cfi_endproc
+ 474              	.LFE136:
+ 476              		.section	.text.set_custom_val,"ax",%progbits
+ 477              		.align	1
+ 478              		.global	set_custom_val
+ 479              		.syntax unified
+ 480              		.thumb
+ARM GAS  /tmp/ccUXEJVU.s 			page 12
+
+
+ 481              		.thumb_func
+ 482              		.fpu fpv4-sp-d16
+ 484              	set_custom_val:
+ 485              	.LVL40:
+ 486              	.LFB137:
+ 162:Core/Src/ad9520_function.c **** 
+ 163:Core/Src/ad9520_function.c **** //设置ad9520寄存器的用户值
+ 164:Core/Src/ad9520_function.c **** // setPumpUpDown: 0:设置Pump Up, 1:设置Pump Down
+ 165:Core/Src/ad9520_function.c **** #define PUMP_UP 0
+ 166:Core/Src/ad9520_function.c **** #define PUMP_DOWN 1
+ 167:Core/Src/ad9520_function.c **** #define PUMP_NAL 2
+ 168:Core/Src/ad9520_function.c **** void set_custom_val(uint32_t setPumpUpDown){
+ 487              		.loc 1 168 44 is_stmt 1 view -0
+ 488              		.cfi_startproc
+ 489              		@ args = 0, pretend = 0, frame = 8
+ 490              		@ frame_needed = 0, uses_anonymous_args = 0
+ 491              		.loc 1 168 44 is_stmt 0 view .LVU86
+ 492 0000 70B5     		push	{r4, r5, r6, lr}
+ 493              	.LCFI13:
+ 494              		.cfi_def_cfa_offset 16
+ 495              		.cfi_offset 4, -16
+ 496              		.cfi_offset 5, -12
+ 497              		.cfi_offset 6, -8
+ 498              		.cfi_offset 14, -4
+ 499 0002 82B0     		sub	sp, sp, #8
+ 500              	.LCFI14:
+ 501              		.cfi_def_cfa_offset 24
+ 169:Core/Src/ad9520_function.c ****     
+ 170:Core/Src/ad9520_function.c ****    //#if 0 //ppt实验记录1 1.验证clk单端输入，output9A输出
+ 171:Core/Src/ad9520_function.c ****     //set clk ditribution < 1600MHz mode 1 ppt实验记录1 1.验证clk单端输入，output9A输�
+ 172:Core/Src/ad9520_function.c ****    // ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval | ((0x1)); //
+ 173:Core/Src/ad9520_function.c ****     ad9520_regs.input_clks.reg_setval = ad9520_regs.input_clks.reg_setval | (0x1); // 0x1e1[0] = 1
+ 502              		.loc 1 173 5 is_stmt 1 view .LVU87
+ 503              		.loc 1 173 63 is_stmt 0 view .LVU88
+ 504 0004 D04B     		ldr	r3, .L51
+ 505 0006 B3F81E21 		ldrh	r2, [r3, #286]
+ 506              		.loc 1 173 39 view .LVU89
+ 507 000a 42F00102 		orr	r2, r2, #1
+ 174:Core/Src/ad9520_function.c ****     ad9520_regs.input_clks.reg_setval = ad9520_regs.input_clks.reg_setval & (~(0x2)); // 0x1e1[4] =
+ 508              		.loc 1 174 5 is_stmt 1 view .LVU90
+ 509              		.loc 1 174 75 is_stmt 0 view .LVU91
+ 510 000e 22F00202 		bic	r2, r2, #2
+ 511 0012 92B2     		uxth	r2, r2
+ 175:Core/Src/ad9520_function.c ****     ad9520_regs.out9_control.reg_setval = 0xee;
+ 512              		.loc 1 175 5 is_stmt 1 view .LVU92
+ 513              		.loc 1 175 41 is_stmt 0 view .LVU93
+ 514 0014 EE21     		movs	r1, #238
+ 515 0016 A3F8B210 		strh	r1, [r3, #178]	@ movhi
+ 176:Core/Src/ad9520_function.c ****     ad9520_regs.out0_control.reg_setval = 0xee;
+ 516              		.loc 1 176 5 is_stmt 1 view .LVU94
+ 517              		.loc 1 176 41 is_stmt 0 view .LVU95
+ 518 001a A3F87C10 		strh	r1, [r3, #124]	@ movhi
+ 177:Core/Src/ad9520_function.c **** 
+ 178:Core/Src/ad9520_function.c ****     ad9520_regs.divider_0_0.reg_setval = 0x00;
+ 519              		.loc 1 178 5 is_stmt 1 view .LVU96
+ 520              		.loc 1 178 40 is_stmt 0 view .LVU97
+ 521 001e 0021     		movs	r1, #0
+ARM GAS  /tmp/ccUXEJVU.s 			page 13
+
+
+ 522 0020 A3F8D010 		strh	r1, [r3, #208]	@ movhi
+ 179:Core/Src/ad9520_function.c ****     ad9520_regs.divider_0_1.reg_setval = ad9520_regs.divider_0_1.reg_setval | 0x80;
+ 523              		.loc 1 179 5 is_stmt 1 view .LVU98
+ 524              		.loc 1 179 65 is_stmt 0 view .LVU99
+ 525 0024 B3F8D640 		ldrh	r4, [r3, #214]
+ 526              		.loc 1 179 40 view .LVU100
+ 527 0028 44F08004 		orr	r4, r4, #128
+ 528 002c A3F8D640 		strh	r4, [r3, #214]	@ movhi
+ 180:Core/Src/ad9520_function.c **** 
+ 181:Core/Src/ad9520_function.c ****     ad9520_regs.divider_3_0.reg_setval = 0x00;
+ 529              		.loc 1 181 5 is_stmt 1 view .LVU101
+ 530              		.loc 1 181 40 is_stmt 0 view .LVU102
+ 531 0030 A3F80611 		strh	r1, [r3, #262]	@ movhi
+ 182:Core/Src/ad9520_function.c ****     ad9520_regs.divider_3_1.reg_setval = ad9520_regs.divider_3_1.reg_setval | 0x80;
+ 532              		.loc 1 182 5 is_stmt 1 view .LVU103
+ 533              		.loc 1 182 65 is_stmt 0 view .LVU104
+ 534 0034 B3F80C41 		ldrh	r4, [r3, #268]
+ 535              		.loc 1 182 40 view .LVU105
+ 536 0038 44F08004 		orr	r4, r4, #128
+ 537 003c A3F80C41 		strh	r4, [r3, #268]	@ movhi
+ 183:Core/Src/ad9520_function.c **** 
+ 184:Core/Src/ad9520_function.c ****     ad9520_regs.vco_divider.reg_setval = 0x00;
+ 538              		.loc 1 184 5 is_stmt 1 view .LVU106
+ 539              		.loc 1 184 40 is_stmt 0 view .LVU107
+ 540 0040 A3F81811 		strh	r1, [r3, #280]	@ movhi
+ 185:Core/Src/ad9520_function.c ****     
+ 186:Core/Src/ad9520_function.c ****    //#endif
+ 187:Core/Src/ad9520_function.c ****    
+ 188:Core/Src/ad9520_function.c **** 
+ 189:Core/Src/ad9520_function.c ****     #if 0 //2023 8月之前的配置
+ 190:Core/Src/ad9520_function.c ****     //set clk ditribution < 1600MHz mode 1 ppt实验记录1 1.验证clk单端输入，output9A输�
+ 191:Core/Src/ad9520_function.c ****     ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval | ((0x1)); // 0
+ 192:Core/Src/ad9520_function.c ****     ad9520_regs.input_clks.reg_setval = ad9520_regs.input_clks.reg_setval | (0x1); // 0x1e1[0] = 1
+ 193:Core/Src/ad9520_function.c ****     ad9520_regs.input_clks.reg_setval = ad9520_regs.input_clks.reg_setval & (~(0x2)); // 0x1e1[4] =
+ 194:Core/Src/ad9520_function.c ****     ad9520_regs.out9_control.reg_setval = 0xee;
+ 195:Core/Src/ad9520_function.c ****     ad9520_regs.divider_3_0.reg_setval = 0x00;
+ 196:Core/Src/ad9520_function.c ****     ad9520_regs.vco_divider.reg_setval = 0x06;
+ 197:Core/Src/ad9520_function.c ****     //bypass divider3
+ 198:Core/Src/ad9520_function.c ****     ad9520_regs.divider_3_1.reg_setval = ad9520_regs.divider_3_1.reg_setval | 0x80;
+ 199:Core/Src/ad9520_function.c ****     //此时，output9A的频率为 8MHz
+ 200:Core/Src/ad9520_function.c ****     //bypass divider1
+ 201:Core/Src/ad9520_function.c ****     ad9520_regs.divider_1_0.reg_setval = ad9520_regs.divider_1_0.reg_setval | 0x80;
+ 202:Core/Src/ad9520_function.c ****     ad9520_regs.out0_control.reg_setval = 0xee;
+ 203:Core/Src/ad9520_function.c ****     //此时，output0的频率应该为 8MHz
+ 204:Core/Src/ad9520_function.c **** 
+ 205:Core/Src/ad9520_function.c ****     //设置mux3，选择internal feedback path, mux1 选择zero delay path
+ 206:Core/Src/ad9520_function.c ****     ad9520_regs.pll_ctrl_9.reg_setval = ad9520_regs.pll_ctrl_9.reg_setval & 0b11111001;
+ 207:Core/Src/ad9520_function.c ****     ad9520_regs.pll_ctrl_9.reg_setval = ad9520_regs.pll_ctrl_9.reg_setval | 0b00000010; //0x01e[2:1
+ 208:Core/Src/ad9520_function.c **** 
+ 209:Core/Src/ad9520_function.c ****     //设置AB寄存器，p=1，a=0，b=1，clk=(pxb)+a = 1
+ 210:Core/Src/ad9520_function.c ****     ad9520_regs.pll_ctrl_1.reg_setval = ad9520_regs.pll_ctrl_1.reg_setval & 0b11111000;
+ 211:Core/Src/ad9520_function.c ****     ad9520_regs.pll_ctrl_1.reg_setval = ad9520_regs.pll_ctrl_1.reg_setval | 0b00000001; //0x016[2:0
+ 212:Core/Src/ad9520_function.c ****     ad9520_regs.B_counter_l.reg_setval = ad9520_regs.B_counter_l.reg_setval & 0b00000000;
+ 213:Core/Src/ad9520_function.c ****     ad9520_regs.B_counter_l.reg_setval = ad9520_regs.B_counter_l.reg_setval | 0b00000001; //0x014[7
+ 214:Core/Src/ad9520_function.c ****     ad9520_regs.A_counter.reg_setval = ad9520_regs.A_counter.reg_setval & 0b00000000; //0x013[7:0] 
+ 215:Core/Src/ad9520_function.c **** 
+ 216:Core/Src/ad9520_function.c ****     //设置R寄存器，r=1
+ARM GAS  /tmp/ccUXEJVU.s 			page 14
+
+
+ 217:Core/Src/ad9520_function.c ****     ad9520_regs.R_counter_l.reg_setval = ad9520_regs.R_counter_l.reg_setval & 0b00000000;
+ 218:Core/Src/ad9520_function.c ****     ad9520_regs.R_counter_l.reg_setval = ad9520_regs.R_counter_l.reg_setval | 0b00000001; //0x012[7
+ 219:Core/Src/ad9520_function.c **** 
+ 220:Core/Src/ad9520_function.c ****     //设置PDF寄存器，
+ 221:Core/Src/ad9520_function.c ****     ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval & 0b00000000;
+ 222:Core/Src/ad9520_function.c ****     //    使能pll ， cp current = 4.8mA，
+ 223:Core/Src/ad9520_function.c ****     ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval | 0b01110000; /
+ 224:Core/Src/ad9520_function.c ****     //ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval | 0b00000000;
+ 225:Core/Src/ad9520_function.c ****     if(setPumpUpDown == PUMP_UP){
+ 226:Core/Src/ad9520_function.c ****         ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval | 0b0000010
+ 227:Core/Src/ad9520_function.c ****     }else if(setPumpUpDown == PUMP_DOWN){
+ 228:Core/Src/ad9520_function.c ****         ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval | 0b0000100
+ 229:Core/Src/ad9520_function.c ****     }else if(setPumpUpDown == PUMP_NAL){
+ 230:Core/Src/ad9520_function.c ****         ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval | 0b0000110
+ 231:Core/Src/ad9520_function.c ****     }
+ 232:Core/Src/ad9520_function.c ****     //Sets the PFD polarity
+ 233:Core/Src/ad9520_function.c ****     ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval & 0b01111111; /
+ 234:Core/Src/ad9520_function.c ****     ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval | 0b10000000; /
+ 235:Core/Src/ad9520_function.c ****     //for test set cp=vcp/2
+ 236:Core/Src/ad9520_function.c ****     // ad9520_regs.pll_ctrl_1.reg_setval = ad9520_regs.pll_ctrl_1.reg_setval & 0b01111111;
+ 237:Core/Src/ad9520_function.c ****     // ad9520_regs.pll_ctrl_1.reg_setval = ad9520_regs.pll_ctrl_1.reg_setval | 0b10000000; //0x016[
+ 238:Core/Src/ad9520_function.c ****     #endif
+ 239:Core/Src/ad9520_function.c **** 
+ 240:Core/Src/ad9520_function.c **** 
+ 241:Core/Src/ad9520_function.c **** 
+ 242:Core/Src/ad9520_function.c **** 
+ 243:Core/Src/ad9520_function.c ****         //设置PDF寄存器，
+ 244:Core/Src/ad9520_function.c ****     ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval & 0b00000000;
+ 541              		.loc 1 244 5 is_stmt 1 view .LVU108
+ 542              		.loc 1 244 44 is_stmt 0 view .LVU109
+ 543 0044 9983     		strh	r1, [r3, #28]	@ movhi
+ 245:Core/Src/ad9520_function.c ****     //    使能pll ， cp current = 4.8mA，
+ 246:Core/Src/ad9520_function.c ****     //ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval | 0b01110000;
+ 247:Core/Src/ad9520_function.c ****     ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval | 0b00000000; /
+ 544              		.loc 1 247 5 is_stmt 1 view .LVU110
+ 248:Core/Src/ad9520_function.c ****     if(setPumpUpDown == PUMP_UP){
+ 545              		.loc 1 248 5 view .LVU111
+ 546              		.loc 1 248 7 is_stmt 0 view .LVU112
+ 547 0046 0028     		cmp	r0, #0
+ 548 0048 3AD1     		bne	.L34
+ 249:Core/Src/ad9520_function.c ****         ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval | 0b0000010
+ 549              		.loc 1 249 9 is_stmt 1 view .LVU113
+ 550              		.loc 1 249 48 is_stmt 0 view .LVU114
+ 551 004a BF4B     		ldr	r3, .L51
+ 552 004c 0421     		movs	r1, #4
+ 553 004e 9983     		strh	r1, [r3, #28]	@ movhi
+ 554              	.L35:
+ 250:Core/Src/ad9520_function.c ****     }else if(setPumpUpDown == PUMP_DOWN){
+ 251:Core/Src/ad9520_function.c ****         ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval | 0b0000100
+ 252:Core/Src/ad9520_function.c ****     }else if(setPumpUpDown == PUMP_NAL){
+ 253:Core/Src/ad9520_function.c ****         ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval | 0b0000110
+ 254:Core/Src/ad9520_function.c ****     }
+ 255:Core/Src/ad9520_function.c ****     //Sets the PFD polarity
+ 256:Core/Src/ad9520_function.c ****     ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval & 0b01111111; /
+ 555              		.loc 1 256 5 is_stmt 1 view .LVU115
+ 556              		.loc 1 256 73 is_stmt 0 view .LVU116
+ 557 0050 BD4D     		ldr	r5, .L51
+ARM GAS  /tmp/ccUXEJVU.s 			page 15
+
+
+ 558 0052 AB8B     		ldrh	r3, [r5, #28]
+ 559              		.loc 1 256 85 view .LVU117
+ 560 0054 03F07F03 		and	r3, r3, #127
+ 561              		.loc 1 256 44 view .LVU118
+ 562 0058 AB83     		strh	r3, [r5, #28]	@ movhi
+ 257:Core/Src/ad9520_function.c ****     //ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval | 0b10000000;
+ 258:Core/Src/ad9520_function.c ****     //for test set cp=vcp/2
+ 259:Core/Src/ad9520_function.c ****     // ad9520_regs.pll_ctrl_1.reg_setval = ad9520_regs.pll_ctrl_1.reg_setval & 0b01111111;
+ 260:Core/Src/ad9520_function.c ****     // ad9520_regs.pll_ctrl_1.reg_setval = ad9520_regs.pll_ctrl_1.reg_setval | 0b10000000; //0x016[
+ 261:Core/Src/ad9520_function.c **** 
+ 262:Core/Src/ad9520_function.c ****         //设置R counter
+ 263:Core/Src/ad9520_function.c ****     ad9520_regs.R_counter_l.reg_setval = ad9520_regs.R_counter_l.reg_setval & 0b00000000;
+ 563              		.loc 1 263 5 is_stmt 1 view .LVU119
+ 264:Core/Src/ad9520_function.c ****     ad9520_regs.R_counter_h.reg_setval = ad9520_regs.R_counter_h.reg_setval & 0b00000000;
+ 564              		.loc 1 264 5 view .LVU120
+ 565              		.loc 1 264 40 is_stmt 0 view .LVU121
+ 566 005a 0024     		movs	r4, #0
+ 567 005c 2C85     		strh	r4, [r5, #40]	@ movhi
+ 265:Core/Src/ad9520_function.c ****     ad9520_regs.R_counter_l.reg_setval = ad9520_regs.R_counter_l.reg_setval | 0b00000001; //R count
+ 568              		.loc 1 265 5 is_stmt 1 view .LVU122
+ 569              		.loc 1 265 40 is_stmt 0 view .LVU123
+ 570 005e 0126     		movs	r6, #1
+ 571 0060 6E84     		strh	r6, [r5, #34]	@ movhi
+ 266:Core/Src/ad9520_function.c ****             //R=2700=0xA8C  l_byte=0x8c h_byte=0x0a
+ 267:Core/Src/ad9520_function.c ****     //ad9520_regs.R_counter_l.reg_setval = ad9520_regs.R_counter_l.reg_setval | (2700&0xff); //R co
+ 268:Core/Src/ad9520_function.c ****     //ad9520_regs.R_counter_h.reg_setval = ad9520_regs.R_counter_h.reg_setval | (2700>>8); //R coun
+ 269:Core/Src/ad9520_function.c ****     //ad9520_regs.R_counter_l.reg_setval = ad9520_regs.R_counter_l.reg_setval | (7904&0xff); //R co
+ 270:Core/Src/ad9520_function.c ****     //ad9520_regs.R_counter_h.reg_setval = ad9520_regs.R_counter_h.reg_setval | (7904>>8); //R coun
+ 271:Core/Src/ad9520_function.c ****         //设置B counter
+ 272:Core/Src/ad9520_function.c ****     ad9520_regs.B_counter_l.reg_setval = ad9520_regs.B_counter_l.reg_setval & 0b00000000;
+ 572              		.loc 1 272 5 is_stmt 1 view .LVU124
+ 273:Core/Src/ad9520_function.c ****     ad9520_regs.B_counter_h.reg_setval = ad9520_regs.B_counter_h.reg_setval & 0b00000000;
+ 573              		.loc 1 273 5 view .LVU125
+ 574              		.loc 1 273 40 is_stmt 0 view .LVU126
+ 575 0062 6C87     		strh	r4, [r5, #58]	@ movhi
+ 274:Core/Src/ad9520_function.c ****     ad9520_regs.B_counter_l.reg_setval = ad9520_regs.B_counter_l.reg_setval | 0b00000001; //B count
+ 576              		.loc 1 274 5 is_stmt 1 view .LVU127
+ 577              		.loc 1 274 40 is_stmt 0 view .LVU128
+ 578 0064 AE86     		strh	r6, [r5, #52]	@ movhi
+ 275:Core/Src/ad9520_function.c **** 
+ 276:Core/Src/ad9520_function.c ****         //设置A counter
+ 277:Core/Src/ad9520_function.c ****     ad9520_regs.A_counter.reg_setval = ad9520_regs.A_counter.reg_setval & 0x00;
+ 579              		.loc 1 277 5 is_stmt 1 view .LVU129
+ 580              		.loc 1 277 38 is_stmt 0 view .LVU130
+ 581 0066 EC85     		strh	r4, [r5, #46]	@ movhi
+ 278:Core/Src/ad9520_function.c ****     //ad9520_regs.A_counter.reg_setval = ad9520_regs.A_counter.reg_setval | 0b00000001;
+ 279:Core/Src/ad9520_function.c **** 
+ 280:Core/Src/ad9520_function.c ****             //B=2805=0xAF5 l_byte=0xf5 h_byte=0x0a
+ 281:Core/Src/ad9520_function.c ****             //ad9520_regs.B_counter_l.reg_setval = ad9520_regs.B_counter_l.reg_setval |4;
+ 282:Core/Src/ad9520_function.c ****     //ad9520_regs.B_counter_l.reg_setval = ad9520_regs.B_counter_l.reg_setval | (4050&0xff); //B co
+ 283:Core/Src/ad9520_function.c ****     //ad9520_regs.B_counter_h.reg_setval = ad9520_regs.B_counter_h.reg_setval | 4050>>8; //B counte
+ 284:Core/Src/ad9520_function.c ****     //ad9520_regs.B_counter_l.reg_setval = ad9520_regs.B_counter_l.reg_setval | (1350&0xff); //B co
+ 285:Core/Src/ad9520_function.c ****     //ad9520_regs.B_counter_h.reg_setval = ad9520_regs.B_counter_h.reg_setval | 1350>>8; //B counte
+ 286:Core/Src/ad9520_function.c **** 
+ 287:Core/Src/ad9520_function.c ****             //A=60=0x3c 
+ 288:Core/Src/ad9520_function.c ****     //ad9520_regs.A_counter.reg_setval = ad9520_regs.A_counter.reg_setval | 60; //A counter = 60
+ 289:Core/Src/ad9520_function.c **** 
+ARM GAS  /tmp/ccUXEJVU.s 			page 16
+
+
+ 290:Core/Src/ad9520_function.c ****         //设置 pll_ctrl_1 0x16
+ 291:Core/Src/ad9520_function.c ****         //1: B counter is set to divide-by-1. 
+ 292:Core/Src/ad9520_function.c ****         //This allows the prescaler setting to determine the divide for the N divider.. 
+ 293:Core/Src/ad9520_function.c ****         //Divide-by-2.
+ 294:Core/Src/ad9520_function.c ****     ad9520_regs.pll_ctrl_1.reg_setval = 0x08; //ad9520_regs.pll_ctrl_1.reg_setval & 0b00000000; 
+ 582              		.loc 1 294 5 is_stmt 1 view .LVU131
+ 583              		.loc 1 294 39 is_stmt 0 view .LVU132
+ 584 0068 0823     		movs	r3, #8
+ 585 006a A5F84030 		strh	r3, [r5, #64]	@ movhi
+ 295:Core/Src/ad9520_function.c ****             
+ 296:Core/Src/ad9520_function.c ****     //ad9520_regs.pll_ctrl_1.reg_setval = 0x05 ; //set prescaler P= 16/17
+ 297:Core/Src/ad9520_function.c ****     //ad9520_regs.pll_ctrl_1.reg_setval = 0x02; //Divide-by-2 and divide-by-3 when A ≠ 0; divide-
+ 298:Core/Src/ad9520_function.c ****     //ad9520_regs.pll_ctrl_1.reg_setval = 0x06; //Divide-by-32 and divide-by-33 when A ≠ 0; divid
+ 299:Core/Src/ad9520_function.c ****     //ad9520_regs.pll_ctrl_1.reg_setval = 0x01; //fix 1/2.
+ 300:Core/Src/ad9520_function.c ****         //设置 status pin to function
+ 301:Core/Src/ad9520_function.c ****     ad9520_regs.pll_ctrl_2.reg_setval = ad9520_regs.pll_ctrl_2.reg_setval & 0b00;
+ 586              		.loc 1 301 5 is_stmt 1 view .LVU133
+ 302:Core/Src/ad9520_function.c ****     ad9520_regs.pll_ctrl_2.reg_setval = ad9520_regs.pll_ctrl_2.reg_setval | 0b0100; // to N divider
+ 587              		.loc 1 302 5 view .LVU134
+ 588              		.loc 1 302 39 is_stmt 0 view .LVU135
+ 589 006e 0423     		movs	r3, #4
+ 590 0070 A5F84630 		strh	r3, [r5, #70]	@ movhi
+ 303:Core/Src/ad9520_function.c ****     //ad9520_regs.pll_ctrl_2.reg_setval = ad9520_regs.pll_ctrl_2.reg_setval | 0b10000100;//REF1 clo
+ 304:Core/Src/ad9520_function.c ****    // ad9520_regs.pll_ctrl_2.reg_setval = ad9520_regs.pll_ctrl_2.reg_setval | 0b000001000;//R divid
+ 305:Core/Src/ad9520_function.c ****     //ad9520_regs.pll_ctrl_2.reg_setval = ad9520_regs.pll_ctrl_2.reg_setval   | 0b11100100; //(Stat
+ 306:Core/Src/ad9520_function.c ****     //ad9520_regs.pll_ctrl_2.reg_setval = ad9520_regs.pll_ctrl_2.reg_setval   | 0b10011100; //Statu
+ 307:Core/Src/ad9520_function.c ****     // enable status_pin
+ 308:Core/Src/ad9520_function.c ****     ad9520_regs.pll_ctrl_8.reg_setval = ad9520_regs.pll_ctrl_2.reg_setval & 0b01111111; //bit7 = 0 
+ 591              		.loc 1 308 5 is_stmt 1 view .LVU136
+ 592              		.loc 1 308 39 is_stmt 0 view .LVU137
+ 593 0074 A5F86A30 		strh	r3, [r5, #106]	@ movhi
+ 309:Core/Src/ad9520_function.c **** 
+ 310:Core/Src/ad9520_function.c **** 
+ 311:Core/Src/ad9520_function.c ****         //设置 pll_ctrl_3 0x018 = 0x06
+ 312:Core/Src/ad9520_function.c ****         //0: normal lock detect operation (default).16 (default). 
+ 313:Core/Src/ad9520_function.c ****         //This setting is fine for any PFD frequency, 
+ 314:Core/Src/ad9520_function.c ****         //but it also results in the longest VCO calibration time,VCO calibration=0
+ 315:Core/Src/ad9520_function.c ****     ad9520_regs.pll_ctrl_3.reg_setval = 0x06|0x80;
+ 594              		.loc 1 315 5 is_stmt 1 view .LVU138
+ 595              		.loc 1 315 39 is_stmt 0 view .LVU139
+ 596 0078 8623     		movs	r3, #134
+ 597 007a A5F84C30 		strh	r3, [r5, #76]	@ movhi
+ 316:Core/Src/ad9520_function.c **** 
+ 317:Core/Src/ad9520_function.c ****         //设置pll_ctrl_7 0x01c = 0x02
+ 318:Core/Src/ad9520_function.c ****     ad9520_regs.pll_ctrl_7.reg_setval = 0x02;
+ 598              		.loc 1 318 5 is_stmt 1 view .LVU140
+ 599              		.loc 1 318 39 is_stmt 0 view .LVU141
+ 600 007e 0220     		movs	r0, #2
+ 601              	.LVL41:
+ 602              		.loc 1 318 39 view .LVU142
+ 603 0080 A5F86400 		strh	r0, [r5, #100]	@ movhi
+ 319:Core/Src/ad9520_function.c **** 
+ 320:Core/Src/ad9520_function.c ****         //设置pll_ctrl_9 0x01e = 0x12
+ 321:Core/Src/ad9520_function.c ****         //Selects Channel Divider 2. 
+ 322:Core/Src/ad9520_function.c ****         //0: enables internal zero delay mode if Register 0x01E[1] = 1. 1: 
+ 323:Core/Src/ad9520_function.c ****         //enables zero delay function.
+ 324:Core/Src/ad9520_function.c ****     ad9520_regs.pll_ctrl_9.reg_setval = 0x16;
+ARM GAS  /tmp/ccUXEJVU.s 			page 17
+
+
+ 604              		.loc 1 324 5 is_stmt 1 view .LVU143
+ 605              		.loc 1 324 39 is_stmt 0 view .LVU144
+ 606 0084 1623     		movs	r3, #22
+ 607 0086 A5F87030 		strh	r3, [r5, #112]	@ movhi
+ 325:Core/Src/ad9520_function.c **** 
+ 326:Core/Src/ad9520_function.c ****         //设置input_clks 0x1e1 = 0x02
+ 327:Core/Src/ad9520_function.c ****     ad9520_regs.input_clks.reg_setval = ad9520_regs.input_clks.reg_setval & 0b11111101;
+ 608              		.loc 1 327 5 is_stmt 1 view .LVU145
+ 609              		.loc 1 327 75 is_stmt 0 view .LVU146
+ 610 008a 02F0FD02 		and	r2, r2, #253
+ 611              		.loc 1 327 39 view .LVU147
+ 612 008e A5F81E21 		strh	r2, [r5, #286]	@ movhi
+ 328:Core/Src/ad9520_function.c **** 
+ 329:Core/Src/ad9520_function.c ****     
+ 330:Core/Src/ad9520_function.c **** 
+ 331:Core/Src/ad9520_function.c ****     //烧写寄存器
+ 332:Core/Src/ad9520_function.c ****     //program PFD & PLL 0X010 ---- 0X01F:PFD_charge_pump --- pll_readback
+ 333:Core/Src/ad9520_function.c ****     //write 8X16bits, wirthe 8 times
+ 334:Core/Src/ad9520_function.c ****     ad9520_reg_t *pad9520_reg = (ad9520_reg_t *)(&(ad9520_regs.pll_readback));
+ 613              		.loc 1 334 5 is_stmt 1 view .LVU148
+ 614              	.LVL42:
+ 335:Core/Src/ad9520_function.c ****     do{
+ 615              		.loc 1 335 5 view .LVU149
+ 616              	.LBB2:
+ 336:Core/Src/ad9520_function.c ****         //write addr|stream mode
+ 337:Core/Src/ad9520_function.c ****         HAL_Delay(2);
+ 617              		.loc 1 337 9 view .LVU150
+ 618 0092 FFF7FEFF 		bl	HAL_Delay
+ 619              	.LVL43:
+ 338:Core/Src/ad9520_function.c ****         HAL_GPIO_WritePin(spi1_cs_GPIO_Port, spi1_cs_Pin, GPIO_PIN_RESET);
+ 620              		.loc 1 338 9 view .LVU151
+ 621 0096 2246     		mov	r2, r4
+ 622 0098 1021     		movs	r1, #16
+ 623 009a AC48     		ldr	r0, .L51+4
+ 624 009c FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 625              	.LVL44:
+ 339:Core/Src/ad9520_function.c ****         // 2. 发送寄存器地址
+ 340:Core/Src/ad9520_function.c ****         HAL_Delay(3);
+ 626              		.loc 1 340 9 view .LVU152
+ 627 00a0 0320     		movs	r0, #3
+ 628 00a2 FFF7FEFF 		bl	HAL_Delay
+ 629              	.LVL45:
+ 341:Core/Src/ad9520_function.c ****         uint16_t tmpAdr = (pad9520_reg->reg_addr)|WR_OPRs;
+ 630              		.loc 1 341 9 view .LVU153
+ 631              		.loc 1 341 39 is_stmt 0 view .LVU154
+ 632 00a6 B5F87230 		ldrh	r3, [r5, #114]
+ 633              		.loc 1 341 18 view .LVU155
+ 634 00aa 43F4C043 		orr	r3, r3, #24576
+ 635 00ae ADF80430 		strh	r3, [sp, #4]	@ movhi
+ 342:Core/Src/ad9520_function.c ****         HAL_SPI_Transmit(&hspi1, (uint8_t *)&(tmpAdr), 1, 100);
+ 636              		.loc 1 342 9 is_stmt 1 view .LVU156
+ 637 00b2 6423     		movs	r3, #100
+ 638 00b4 3246     		mov	r2, r6
+ 639 00b6 01A9     		add	r1, sp, #4
+ 640 00b8 A548     		ldr	r0, .L51+8
+ 641 00ba FFF7FEFF 		bl	HAL_SPI_Transmit
+ 642              	.LVL46:
+ARM GAS  /tmp/ccUXEJVU.s 			page 18
+
+
+ 343:Core/Src/ad9520_function.c ****         // 3. 发送寄存器数据
+ 344:Core/Src/ad9520_function.c ****         for(int i=0; i<8; i++){
+ 643              		.loc 1 344 9 view .LVU157
+ 644              	.LBB3:
+ 645              		.loc 1 344 13 view .LVU158
+ 646              		.loc 1 344 9 is_stmt 0 view .LVU159
+ 647 00be 27E0     		b	.L37
+ 648              	.LVL47:
+ 649              	.L34:
+ 650              		.loc 1 344 9 view .LVU160
+ 651              	.LBE3:
+ 652              	.LBE2:
+ 250:Core/Src/ad9520_function.c ****         ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval | 0b0000100
+ 653              		.loc 1 250 11 is_stmt 1 view .LVU161
+ 250:Core/Src/ad9520_function.c ****         ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval | 0b0000100
+ 654              		.loc 1 250 13 is_stmt 0 view .LVU162
+ 655 00c0 0128     		cmp	r0, #1
+ 656 00c2 05D0     		beq	.L48
+ 252:Core/Src/ad9520_function.c ****         ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval | 0b0000110
+ 657              		.loc 1 252 11 is_stmt 1 view .LVU163
+ 252:Core/Src/ad9520_function.c ****         ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval | 0b0000110
+ 658              		.loc 1 252 13 is_stmt 0 view .LVU164
+ 659 00c4 0228     		cmp	r0, #2
+ 660 00c6 C3D1     		bne	.L35
+ 253:Core/Src/ad9520_function.c ****     }
+ 661              		.loc 1 253 9 is_stmt 1 view .LVU165
+ 253:Core/Src/ad9520_function.c ****     }
+ 662              		.loc 1 253 48 is_stmt 0 view .LVU166
+ 663 00c8 9F4B     		ldr	r3, .L51
+ 664 00ca 0C21     		movs	r1, #12
+ 665 00cc 9983     		strh	r1, [r3, #28]	@ movhi
+ 666 00ce BFE7     		b	.L35
+ 667              	.L48:
+ 251:Core/Src/ad9520_function.c ****     }else if(setPumpUpDown == PUMP_NAL){
+ 668              		.loc 1 251 9 is_stmt 1 view .LVU167
+ 251:Core/Src/ad9520_function.c ****     }else if(setPumpUpDown == PUMP_NAL){
+ 669              		.loc 1 251 48 is_stmt 0 view .LVU168
+ 670 00d0 9D4B     		ldr	r3, .L51
+ 671 00d2 0821     		movs	r1, #8
+ 672 00d4 9983     		strh	r1, [r3, #28]	@ movhi
+ 673 00d6 BBE7     		b	.L35
+ 674              	.LVL48:
+ 675              	.L38:
+ 676              	.LBB6:
+ 677              	.LBB5:
+ 678              	.LBB4:
+ 345:Core/Src/ad9520_function.c ****             HAL_Delay(3);
+ 679              		.loc 1 345 13 is_stmt 1 discriminator 3 view .LVU169
+ 680 00d8 0320     		movs	r0, #3
+ 681 00da FFF7FEFF 		bl	HAL_Delay
+ 682              	.LVL49:
+ 346:Core/Src/ad9520_function.c ****             uint16_t tmpData = ((pad9520_reg-i*2)->reg_setval << 8) | ((pad9520_reg-i*2-1)->reg_set
+ 683              		.loc 1 346 13 discriminator 3 view .LVU170
+ 684              		.loc 1 346 45 is_stmt 0 discriminator 3 view .LVU171
+ 685 00de 04EB4401 		add	r1, r4, r4, lsl #1
+ 686 00e2 9C4B     		ldr	r3, .L51+12
+ 687 00e4 A3EB8102 		sub	r2, r3, r1, lsl #2
+ARM GAS  /tmp/ccUXEJVU.s 			page 19
+
+
+ 688              		.loc 1 346 50 discriminator 3 view .LVU172
+ 689 00e8 9088     		ldrh	r0, [r2, #4]
+ 690              		.loc 1 346 88 discriminator 3 view .LVU173
+ 691 00ea 6FF00502 		mvn	r2, #5
+ 692 00ee A2EB8102 		sub	r2, r2, r1, lsl #2
+ 693 00f2 1344     		add	r3, r3, r2
+ 694              		.loc 1 346 91 discriminator 3 view .LVU174
+ 695 00f4 B3F90430 		ldrsh	r3, [r3, #4]
+ 696              		.loc 1 346 69 discriminator 3 view .LVU175
+ 697 00f8 43EA0023 		orr	r3, r3, r0, lsl #8
+ 698              		.loc 1 346 22 discriminator 3 view .LVU176
+ 699 00fc ADF80630 		strh	r3, [sp, #6]	@ movhi
+ 347:Core/Src/ad9520_function.c ****             //tmpData = 0x3c3c;
+ 348:Core/Src/ad9520_function.c ****             HAL_SPI_Transmit(&hspi1, (uint8_t *)&(tmpData), 1, 100);
+ 700              		.loc 1 348 13 is_stmt 1 discriminator 3 view .LVU177
+ 701 0100 6423     		movs	r3, #100
+ 702 0102 0122     		movs	r2, #1
+ 703 0104 0DF10601 		add	r1, sp, #6
+ 704 0108 9148     		ldr	r0, .L51+8
+ 705 010a FFF7FEFF 		bl	HAL_SPI_Transmit
+ 706              	.LVL50:
+ 707              	.LBE4:
+ 344:Core/Src/ad9520_function.c ****             HAL_Delay(3);
+ 708              		.loc 1 344 27 discriminator 3 view .LVU178
+ 344:Core/Src/ad9520_function.c ****             HAL_Delay(3);
+ 709              		.loc 1 344 28 is_stmt 0 discriminator 3 view .LVU179
+ 710 010e 0134     		adds	r4, r4, #1
+ 711              	.LVL51:
+ 712              	.L37:
+ 344:Core/Src/ad9520_function.c ****             HAL_Delay(3);
+ 713              		.loc 1 344 22 is_stmt 1 discriminator 1 view .LVU180
+ 344:Core/Src/ad9520_function.c ****             HAL_Delay(3);
+ 714              		.loc 1 344 9 is_stmt 0 discriminator 1 view .LVU181
+ 715 0110 072C     		cmp	r4, #7
+ 716 0112 E1DD     		ble	.L38
+ 717              	.LBE5:
+ 349:Core/Src/ad9520_function.c ****         }
+ 350:Core/Src/ad9520_function.c ****         // 4. 设置spi_cs引脚为高电平
+ 351:Core/Src/ad9520_function.c ****         HAL_Delay(3);
+ 718              		.loc 1 351 9 is_stmt 1 view .LVU182
+ 719 0114 0320     		movs	r0, #3
+ 720 0116 FFF7FEFF 		bl	HAL_Delay
+ 721              	.LVL52:
+ 352:Core/Src/ad9520_function.c ****         HAL_GPIO_WritePin(spi1_cs_GPIO_Port, spi1_cs_Pin, GPIO_PIN_SET);
+ 722              		.loc 1 352 9 view .LVU183
+ 723 011a 8C4C     		ldr	r4, .L51+4
+ 724              	.LVL53:
+ 725              		.loc 1 352 9 is_stmt 0 view .LVU184
+ 726 011c 0122     		movs	r2, #1
+ 727 011e 1021     		movs	r1, #16
+ 728 0120 2046     		mov	r0, r4
+ 729 0122 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 730              	.LVL54:
+ 353:Core/Src/ad9520_function.c ****         HAL_Delay(2);
+ 731              		.loc 1 353 9 is_stmt 1 view .LVU185
+ 732 0126 0220     		movs	r0, #2
+ 733 0128 FFF7FEFF 		bl	HAL_Delay
+ARM GAS  /tmp/ccUXEJVU.s 			page 20
+
+
+ 734              	.LVL55:
+ 735              	.LBE6:
+ 354:Core/Src/ad9520_function.c ****     }while(0);
+ 736              		.loc 1 354 11 view .LVU186
+ 355:Core/Src/ad9520_function.c ****     //update_ad9520_regs();
+ 356:Core/Src/ad9520_function.c **** 
+ 357:Core/Src/ad9520_function.c **** 
+ 358:Core/Src/ad9520_function.c ****     //program output control 0x0F0 ---- 0x0FD : out0_control --- enable_output_on_csdld_h
+ 359:Core/Src/ad9520_function.c ****     //write 7X16bits, wirthe 7 times
+ 360:Core/Src/ad9520_function.c ****     pad9520_reg = (ad9520_reg_t *)(&(ad9520_regs.enable_output_on_csdld_h));
+ 737              		.loc 1 360 5 view .LVU187
+ 361:Core/Src/ad9520_function.c ****     do{
+ 738              		.loc 1 361 5 view .LVU188
+ 739              	.LBB7:
+ 362:Core/Src/ad9520_function.c ****         HAL_Delay(2);
+ 740              		.loc 1 362 9 view .LVU189
+ 741 012c 0220     		movs	r0, #2
+ 742 012e FFF7FEFF 		bl	HAL_Delay
+ 743              	.LVL56:
+ 363:Core/Src/ad9520_function.c ****         HAL_GPIO_WritePin(spi1_cs_GPIO_Port, spi1_cs_Pin, GPIO_PIN_RESET);
+ 744              		.loc 1 363 9 view .LVU190
+ 745 0132 0022     		movs	r2, #0
+ 746 0134 1021     		movs	r1, #16
+ 747 0136 2046     		mov	r0, r4
+ 748 0138 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 749              	.LVL57:
+ 364:Core/Src/ad9520_function.c ****         // 2. 发送寄存器地址
+ 365:Core/Src/ad9520_function.c ****         HAL_Delay(3);
+ 750              		.loc 1 365 9 view .LVU191
+ 751 013c 0320     		movs	r0, #3
+ 752 013e FFF7FEFF 		bl	HAL_Delay
+ 753              	.LVL58:
+ 366:Core/Src/ad9520_function.c ****         uint16_t tmpAdr = (pad9520_reg->reg_addr)|WR_OPRs;
+ 754              		.loc 1 366 9 view .LVU192
+ 755              		.loc 1 366 39 is_stmt 0 view .LVU193
+ 756 0142 814B     		ldr	r3, .L51
+ 757 0144 B3F8C630 		ldrh	r3, [r3, #198]
+ 758              		.loc 1 366 18 view .LVU194
+ 759 0148 43F4C043 		orr	r3, r3, #24576
+ 760 014c ADF80430 		strh	r3, [sp, #4]	@ movhi
+ 367:Core/Src/ad9520_function.c ****         HAL_SPI_Transmit(&hspi1, (uint8_t *)&(tmpAdr), 1, 100);
+ 761              		.loc 1 367 9 is_stmt 1 view .LVU195
+ 762 0150 6423     		movs	r3, #100
+ 763 0152 0122     		movs	r2, #1
+ 764 0154 01A9     		add	r1, sp, #4
+ 765 0156 7E48     		ldr	r0, .L51+8
+ 766 0158 FFF7FEFF 		bl	HAL_SPI_Transmit
+ 767              	.LVL59:
+ 368:Core/Src/ad9520_function.c ****         // 3. 发送寄存器数据
+ 369:Core/Src/ad9520_function.c ****         for(int i=0; i<7; i++){
+ 768              		.loc 1 369 9 view .LVU196
+ 769              	.LBB8:
+ 770              		.loc 1 369 13 view .LVU197
+ 771              		.loc 1 369 17 is_stmt 0 view .LVU198
+ 772 015c 0024     		movs	r4, #0
+ 773              		.loc 1 369 9 view .LVU199
+ 774 015e 1BE0     		b	.L39
+ARM GAS  /tmp/ccUXEJVU.s 			page 21
+
+
+ 775              	.LVL60:
+ 776              	.L40:
+ 777              	.LBB9:
+ 370:Core/Src/ad9520_function.c ****             HAL_Delay(3);
+ 778              		.loc 1 370 13 is_stmt 1 discriminator 3 view .LVU200
+ 779 0160 0320     		movs	r0, #3
+ 780 0162 FFF7FEFF 		bl	HAL_Delay
+ 781              	.LVL61:
+ 371:Core/Src/ad9520_function.c ****             uint16_t tmpData = ((pad9520_reg-i*2)->reg_setval << 8) | ((pad9520_reg-i*2-1)->reg_set
+ 782              		.loc 1 371 13 discriminator 3 view .LVU201
+ 783              		.loc 1 371 45 is_stmt 0 discriminator 3 view .LVU202
+ 784 0166 04EB4401 		add	r1, r4, r4, lsl #1
+ 785 016a 7B4B     		ldr	r3, .L51+16
+ 786 016c A3EB8102 		sub	r2, r3, r1, lsl #2
+ 787              		.loc 1 371 50 discriminator 3 view .LVU203
+ 788 0170 9088     		ldrh	r0, [r2, #4]
+ 789              		.loc 1 371 88 discriminator 3 view .LVU204
+ 790 0172 6FF00502 		mvn	r2, #5
+ 791 0176 A2EB8102 		sub	r2, r2, r1, lsl #2
+ 792 017a 1344     		add	r3, r3, r2
+ 793              		.loc 1 371 91 discriminator 3 view .LVU205
+ 794 017c B3F90430 		ldrsh	r3, [r3, #4]
+ 795              		.loc 1 371 69 discriminator 3 view .LVU206
+ 796 0180 43EA0023 		orr	r3, r3, r0, lsl #8
+ 797              		.loc 1 371 22 discriminator 3 view .LVU207
+ 798 0184 ADF80630 		strh	r3, [sp, #6]	@ movhi
+ 372:Core/Src/ad9520_function.c ****             //tmpData = 0x3c3c;
+ 373:Core/Src/ad9520_function.c ****             HAL_SPI_Transmit(&hspi1, (uint8_t *)&(tmpData), 1, 100);
+ 799              		.loc 1 373 13 is_stmt 1 discriminator 3 view .LVU208
+ 800 0188 6423     		movs	r3, #100
+ 801 018a 0122     		movs	r2, #1
+ 802 018c 0DF10601 		add	r1, sp, #6
+ 803 0190 6F48     		ldr	r0, .L51+8
+ 804 0192 FFF7FEFF 		bl	HAL_SPI_Transmit
+ 805              	.LVL62:
+ 806              	.LBE9:
+ 369:Core/Src/ad9520_function.c ****             HAL_Delay(3);
+ 807              		.loc 1 369 27 discriminator 3 view .LVU209
+ 369:Core/Src/ad9520_function.c ****             HAL_Delay(3);
+ 808              		.loc 1 369 28 is_stmt 0 discriminator 3 view .LVU210
+ 809 0196 0134     		adds	r4, r4, #1
+ 810              	.LVL63:
+ 811              	.L39:
+ 369:Core/Src/ad9520_function.c ****             HAL_Delay(3);
+ 812              		.loc 1 369 22 is_stmt 1 discriminator 1 view .LVU211
+ 369:Core/Src/ad9520_function.c ****             HAL_Delay(3);
+ 813              		.loc 1 369 9 is_stmt 0 discriminator 1 view .LVU212
+ 814 0198 062C     		cmp	r4, #6
+ 815 019a E1DD     		ble	.L40
+ 816              	.LBE8:
+ 374:Core/Src/ad9520_function.c ****         }
+ 375:Core/Src/ad9520_function.c ****         // 4. 设置spi_cs引脚为高电平
+ 376:Core/Src/ad9520_function.c ****         HAL_Delay(3);
+ 817              		.loc 1 376 9 is_stmt 1 view .LVU213
+ 818 019c 0320     		movs	r0, #3
+ 819 019e FFF7FEFF 		bl	HAL_Delay
+ 820              	.LVL64:
+ARM GAS  /tmp/ccUXEJVU.s 			page 22
+
+
+ 377:Core/Src/ad9520_function.c ****         HAL_GPIO_WritePin(spi1_cs_GPIO_Port, spi1_cs_Pin, GPIO_PIN_SET);
+ 821              		.loc 1 377 9 view .LVU214
+ 822 01a2 6A4C     		ldr	r4, .L51+4
+ 823              	.LVL65:
+ 824              		.loc 1 377 9 is_stmt 0 view .LVU215
+ 825 01a4 0122     		movs	r2, #1
+ 826 01a6 1021     		movs	r1, #16
+ 827 01a8 2046     		mov	r0, r4
+ 828 01aa FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 829              	.LVL66:
+ 378:Core/Src/ad9520_function.c ****         HAL_Delay(2);
+ 830              		.loc 1 378 9 is_stmt 1 view .LVU216
+ 831 01ae 0220     		movs	r0, #2
+ 832 01b0 FFF7FEFF 		bl	HAL_Delay
+ 833              	.LVL67:
+ 834              	.LBE7:
+ 379:Core/Src/ad9520_function.c ****     }while(0);
+ 835              		.loc 1 379 11 view .LVU217
+ 380:Core/Src/ad9520_function.c ****     
+ 381:Core/Src/ad9520_function.c ****     //program output mode and dividers 0x190 --- 0x19b : Divider_0 --- Divider_3_2
+ 382:Core/Src/ad9520_function.c ****     //write 6X16bits, wirthe 6 times
+ 383:Core/Src/ad9520_function.c ****     pad9520_reg = (ad9520_reg_t *)(&(ad9520_regs.divider_3_2));
+ 836              		.loc 1 383 5 view .LVU218
+ 384:Core/Src/ad9520_function.c ****     do{
+ 837              		.loc 1 384 5 view .LVU219
+ 838              	.LBB10:
+ 385:Core/Src/ad9520_function.c ****         HAL_Delay(2);
+ 839              		.loc 1 385 9 view .LVU220
+ 840 01b4 0220     		movs	r0, #2
+ 841 01b6 FFF7FEFF 		bl	HAL_Delay
+ 842              	.LVL68:
+ 386:Core/Src/ad9520_function.c ****         HAL_GPIO_WritePin(spi1_cs_GPIO_Port, spi1_cs_Pin, GPIO_PIN_RESET);
+ 843              		.loc 1 386 9 view .LVU221
+ 844 01ba 0022     		movs	r2, #0
+ 845 01bc 1021     		movs	r1, #16
+ 846 01be 2046     		mov	r0, r4
+ 847 01c0 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 848              	.LVL69:
+ 387:Core/Src/ad9520_function.c ****         // 2. 发送寄存器地址
+ 388:Core/Src/ad9520_function.c ****         HAL_Delay(3);
+ 849              		.loc 1 388 9 view .LVU222
+ 850 01c4 0320     		movs	r0, #3
+ 851 01c6 FFF7FEFF 		bl	HAL_Delay
+ 852              	.LVL70:
+ 389:Core/Src/ad9520_function.c ****         uint16_t tmpAdr = (pad9520_reg->reg_addr)|WR_OPRs;
+ 853              		.loc 1 389 9 view .LVU223
+ 854              		.loc 1 389 39 is_stmt 0 view .LVU224
+ 855 01ca 5F4B     		ldr	r3, .L51
+ 856 01cc B3F80E31 		ldrh	r3, [r3, #270]
+ 857              		.loc 1 389 18 view .LVU225
+ 858 01d0 43F4C043 		orr	r3, r3, #24576
+ 859 01d4 ADF80430 		strh	r3, [sp, #4]	@ movhi
+ 390:Core/Src/ad9520_function.c ****         HAL_SPI_Transmit(&hspi1, (uint8_t *)&(tmpAdr), 1, 100);
+ 860              		.loc 1 390 9 is_stmt 1 view .LVU226
+ 861 01d8 6423     		movs	r3, #100
+ 862 01da 0122     		movs	r2, #1
+ 863 01dc 01A9     		add	r1, sp, #4
+ARM GAS  /tmp/ccUXEJVU.s 			page 23
+
+
+ 864 01de 5C48     		ldr	r0, .L51+8
+ 865 01e0 FFF7FEFF 		bl	HAL_SPI_Transmit
+ 866              	.LVL71:
+ 391:Core/Src/ad9520_function.c ****         // 3. 发送寄存器数据
+ 392:Core/Src/ad9520_function.c ****         for(int i=0; i<6; i++){
+ 867              		.loc 1 392 9 view .LVU227
+ 868              	.LBB11:
+ 869              		.loc 1 392 13 view .LVU228
+ 870              		.loc 1 392 17 is_stmt 0 view .LVU229
+ 871 01e4 0024     		movs	r4, #0
+ 872              	.LVL72:
+ 873              	.L41:
+ 874              		.loc 1 392 22 is_stmt 1 discriminator 1 view .LVU230
+ 875              		.loc 1 392 9 is_stmt 0 discriminator 1 view .LVU231
+ 876 01e6 052C     		cmp	r4, #5
+ 877 01e8 1CDC     		bgt	.L49
+ 878              	.LBB12:
+ 393:Core/Src/ad9520_function.c ****             HAL_Delay(3);
+ 879              		.loc 1 393 13 is_stmt 1 discriminator 3 view .LVU232
+ 880 01ea 0320     		movs	r0, #3
+ 881 01ec FFF7FEFF 		bl	HAL_Delay
+ 882              	.LVL73:
+ 394:Core/Src/ad9520_function.c ****             uint16_t tmpData = ((pad9520_reg-i*2)->reg_setval << 8) | ((pad9520_reg-i*2-1)->reg_set
+ 883              		.loc 1 394 13 discriminator 3 view .LVU233
+ 884              		.loc 1 394 45 is_stmt 0 discriminator 3 view .LVU234
+ 885 01f0 04EB4401 		add	r1, r4, r4, lsl #1
+ 886 01f4 594B     		ldr	r3, .L51+20
+ 887 01f6 A3EB8102 		sub	r2, r3, r1, lsl #2
+ 888              		.loc 1 394 50 discriminator 3 view .LVU235
+ 889 01fa 9088     		ldrh	r0, [r2, #4]
+ 890              		.loc 1 394 88 discriminator 3 view .LVU236
+ 891 01fc 6FF00502 		mvn	r2, #5
+ 892 0200 A2EB8102 		sub	r2, r2, r1, lsl #2
+ 893 0204 1344     		add	r3, r3, r2
+ 894              		.loc 1 394 91 discriminator 3 view .LVU237
+ 895 0206 B3F90430 		ldrsh	r3, [r3, #4]
+ 896              		.loc 1 394 69 discriminator 3 view .LVU238
+ 897 020a 43EA0023 		orr	r3, r3, r0, lsl #8
+ 898              		.loc 1 394 22 discriminator 3 view .LVU239
+ 899 020e ADF80630 		strh	r3, [sp, #6]	@ movhi
+ 395:Core/Src/ad9520_function.c ****             //tmpData = 0x3c3c;
+ 396:Core/Src/ad9520_function.c ****             HAL_SPI_Transmit(&hspi1, (uint8_t *)&(tmpData), 1, 100);
+ 900              		.loc 1 396 13 is_stmt 1 discriminator 3 view .LVU240
+ 901 0212 6423     		movs	r3, #100
+ 902 0214 0122     		movs	r2, #1
+ 903 0216 0DF10601 		add	r1, sp, #6
+ 904 021a 4D48     		ldr	r0, .L51+8
+ 905 021c FFF7FEFF 		bl	HAL_SPI_Transmit
+ 906              	.LVL74:
+ 907              	.LBE12:
+ 392:Core/Src/ad9520_function.c ****             HAL_Delay(3);
+ 908              		.loc 1 392 27 discriminator 3 view .LVU241
+ 392:Core/Src/ad9520_function.c ****             HAL_Delay(3);
+ 909              		.loc 1 392 28 is_stmt 0 discriminator 3 view .LVU242
+ 910 0220 0134     		adds	r4, r4, #1
+ 911              	.LVL75:
+ 392:Core/Src/ad9520_function.c ****             HAL_Delay(3);
+ARM GAS  /tmp/ccUXEJVU.s 			page 24
+
+
+ 912              		.loc 1 392 28 discriminator 3 view .LVU243
+ 913 0222 E0E7     		b	.L41
+ 914              	.L49:
+ 392:Core/Src/ad9520_function.c ****             HAL_Delay(3);
+ 915              		.loc 1 392 28 discriminator 3 view .LVU244
+ 916              	.LBE11:
+ 397:Core/Src/ad9520_function.c ****         }
+ 398:Core/Src/ad9520_function.c ****         // 4. 设置spi_cs引脚为高电平
+ 399:Core/Src/ad9520_function.c ****         HAL_Delay(3);
+ 917              		.loc 1 399 9 is_stmt 1 view .LVU245
+ 918 0224 0320     		movs	r0, #3
+ 919 0226 FFF7FEFF 		bl	HAL_Delay
+ 920              	.LVL76:
+ 400:Core/Src/ad9520_function.c ****         HAL_GPIO_WritePin(spi1_cs_GPIO_Port, spi1_cs_Pin, GPIO_PIN_SET);
+ 921              		.loc 1 400 9 view .LVU246
+ 922 022a 484C     		ldr	r4, .L51+4
+ 923              	.LVL77:
+ 924              		.loc 1 400 9 is_stmt 0 view .LVU247
+ 925 022c 0122     		movs	r2, #1
+ 926 022e 1021     		movs	r1, #16
+ 927 0230 2046     		mov	r0, r4
+ 928 0232 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 929              	.LVL78:
+ 401:Core/Src/ad9520_function.c ****         HAL_Delay(2);
+ 930              		.loc 1 401 9 is_stmt 1 view .LVU248
+ 931 0236 0220     		movs	r0, #2
+ 932 0238 FFF7FEFF 		bl	HAL_Delay
+ 933              	.LVL79:
+ 934              	.LBE10:
+ 402:Core/Src/ad9520_function.c ****     }while(0);
+ 935              		.loc 1 402 11 view .LVU249
+ 403:Core/Src/ad9520_function.c **** 
+ 404:Core/Src/ad9520_function.c ****     //program VCO divider 0x1e0 --- 0x1e1 : VCO_drivider --- input clk
+ 405:Core/Src/ad9520_function.c ****     //write 1X16bits, wirthe 1 times
+ 406:Core/Src/ad9520_function.c ****     pad9520_reg = (ad9520_reg_t *)(&(ad9520_regs.input_clks));
+ 936              		.loc 1 406 5 view .LVU250
+ 407:Core/Src/ad9520_function.c ****     do{
+ 937              		.loc 1 407 5 view .LVU251
+ 938              	.LBB13:
+ 408:Core/Src/ad9520_function.c ****         HAL_Delay(2);
+ 939              		.loc 1 408 9 view .LVU252
+ 940 023c 0220     		movs	r0, #2
+ 941 023e FFF7FEFF 		bl	HAL_Delay
+ 942              	.LVL80:
+ 409:Core/Src/ad9520_function.c ****         HAL_GPIO_WritePin(spi1_cs_GPIO_Port, spi1_cs_Pin, GPIO_PIN_RESET);
+ 943              		.loc 1 409 9 view .LVU253
+ 944 0242 0022     		movs	r2, #0
+ 945 0244 1021     		movs	r1, #16
+ 946 0246 2046     		mov	r0, r4
+ 947 0248 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 948              	.LVL81:
+ 410:Core/Src/ad9520_function.c ****         // 2. 发送寄存器地址
+ 411:Core/Src/ad9520_function.c ****         HAL_Delay(3);
+ 949              		.loc 1 411 9 view .LVU254
+ 950 024c 0320     		movs	r0, #3
+ 951 024e FFF7FEFF 		bl	HAL_Delay
+ 952              	.LVL82:
+ARM GAS  /tmp/ccUXEJVU.s 			page 25
+
+
+ 412:Core/Src/ad9520_function.c ****         uint16_t tmpAdr = (pad9520_reg->reg_addr)|WR_OPRs;
+ 953              		.loc 1 412 9 view .LVU255
+ 954              		.loc 1 412 39 is_stmt 0 view .LVU256
+ 955 0252 3D4B     		ldr	r3, .L51
+ 956 0254 B3F81A31 		ldrh	r3, [r3, #282]
+ 957              		.loc 1 412 18 view .LVU257
+ 958 0258 43F4C043 		orr	r3, r3, #24576
+ 959 025c ADF80430 		strh	r3, [sp, #4]	@ movhi
+ 413:Core/Src/ad9520_function.c ****         HAL_SPI_Transmit(&hspi1, (uint8_t *)&(tmpAdr), 1, 100);
+ 960              		.loc 1 413 9 is_stmt 1 view .LVU258
+ 961 0260 6423     		movs	r3, #100
+ 962 0262 0122     		movs	r2, #1
+ 963 0264 01A9     		add	r1, sp, #4
+ 964 0266 3A48     		ldr	r0, .L51+8
+ 965 0268 FFF7FEFF 		bl	HAL_SPI_Transmit
+ 966              	.LVL83:
+ 414:Core/Src/ad9520_function.c ****         // 3. 发送寄存器数据
+ 415:Core/Src/ad9520_function.c ****         for(int i=0; i<1; i++){
+ 967              		.loc 1 415 9 view .LVU259
+ 968              	.LBB14:
+ 969              		.loc 1 415 13 view .LVU260
+ 970              		.loc 1 415 17 is_stmt 0 view .LVU261
+ 971 026c 0024     		movs	r4, #0
+ 972              	.LVL84:
+ 973              	.L43:
+ 974              		.loc 1 415 22 is_stmt 1 discriminator 1 view .LVU262
+ 975              		.loc 1 415 9 is_stmt 0 discriminator 1 view .LVU263
+ 976 026e 002C     		cmp	r4, #0
+ 977 0270 1CDC     		bgt	.L50
+ 978              	.LBB15:
+ 416:Core/Src/ad9520_function.c ****             HAL_Delay(3);
+ 979              		.loc 1 416 13 is_stmt 1 discriminator 3 view .LVU264
+ 980 0272 0320     		movs	r0, #3
+ 981 0274 FFF7FEFF 		bl	HAL_Delay
+ 982              	.LVL85:
+ 417:Core/Src/ad9520_function.c ****             uint16_t tmpData = ((pad9520_reg-i*2)->reg_setval << 8) | ((pad9520_reg-i*2-1)->reg_set
+ 983              		.loc 1 417 13 discriminator 3 view .LVU265
+ 984              		.loc 1 417 45 is_stmt 0 discriminator 3 view .LVU266
+ 985 0278 04EB4401 		add	r1, r4, r4, lsl #1
+ 986 027c 384B     		ldr	r3, .L51+24
+ 987 027e A3EB8102 		sub	r2, r3, r1, lsl #2
+ 988              		.loc 1 417 50 discriminator 3 view .LVU267
+ 989 0282 9088     		ldrh	r0, [r2, #4]
+ 990              		.loc 1 417 88 discriminator 3 view .LVU268
+ 991 0284 6FF00502 		mvn	r2, #5
+ 992 0288 A2EB8102 		sub	r2, r2, r1, lsl #2
+ 993 028c 1344     		add	r3, r3, r2
+ 994              		.loc 1 417 91 discriminator 3 view .LVU269
+ 995 028e B3F90430 		ldrsh	r3, [r3, #4]
+ 996              		.loc 1 417 69 discriminator 3 view .LVU270
+ 997 0292 43EA0023 		orr	r3, r3, r0, lsl #8
+ 998              		.loc 1 417 22 discriminator 3 view .LVU271
+ 999 0296 ADF80630 		strh	r3, [sp, #6]	@ movhi
+ 418:Core/Src/ad9520_function.c ****             //tmpData = 0x3c3c;
+ 419:Core/Src/ad9520_function.c ****             HAL_SPI_Transmit(&hspi1, (uint8_t *)&(tmpData), 1, 100);
+ 1000              		.loc 1 419 13 is_stmt 1 discriminator 3 view .LVU272
+ 1001 029a 6423     		movs	r3, #100
+ARM GAS  /tmp/ccUXEJVU.s 			page 26
+
+
+ 1002 029c 0122     		movs	r2, #1
+ 1003 029e 0DF10601 		add	r1, sp, #6
+ 1004 02a2 2B48     		ldr	r0, .L51+8
+ 1005 02a4 FFF7FEFF 		bl	HAL_SPI_Transmit
+ 1006              	.LVL86:
+ 1007              	.LBE15:
+ 415:Core/Src/ad9520_function.c ****             HAL_Delay(3);
+ 1008              		.loc 1 415 27 discriminator 3 view .LVU273
+ 415:Core/Src/ad9520_function.c ****             HAL_Delay(3);
+ 1009              		.loc 1 415 28 is_stmt 0 discriminator 3 view .LVU274
+ 1010 02a8 0134     		adds	r4, r4, #1
+ 1011              	.LVL87:
+ 415:Core/Src/ad9520_function.c ****             HAL_Delay(3);
+ 1012              		.loc 1 415 28 discriminator 3 view .LVU275
+ 1013 02aa E0E7     		b	.L43
+ 1014              	.L50:
+ 415:Core/Src/ad9520_function.c ****             HAL_Delay(3);
+ 1015              		.loc 1 415 28 discriminator 3 view .LVU276
+ 1016              	.LBE14:
+ 420:Core/Src/ad9520_function.c ****         }
+ 421:Core/Src/ad9520_function.c ****         // 4. 设置spi_cs引脚为高电平
+ 422:Core/Src/ad9520_function.c ****         HAL_Delay(3);
+ 1017              		.loc 1 422 9 is_stmt 1 view .LVU277
+ 1018 02ac 0320     		movs	r0, #3
+ 1019 02ae FFF7FEFF 		bl	HAL_Delay
+ 1020              	.LVL88:
+ 423:Core/Src/ad9520_function.c ****         HAL_GPIO_WritePin(spi1_cs_GPIO_Port, spi1_cs_Pin, GPIO_PIN_SET);
+ 1021              		.loc 1 423 9 view .LVU278
+ 1022 02b2 264C     		ldr	r4, .L51+4
+ 1023              	.LVL89:
+ 1024              		.loc 1 423 9 is_stmt 0 view .LVU279
+ 1025 02b4 0122     		movs	r2, #1
+ 1026 02b6 1021     		movs	r1, #16
+ 1027 02b8 2046     		mov	r0, r4
+ 1028 02ba FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 1029              	.LVL90:
+ 424:Core/Src/ad9520_function.c ****         HAL_Delay(2);
+ 1030              		.loc 1 424 9 is_stmt 1 view .LVU280
+ 1031 02be 0220     		movs	r0, #2
+ 1032 02c0 FFF7FEFF 		bl	HAL_Delay
+ 1033              	.LVL91:
+ 1034              	.LBE13:
+ 425:Core/Src/ad9520_function.c ****     }while(0);
+ 1035              		.loc 1 425 11 view .LVU281
+ 426:Core/Src/ad9520_function.c **** 
+ 427:Core/Src/ad9520_function.c ****     //program system power control 0x230 ---  : system_power_control --- 
+ 428:Core/Src/ad9520_function.c ****     //write 1X16bits, wirthe 1 times
+ 429:Core/Src/ad9520_function.c ****     pad9520_reg = (ad9520_reg_t *)(&(ad9520_regs.power_down));
+ 1036              		.loc 1 429 5 view .LVU282
+ 430:Core/Src/ad9520_function.c ****     do{
+ 1037              		.loc 1 430 5 view .LVU283
+ 1038              	.LBB16:
+ 431:Core/Src/ad9520_function.c ****         HAL_Delay(2);
+ 1039              		.loc 1 431 9 view .LVU284
+ 1040 02c4 0220     		movs	r0, #2
+ 1041 02c6 FFF7FEFF 		bl	HAL_Delay
+ 1042              	.LVL92:
+ARM GAS  /tmp/ccUXEJVU.s 			page 27
+
+
+ 432:Core/Src/ad9520_function.c ****         HAL_GPIO_WritePin(spi1_cs_GPIO_Port, spi1_cs_Pin, GPIO_PIN_RESET);
+ 1043              		.loc 1 432 9 view .LVU285
+ 1044 02ca 0022     		movs	r2, #0
+ 1045 02cc 1021     		movs	r1, #16
+ 1046 02ce 2046     		mov	r0, r4
+ 1047 02d0 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 1048              	.LVL93:
+ 433:Core/Src/ad9520_function.c ****         // 2. 发送寄存器地址
+ 434:Core/Src/ad9520_function.c ****         HAL_Delay(3);
+ 1049              		.loc 1 434 9 view .LVU286
+ 1050 02d4 0320     		movs	r0, #3
+ 1051 02d6 FFF7FEFF 		bl	HAL_Delay
+ 1052              	.LVL94:
+ 435:Core/Src/ad9520_function.c ****         uint16_t tmpAdr = (pad9520_reg->reg_addr)|WR_OPRs;
+ 1053              		.loc 1 435 9 view .LVU287
+ 1054              		.loc 1 435 39 is_stmt 0 view .LVU288
+ 1055 02da 1B4B     		ldr	r3, .L51
+ 1056 02dc B3F82031 		ldrh	r3, [r3, #288]
+ 1057              		.loc 1 435 18 view .LVU289
+ 1058 02e0 43F4C043 		orr	r3, r3, #24576
+ 1059 02e4 ADF80430 		strh	r3, [sp, #4]	@ movhi
+ 436:Core/Src/ad9520_function.c ****         HAL_SPI_Transmit(&hspi1, (uint8_t *)&(tmpAdr), 1, 100);
+ 1060              		.loc 1 436 9 is_stmt 1 view .LVU290
+ 1061 02e8 6423     		movs	r3, #100
+ 1062 02ea 0122     		movs	r2, #1
+ 1063 02ec 01A9     		add	r1, sp, #4
+ 1064 02ee 1848     		ldr	r0, .L51+8
+ 1065 02f0 FFF7FEFF 		bl	HAL_SPI_Transmit
+ 1066              	.LVL95:
+ 437:Core/Src/ad9520_function.c ****         // 3. 发送寄存器数据
+ 438:Core/Src/ad9520_function.c ****         for(int i=0; i<1; i++){
+ 1067              		.loc 1 438 9 view .LVU291
+ 1068              	.LBB17:
+ 1069              		.loc 1 438 13 view .LVU292
+ 1070              		.loc 1 438 17 is_stmt 0 view .LVU293
+ 1071 02f4 0024     		movs	r4, #0
+ 1072              	.LVL96:
+ 1073              	.L45:
+ 1074              		.loc 1 438 22 is_stmt 1 discriminator 1 view .LVU294
+ 1075              		.loc 1 438 9 is_stmt 0 discriminator 1 view .LVU295
+ 1076 02f6 002C     		cmp	r4, #0
+ 1077 02f8 0EDD     		ble	.L46
+ 1078              	.LBE17:
+ 439:Core/Src/ad9520_function.c ****             HAL_Delay(3);
+ 440:Core/Src/ad9520_function.c ****             uint16_t tmpData = ((pad9520_reg-i)->reg_setval << 8) | ((pad9520_reg-i)->reg_setval );
+ 441:Core/Src/ad9520_function.c ****             //tmpData = 0x3c3c;
+ 442:Core/Src/ad9520_function.c ****             HAL_SPI_Transmit(&hspi1, (uint8_t *)&(tmpData), 1, 100);
+ 443:Core/Src/ad9520_function.c ****         }
+ 444:Core/Src/ad9520_function.c ****         // 4. 设置spi_cs引脚为高电平
+ 445:Core/Src/ad9520_function.c ****         HAL_Delay(3);
+ 1079              		.loc 1 445 9 is_stmt 1 view .LVU296
+ 1080 02fa 0320     		movs	r0, #3
+ 1081 02fc FFF7FEFF 		bl	HAL_Delay
+ 1082              	.LVL97:
+ 446:Core/Src/ad9520_function.c ****         HAL_GPIO_WritePin(spi1_cs_GPIO_Port, spi1_cs_Pin, GPIO_PIN_SET);
+ 1083              		.loc 1 446 9 view .LVU297
+ 1084 0300 0122     		movs	r2, #1
+ARM GAS  /tmp/ccUXEJVU.s 			page 28
+
+
+ 1085 0302 1021     		movs	r1, #16
+ 1086 0304 1148     		ldr	r0, .L51+4
+ 1087 0306 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 1088              	.LVL98:
+ 447:Core/Src/ad9520_function.c ****         HAL_Delay(2);
+ 1089              		.loc 1 447 9 view .LVU298
+ 1090 030a 0220     		movs	r0, #2
+ 1091 030c FFF7FEFF 		bl	HAL_Delay
+ 1092              	.LVL99:
+ 1093              	.LBE16:
+ 448:Core/Src/ad9520_function.c ****     }while(0);
+ 1094              		.loc 1 448 11 view .LVU299
+ 449:Core/Src/ad9520_function.c ****     update_ad9520_regs();
+ 1095              		.loc 1 449 5 view .LVU300
+ 1096 0310 FFF7FEFF 		bl	update_ad9520_regs
+ 1097              	.LVL100:
+ 450:Core/Src/ad9520_function.c **** }
+ 1098              		.loc 1 450 1 is_stmt 0 view .LVU301
+ 1099 0314 02B0     		add	sp, sp, #8
+ 1100              	.LCFI15:
+ 1101              		.cfi_remember_state
+ 1102              		.cfi_def_cfa_offset 16
+ 1103              		@ sp needed
+ 1104 0316 70BD     		pop	{r4, r5, r6, pc}
+ 1105              	.LVL101:
+ 1106              	.L46:
+ 1107              	.LCFI16:
+ 1108              		.cfi_restore_state
+ 1109              	.LBB20:
+ 1110              	.LBB19:
+ 1111              	.LBB18:
+ 439:Core/Src/ad9520_function.c ****             uint16_t tmpData = ((pad9520_reg-i)->reg_setval << 8) | ((pad9520_reg-i)->reg_setval );
+ 1112              		.loc 1 439 13 is_stmt 1 discriminator 3 view .LVU302
+ 1113 0318 0320     		movs	r0, #3
+ 1114 031a FFF7FEFF 		bl	HAL_Delay
+ 1115              	.LVL102:
+ 440:Core/Src/ad9520_function.c ****             //tmpData = 0x3c3c;
+ 1116              		.loc 1 440 13 discriminator 3 view .LVU303
+ 440:Core/Src/ad9520_function.c ****             //tmpData = 0x3c3c;
+ 1117              		.loc 1 440 45 is_stmt 0 discriminator 3 view .LVU304
+ 1118 031e 04EB4402 		add	r2, r4, r4, lsl #1
+ 1119 0322 104B     		ldr	r3, .L51+28
+ 1120 0324 A3EB4203 		sub	r3, r3, r2, lsl #1
+ 440:Core/Src/ad9520_function.c ****             //tmpData = 0x3c3c;
+ 1121              		.loc 1 440 48 discriminator 3 view .LVU305
+ 1122 0328 9A88     		ldrh	r2, [r3, #4]
+ 440:Core/Src/ad9520_function.c ****             //tmpData = 0x3c3c;
+ 1123              		.loc 1 440 85 discriminator 3 view .LVU306
+ 1124 032a B3F90430 		ldrsh	r3, [r3, #4]
+ 440:Core/Src/ad9520_function.c ****             //tmpData = 0x3c3c;
+ 1125              		.loc 1 440 67 discriminator 3 view .LVU307
+ 1126 032e 43EA0223 		orr	r3, r3, r2, lsl #8
+ 440:Core/Src/ad9520_function.c ****             //tmpData = 0x3c3c;
+ 1127              		.loc 1 440 22 discriminator 3 view .LVU308
+ 1128 0332 ADF80630 		strh	r3, [sp, #6]	@ movhi
+ 442:Core/Src/ad9520_function.c ****         }
+ 1129              		.loc 1 442 13 is_stmt 1 discriminator 3 view .LVU309
+ARM GAS  /tmp/ccUXEJVU.s 			page 29
+
+
+ 1130 0336 6423     		movs	r3, #100
+ 1131 0338 0122     		movs	r2, #1
+ 1132 033a 0DF10601 		add	r1, sp, #6
+ 1133 033e 0448     		ldr	r0, .L51+8
+ 1134 0340 FFF7FEFF 		bl	HAL_SPI_Transmit
+ 1135              	.LVL103:
+ 1136              	.LBE18:
+ 438:Core/Src/ad9520_function.c ****             HAL_Delay(3);
+ 1137              		.loc 1 438 27 discriminator 3 view .LVU310
+ 438:Core/Src/ad9520_function.c ****             HAL_Delay(3);
+ 1138              		.loc 1 438 28 is_stmt 0 discriminator 3 view .LVU311
+ 1139 0344 0134     		adds	r4, r4, #1
+ 1140              	.LVL104:
+ 438:Core/Src/ad9520_function.c ****             HAL_Delay(3);
+ 1141              		.loc 1 438 28 discriminator 3 view .LVU312
+ 1142 0346 D6E7     		b	.L45
+ 1143              	.L52:
+ 1144              		.align	2
+ 1145              	.L51:
+ 1146 0348 00000000 		.word	.LANCHOR0
+ 1147 034c 00080240 		.word	1073874944
+ 1148 0350 00000000 		.word	hspi1
+ 1149 0354 72000000 		.word	.LANCHOR0+114
+ 1150 0358 C6000000 		.word	.LANCHOR0+198
+ 1151 035c 0E010000 		.word	.LANCHOR0+270
+ 1152 0360 1A010000 		.word	.LANCHOR0+282
+ 1153 0364 20010000 		.word	.LANCHOR0+288
+ 1154              	.LBE19:
+ 1155              	.LBE20:
+ 1156              		.cfi_endproc
+ 1157              	.LFE137:
+ 1159              		.section	.text.init_ad9520,"ax",%progbits
+ 1160              		.align	1
+ 1161              		.global	init_ad9520
+ 1162              		.syntax unified
+ 1163              		.thumb
+ 1164              		.thumb_func
+ 1165              		.fpu fpv4-sp-d16
+ 1167              	init_ad9520:
+ 1168              	.LFB138:
+ 451:Core/Src/ad9520_function.c **** uint32_t tmpx=0;
+ 452:Core/Src/ad9520_function.c **** // ad9520寄存器初始化
+ 453:Core/Src/ad9520_function.c **** void init_ad9520(){
+ 1169              		.loc 1 453 19 is_stmt 1 view -0
+ 1170              		.cfi_startproc
+ 1171              		@ args = 0, pretend = 0, frame = 0
+ 1172              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1173 0000 08B5     		push	{r3, lr}
+ 1174              	.LCFI17:
+ 1175              		.cfi_def_cfa_offset 8
+ 1176              		.cfi_offset 3, -8
+ 1177              		.cfi_offset 14, -4
+ 454:Core/Src/ad9520_function.c ****     init_ad9520_spiport();
+ 1178              		.loc 1 454 5 view .LVU314
+ 1179 0002 FFF7FEFF 		bl	init_ad9520_spiport
+ 1180              	.LVL105:
+ 455:Core/Src/ad9520_function.c ****     set_ad9520_spiport();
+ARM GAS  /tmp/ccUXEJVU.s 			page 30
+
+
+ 1181              		.loc 1 455 5 view .LVU315
+ 1182 0006 FFF7FEFF 		bl	set_ad9520_spiport
+ 1183              	.LVL106:
+ 456:Core/Src/ad9520_function.c ****     set_ad9520_eeprom_custom_id_reg(0xeb90);
+ 1184              		.loc 1 456 5 view .LVU316
+ 1185 000a 4EF69030 		movw	r0, #60304
+ 1186 000e FFF7FEFF 		bl	set_ad9520_eeprom_custom_id_reg
+ 1187              	.LVL107:
+ 457:Core/Src/ad9520_function.c ****     read_ad9520_all_regs_setdefaultVal(SAVE_DEFAULT_VAL);
+ 1188              		.loc 1 457 5 view .LVU317
+ 1189 0012 0120     		movs	r0, #1
+ 1190 0014 FFF7FEFF 		bl	read_ad9520_all_regs_setdefaultVal
+ 1191              	.LVL108:
+ 458:Core/Src/ad9520_function.c ****     
+ 459:Core/Src/ad9520_function.c ****     HAL_Delay(30);
+ 1192              		.loc 1 459 5 view .LVU318
+ 1193 0018 1E20     		movs	r0, #30
+ 1194 001a FFF7FEFF 		bl	HAL_Delay
+ 1195              	.LVL109:
+ 460:Core/Src/ad9520_function.c ****     set_custom_val(PUMP_NAL);
+ 1196              		.loc 1 460 5 view .LVU319
+ 1197 001e 0220     		movs	r0, #2
+ 1198 0020 FFF7FEFF 		bl	set_custom_val
+ 1199              	.LVL110:
+ 461:Core/Src/ad9520_function.c ****     HAL_Delay(30);
+ 1200              		.loc 1 461 5 view .LVU320
+ 1201 0024 1E20     		movs	r0, #30
+ 1202 0026 FFF7FEFF 		bl	HAL_Delay
+ 1203              	.LVL111:
+ 462:Core/Src/ad9520_function.c ****     read_ad9520_all_regs_setdefaultVal(NOT_SAVE_DEFAULT_VAL);
+ 1204              		.loc 1 462 5 view .LVU321
+ 1205 002a 0020     		movs	r0, #0
+ 1206 002c FFF7FEFF 		bl	read_ad9520_all_regs_setdefaultVal
+ 1207              	.LVL112:
+ 463:Core/Src/ad9520_function.c ****     HAL_Delay(30);
+ 1208              		.loc 1 463 5 view .LVU322
+ 1209 0030 1E20     		movs	r0, #30
+ 1210 0032 FFF7FEFF 		bl	HAL_Delay
+ 1211              	.LVL113:
+ 464:Core/Src/ad9520_function.c ****     // read_ad9520_all_regs_setdefaultVal(SAVE_DEFAULT_VAL);
+ 465:Core/Src/ad9520_function.c ****     // HAL_Delay(30);
+ 466:Core/Src/ad9520_function.c **** }
+ 1212              		.loc 1 466 1 is_stmt 0 view .LVU323
+ 1213 0036 08BD     		pop	{r3, pc}
+ 1214              		.cfi_endproc
+ 1215              	.LFE138:
+ 1217              		.section	.text.check_ad9520_status,"ax",%progbits
+ 1218              		.align	1
+ 1219              		.global	check_ad9520_status
+ 1220              		.syntax unified
+ 1221              		.thumb
+ 1222              		.thumb_func
+ 1223              		.fpu fpv4-sp-d16
+ 1225              	check_ad9520_status:
+ 1226              	.LFB139:
+ 467:Core/Src/ad9520_function.c **** 
+ 468:Core/Src/ad9520_function.c **** 
+ARM GAS  /tmp/ccUXEJVU.s 			page 31
+
+
+ 469:Core/Src/ad9520_function.c **** void check_ad9520_status(){
+ 1227              		.loc 1 469 27 is_stmt 1 view -0
+ 1228              		.cfi_startproc
+ 1229              		@ args = 0, pretend = 0, frame = 0
+ 1230              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1231 0000 08B5     		push	{r3, lr}
+ 1232              	.LCFI18:
+ 1233              		.cfi_def_cfa_offset 8
+ 1234              		.cfi_offset 3, -8
+ 1235              		.cfi_offset 14, -4
+ 470:Core/Src/ad9520_function.c ****     read_ad9520_all_regs_setdefaultVal(NOT_SAVE_DEFAULT_VAL);
+ 1236              		.loc 1 470 5 view .LVU325
+ 1237 0002 0020     		movs	r0, #0
+ 1238 0004 FFF7FEFF 		bl	read_ad9520_all_regs_setdefaultVal
+ 1239              	.LVL114:
+ 471:Core/Src/ad9520_function.c **** }...
+ 1240              		.loc 1 471 1 is_stmt 0 view .LVU326
+ 1241 0008 08BD     		pop	{r3, pc}
+ 1242              		.cfi_endproc
+ 1243              	.LFE139:
+ 1245              		.global	tmpx
+ 1246              		.global	ad9520_regs
+ 1247              		.section	.bss.tmpx,"aw",%nobits
+ 1248              		.align	2
+ 1251              	tmpx:
+ 1252 0000 00000000 		.space	4
+ 1253              		.section	.data.ad9520_regs,"aw"
+ 1254              		.align	2
+ 1255              		.set	.LANCHOR0,. + 0
+ 1258              	ad9520_regs:
+ 1259 0000 0000     		.short	0
+ 1260 0002 0000     		.short	0
+ 1261 0004 0000     		.short	0
+ 1262 0006 0300     		.short	3
+ 1263 0008 0000     		.short	0
+ 1264 000a 0000     		.short	0
+ 1265 000c 0500     		.short	5
+ 1266 000e 0000     		.short	0
+ 1267 0010 0000     		.short	0
+ 1268 0012 0600     		.short	6
+ 1269 0014 0000     		.short	0
+ 1270 0016 0000     		.short	0
+ 1271 0018 1000     		.short	16
+ 1272 001a 0000     		.short	0
+ 1273 001c 0000     		.short	0
+ 1274 001e 1100     		.short	17
+ 1275 0020 0000     		.short	0
+ 1276 0022 0000     		.short	0
+ 1277 0024 1200     		.short	18
+ 1278 0026 0000     		.short	0
+ 1279 0028 0000     		.short	0
+ 1280 002a 1300     		.short	19
+ 1281 002c 0000     		.short	0
+ 1282 002e 0000     		.short	0
+ 1283 0030 1400     		.short	20
+ 1284 0032 0000     		.short	0
+ 1285 0034 0000     		.short	0
+ARM GAS  /tmp/ccUXEJVU.s 			page 32
+
+
+ 1286 0036 1500     		.short	21
+ 1287 0038 0000     		.short	0
+ 1288 003a 0000     		.short	0
+ 1289 003c 1600     		.short	22
+ 1290 003e 0000     		.short	0
+ 1291 0040 0000     		.short	0
+ 1292 0042 1700     		.short	23
+ 1293 0044 0000     		.short	0
+ 1294 0046 0000     		.short	0
+ 1295 0048 1800     		.short	24
+ 1296 004a 0000     		.short	0
+ 1297 004c 0000     		.short	0
+ 1298 004e 1900     		.short	25
+ 1299 0050 0000     		.short	0
+ 1300 0052 0000     		.short	0
+ 1301 0054 1A00     		.short	26
+ 1302 0056 0000     		.short	0
+ 1303 0058 0000     		.short	0
+ 1304 005a 1B00     		.short	27
+ 1305 005c 0000     		.short	0
+ 1306 005e 0000     		.short	0
+ 1307 0060 1C00     		.short	28
+ 1308 0062 0000     		.short	0
+ 1309 0064 0000     		.short	0
+ 1310 0066 1D00     		.short	29
+ 1311 0068 0000     		.short	0
+ 1312 006a 0000     		.short	0
+ 1313 006c 1E00     		.short	30
+ 1314 006e 0000     		.short	0
+ 1315 0070 0000     		.short	0
+ 1316 0072 1F00     		.short	31
+ 1317 0074 0000     		.short	0
+ 1318 0076 0000     		.short	0
+ 1319 0078 F000     		.short	240
+ 1320 007a 0000     		.short	0
+ 1321 007c 0000     		.short	0
+ 1322 007e F100     		.short	241
+ 1323 0080 0000     		.short	0
+ 1324 0082 0000     		.short	0
+ 1325 0084 F200     		.short	242
+ 1326 0086 0000     		.short	0
+ 1327 0088 0000     		.short	0
+ 1328 008a F300     		.short	243
+ 1329 008c 0000     		.short	0
+ 1330 008e 0000     		.short	0
+ 1331 0090 F400     		.short	244
+ 1332 0092 0000     		.short	0
+ 1333 0094 0000     		.short	0
+ 1334 0096 F500     		.short	245
+ 1335 0098 0000     		.short	0
+ 1336 009a 0000     		.short	0
+ 1337 009c F600     		.short	246
+ 1338 009e 0000     		.short	0
+ 1339 00a0 0000     		.short	0
+ 1340 00a2 F700     		.short	247
+ 1341 00a4 0000     		.short	0
+ 1342 00a6 0000     		.short	0
+ARM GAS  /tmp/ccUXEJVU.s 			page 33
+
+
+ 1343 00a8 F800     		.short	248
+ 1344 00aa 0000     		.short	0
+ 1345 00ac 0000     		.short	0
+ 1346 00ae F900     		.short	249
+ 1347 00b0 0000     		.short	0
+ 1348 00b2 0000     		.short	0
+ 1349 00b4 FA00     		.short	250
+ 1350 00b6 0000     		.short	0
+ 1351 00b8 0000     		.short	0
+ 1352 00ba FB00     		.short	251
+ 1353 00bc 0000     		.short	0
+ 1354 00be 0000     		.short	0
+ 1355 00c0 FC00     		.short	252
+ 1356 00c2 0000     		.short	0
+ 1357 00c4 0000     		.short	0
+ 1358 00c6 FD00     		.short	253
+ 1359 00c8 0000     		.short	0
+ 1360 00ca 0000     		.short	0
+ 1361 00cc 9001     		.short	400
+ 1362 00ce 0000     		.short	0
+ 1363 00d0 0000     		.short	0
+ 1364 00d2 9101     		.short	401
+ 1365 00d4 0000     		.short	0
+ 1366 00d6 0000     		.short	0
+ 1367 00d8 9201     		.short	402
+ 1368 00da 0000     		.short	0
+ 1369 00dc 0000     		.short	0
+ 1370 00de 9301     		.short	403
+ 1371 00e0 0000     		.short	0
+ 1372 00e2 0000     		.short	0
+ 1373 00e4 9401     		.short	404
+ 1374 00e6 0000     		.short	0
+ 1375 00e8 0000     		.short	0
+ 1376 00ea 9501     		.short	405
+ 1377 00ec 0000     		.short	0
+ 1378 00ee 0000     		.short	0
+ 1379 00f0 9601     		.short	406
+ 1380 00f2 0000     		.short	0
+ 1381 00f4 0000     		.short	0
+ 1382 00f6 9701     		.short	407
+ 1383 00f8 0000     		.short	0
+ 1384 00fa 0000     		.short	0
+ 1385 00fc 9801     		.short	408
+ 1386 00fe 0000     		.short	0
+ 1387 0100 0000     		.short	0
+ 1388 0102 9901     		.short	409
+ 1389 0104 0000     		.short	0
+ 1390 0106 0000     		.short	0
+ 1391 0108 9A01     		.short	410
+ 1392 010a 0000     		.short	0
+ 1393 010c 0000     		.short	0
+ 1394 010e 9B01     		.short	411
+ 1395 0110 0000     		.short	0
+ 1396 0112 0000     		.short	0
+ 1397 0114 E001     		.short	480
+ 1398 0116 0000     		.short	0
+ 1399 0118 0000     		.short	0
+ARM GAS  /tmp/ccUXEJVU.s 			page 34
+
+
+ 1400 011a E101     		.short	481
+ 1401 011c 0000     		.short	0
+ 1402 011e 0000     		.short	0
+ 1403 0120 3002     		.short	560
+ 1404 0122 0000     		.short	0
+ 1405 0124 0000     		.short	0
+ 1406 0126 3202     		.short	562
+ 1407 0128 0000     		.short	0
+ 1408 012a 0000     		.short	0
+ 1409              		.text
+ 1410              	.Letext0:
+ 1411              		.file 2 "/home/cahill/stm32cubeMx/install_bin/gcc-arm-none-eabi-9-2020-q2-update/arm-none-eabi/inc
+ 1412              		.file 3 "/home/cahill/stm32cubeMx/install_bin/gcc-arm-none-eabi-9-2020-q2-update/arm-none-eabi/inc
+ 1413              		.file 4 "Drivers/CMSIS/Include/core_cm4.h"
+ 1414              		.file 5 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h"
+ 1415              		.file 6 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f405xx.h"
+ 1416              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 1417              		.file 8 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h"
+ 1418              		.file 9 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 1419              		.file 10 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h"
+ 1420              		.file 11 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h"
+ 1421              		.file 12 "Core/Inc/ad9520_function.h"
+ARM GAS  /tmp/ccUXEJVU.s 			page 35
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 ad9520_function.c
+     /tmp/ccUXEJVU.s:18     .text.init_ad9520_spiport:0000000000000000 $t
+     /tmp/ccUXEJVU.s:26     .text.init_ad9520_spiport:0000000000000000 init_ad9520_spiport
+     /tmp/ccUXEJVU.s:49     .text.init_ad9520_spiport:0000000000000010 $d
+     /tmp/ccUXEJVU.s:54     .text.write_ad9520_reg:0000000000000000 $t
+     /tmp/ccUXEJVU.s:61     .text.write_ad9520_reg:0000000000000000 write_ad9520_reg
+     /tmp/ccUXEJVU.s:135    .text.write_ad9520_reg:000000000000005c $d
+     /tmp/ccUXEJVU.s:141    .text.read_ad9520_reg:0000000000000000 $t
+     /tmp/ccUXEJVU.s:148    .text.read_ad9520_reg:0000000000000000 read_ad9520_reg
+     /tmp/ccUXEJVU.s:225    .text.read_ad9520_reg:0000000000000058 $d
+     /tmp/ccUXEJVU.s:231    .text.read_ad9520_all_regs_setdefaultVal:0000000000000000 $t
+     /tmp/ccUXEJVU.s:238    .text.read_ad9520_all_regs_setdefaultVal:0000000000000000 read_ad9520_all_regs_setdefaultVal
+     /tmp/ccUXEJVU.s:318    .text.read_ad9520_all_regs_setdefaultVal:0000000000000040 $d
+     /tmp/ccUXEJVU.s:323    .text.update_ad9520_regs:0000000000000000 $t
+     /tmp/ccUXEJVU.s:330    .text.update_ad9520_regs:0000000000000000 update_ad9520_regs
+     /tmp/ccUXEJVU.s:363    .text.update_ad9520_regs:0000000000000024 $d
+     /tmp/ccUXEJVU.s:368    .text.set_ad9520_spiport:0000000000000000 $t
+     /tmp/ccUXEJVU.s:375    .text.set_ad9520_spiport:0000000000000000 set_ad9520_spiport
+     /tmp/ccUXEJVU.s:432    .text.set_ad9520_spiport:0000000000000050 $d
+     /tmp/ccUXEJVU.s:437    .text.set_ad9520_eeprom_custom_id_reg:0000000000000000 $t
+     /tmp/ccUXEJVU.s:444    .text.set_ad9520_eeprom_custom_id_reg:0000000000000000 set_ad9520_eeprom_custom_id_reg
+     /tmp/ccUXEJVU.s:472    .text.set_ad9520_eeprom_custom_id_reg:0000000000000014 $d
+     /tmp/ccUXEJVU.s:477    .text.set_custom_val:0000000000000000 $t
+     /tmp/ccUXEJVU.s:484    .text.set_custom_val:0000000000000000 set_custom_val
+     /tmp/ccUXEJVU.s:1146   .text.set_custom_val:0000000000000348 $d
+     /tmp/ccUXEJVU.s:1160   .text.init_ad9520:0000000000000000 $t
+     /tmp/ccUXEJVU.s:1167   .text.init_ad9520:0000000000000000 init_ad9520
+     /tmp/ccUXEJVU.s:1218   .text.check_ad9520_status:0000000000000000 $t
+     /tmp/ccUXEJVU.s:1225   .text.check_ad9520_status:0000000000000000 check_ad9520_status
+     /tmp/ccUXEJVU.s:1251   .bss.tmpx:0000000000000000 tmpx
+     /tmp/ccUXEJVU.s:1258   .data.ad9520_regs:0000000000000000 ad9520_regs
+     /tmp/ccUXEJVU.s:1248   .bss.tmpx:0000000000000000 $d
+     /tmp/ccUXEJVU.s:1254   .data.ad9520_regs:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+HAL_GPIO_WritePin
+HAL_Delay
+HAL_SPI_Transmit
+hspi1
+HAL_SPI_Receive

@@ -1,0 +1,152 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: µVision V5.29.0.0
+Copyright (C) 2019 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: c a, h, LIC=PE7DL-0N6QB-FWY2N-YJR5I-1CVL6-PEJQ6
+ 
+Tool Versions:
+Toolchain:       MDK-ARM Plus  Version: 5.29.0.0
+Toolchain Path:  C:\Keil_v5\ARM\ARMCC\Bin
+C Compiler:      Armcc.exe V5.06 update 6 (build 750)
+Assembler:       Armasm.exe V5.06 update 6 (build 750)
+Linker/Locator:  ArmLink.exe V5.06 update 6 (build 750)
+Library Manager: ArmAr.exe V5.06 update 6 (build 750)
+Hex Converter:   FromElf.exe V5.06 update 6 (build 750)
+CPU DLL:         SARMCM3.DLL V5.29.0.0
+Dialog DLL:      DCM.DLL V1.17.3.0
+Target DLL:      CMSIS_AGDI.dll V1.32.0.0
+Dialog DLL:      TCM.DLL V1.36.5.0
+ 
+<h2>Project:</h2>
+C:\Users\lpf_3\Desktop\stm32cube_workBench\stm32f405rgt6_detect_velocity\stm32f405rgt6_detect_velocity\MDK-ARM\stm32f405rgt6_detect_velocity.uvprojx
+Project File Date:  11/22/2023
+
+<h2>Output:</h2>
+*** Using Compiler 'V5.06 update 6 (build 750)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
+Rebuild target 'stm32f405rgt6_detect_velocity'
+assembling startup_stm32f405xx.s...
+compiling ad9520_function.c...
+..\Core\Src\ad9520_function.c(485): warning:  #1-D: last line of file ends without a newline
+  }
+..\Core\Src\ad9520_function.c: 1 warning, 0 errors
+compiling mainLoop.c...
+../Core/Inc/max5307.h(37): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\Core\Src\mainLoop.c(149): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+    HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, (uint32_t)((v_dianya/3.3)*4096));
+..\Core\Src\mainLoop.c(197): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+        HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, (uint32_t)((v_dianya/3.3)*4096));
+..\Core\Src\mainLoop.c(203): warning:  #128-D: loop is not reachable
+      while(complete_sign == 0){
+..\Core\Src\mainLoop.c(140): warning:  #550-D: variable "xx_bak"  was set but never used
+    int32_t xx_bak=0;
+..\Core\Src\mainLoop.c(141): warning:  #550-D: variable "yy_bak"  was set but never used
+    int32_t yy_bak=0;
+..\Core\Src\mainLoop.c(291): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+        v_dianya += 0.1;
+..\Core\Src\mainLoop.c(292): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+        HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, (uint32_t)((v_dianya/3.3)*4096));
+..\Core\Src\mainLoop.c(295): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+        v_dianya -= 0.1;
+..\Core\Src\mainLoop.c(296): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+        HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, (uint32_t)((v_dianya/3.3)*4096));
+..\Core\Src\mainLoop.c(298): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+        v_dianya += 0.01;
+..\Core\Src\mainLoop.c(299): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+        HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, (uint32_t)((v_dianya/3.3)*4096));
+..\Core\Src\mainLoop.c(301): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+         v_dianya -= 0.01;
+..\Core\Src\mainLoop.c(302): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+        HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, (uint32_t)((v_dianya/3.3)*4096));
+..\Core\Src\mainLoop.c(338): warning:  #223-D: function "abs" declared implicitly
+                if( abs(value_cp[i]) >= 5){
+..\Core\Src\mainLoop.c(351): warning:  #177-D: variable "tmp2"  was declared but never referenced
+        int32_t tmp1,tmp2,tmp3,tmp4,allSum=0;
+..\Core\Src\mainLoop.c(351): warning:  #177-D: variable "tmp3"  was declared but never referenced
+        int32_t tmp1,tmp2,tmp3,tmp4,allSum=0;
+..\Core\Src\mainLoop.c(351): warning:  #177-D: variable "tmp4"  was declared but never referenced
+        int32_t tmp1,tmp2,tmp3,tmp4,allSum=0;
+..\Core\Src\mainLoop.c(456): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+        dletDac = kP*((float_t)pidP) + kI*((float_t)pidI) + kD*((float_t)pidD);
+..\Core\Src\mainLoop.c(457): warning:  #223-D: function "abs" declared implicitly
+        tmpUint32 = abs((int32_t) (dletDac));
+..\Core\Src\mainLoop.c(437): warning:  #550-D: variable "tmpUint32"  was set but never used
+        uint32_t tmpUint32=0;
+..\Core\Src\mainLoop.c(481): warning:  #223-D: function "abs" declared implicitly
+                difval += abs(valMeanArray[i] - adc_buf->adcMeanVal);
+..\Core\Src\mainLoop.c(522): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+        dletDac = kP*((float_t)pidP) + kI*((float_t)pidI) + kD*((float_t)pidD);
+..\Core\Src\mainLoop.c(523): warning:  #223-D: function "abs" declared implicitly
+        tmpUint32 = abs((int32_t) (dletDac));
+..\Core\Src\mainLoop.c(498): warning:  #550-D: variable "tmpUint32"  was set but never used
+        uint32_t tmpUint32=0;
+..\Core\Src\mainLoop.c(597): warning:  #223-D: function "SystemClock_Config" declared implicitly
+        SystemClock_Config();//from main.c
+..\Core\Src\mainLoop.c(574): warning:  #177-D: variable "xyz"  was declared but never referenced
+        int32_t xyz=0;
+..\Core\Src\mainLoop.c(651): warning:  #1-D: last line of file ends without a newline
+  }
+..\Core\Src\mainLoop.c: 28 warnings, 0 errors
+compiling max5307.c...
+../Core/Inc/max5307.h(37): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\Core\Src\max5307.c: 1 warning, 0 errors
+compiling main.c...
+compiling stm32f4xx_it.c...
+compiling stm32f4xx_hal_msp.c...
+compiling stm32f4xx_hal_adc.c...
+compiling stm32f4xx_hal_adc_ex.c...
+compiling stm32f4xx_hal_rcc.c...
+compiling stm32f4xx_hal_rcc_ex.c...
+compiling stm32f4xx_hal_flash.c...
+compiling stm32f4xx_hal_flash_ex.c...
+compiling stm32f4xx_hal_flash_ramfunc.c...
+compiling stm32f4xx_hal_gpio.c...
+compiling stm32f4xx_hal_dma_ex.c...
+compiling stm32f4xx_hal_dma.c...
+compiling stm32f4xx_hal_pwr.c...
+compiling stm32f4xx_hal_pwr_ex.c...
+compiling stm32f4xx_hal_cortex.c...
+compiling stm32f4xx_hal.c...
+compiling stm32f4xx_hal_exti.c...
+compiling stm32f4xx_hal_can.c...
+compiling stm32f4xx_hal_dac.c...
+compiling stm32f4xx_hal_dac_ex.c...
+compiling stm32f4xx_hal_spi.c...
+compiling stm32f4xx_hal_tim.c...
+compiling stm32f4xx_hal_tim_ex.c...
+compiling stm32f4xx_hal_uart.c...
+compiling system_stm32f4xx.c...
+linking...
+Program Size: Code=16284 RO-data=488 RW-data=424 ZI-data=68356  
+FromELF: creating hex file...
+"stm32f405rgt6_detect_velocity\stm32f405rgt6_detect_velocity.axf" - 0 Error(s), 30 Warning(s).
+
+<h2>Software Packages used:</h2>
+
+Package Vendor: ARM
+                http://www.keil.com/pack/ARM.CMSIS.5.6.0.pack
+                ARM.CMSIS.5.6.0
+                CMSIS (Cortex Microcontroller Software Interface Standard)
+   * Component: CORE Version: 5.3.0
+
+Package Vendor: Keil
+                https://www.keil.com/pack/Keil.STM32F4xx_DFP.2.17.1.pack
+                Keil.STM32F4xx_DFP.2.17.1
+                STMicroelectronics STM32F4 Series Device Support, Drivers and Examples
+
+<h2>Collection of Component include folders:</h2>
+  .\RTE\_stm32f405rgt6_detect_velocity
+  C:\keil_v5\ARM\CMSIS\5.6.0\CMSIS\Core\Include
+  C:\keil_v5\Keil\STM32F4xx_DFP\2.17.1\Drivers\CMSIS\Device\ST\STM32F4xx\Include
+
+<h2>Collection of Component Files used:</h2>
+
+   * Component: ARM::CMSIS:CORE:5.3.0
+Build Time Elapsed:  00:02:13
+</pre>
+</body>
+</html>
