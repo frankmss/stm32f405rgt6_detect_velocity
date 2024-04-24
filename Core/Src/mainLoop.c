@@ -528,17 +528,18 @@ void cal_cp_output_dac_ext(struct adc_buf_t* adc_buf, uint32_t *dacP, uint32_t *
 	pidD = adcSumArray[ADCSUMARRAY_SIZE-1] - adcSumArray[ADCSUMARRAY_SIZE-2];
 	dletDac = kP*((float_t)pidP) + kI*((float_t)pidI) + kD*((float_t)pidD);
 	tmpUint32 = abs((int32_t) (dletDac));
-	if(runTime500us < RUN_30S) { //nomal operate
-		deltNoisV = 0;
-	}else { //add noise
-		if((runTime500us&0x01) != 0){ //2ms
-			deltNoisV = 3;
-			HAL_GPIO_TogglePin(LED5_GPIO_Port, LED5_Pin);
-		}else{
-			deltNoisV = 0;
-			HAL_GPIO_TogglePin(LED5_GPIO_Port, LED5_Pin);
-		}
-	}
+	// if(runTime500us < RUN_30S) { //nomal operate
+	// 	deltNoisV = 0;
+	// }else { //add noise
+	// 	if((runTime500us&0x01) != 0){ //2ms
+	// 		deltNoisV = 3;
+	// 		HAL_GPIO_TogglePin(LED5_GPIO_Port, LED5_Pin);
+	// 	}else{
+	// 		deltNoisV = 0;
+	// 		HAL_GPIO_TogglePin(LED5_GPIO_Port, LED5_Pin);
+	// 	}
+	// }
+	deltNoisV = 0;
 	(*dacP) += (int32_t) (dletDac);
 	(*dacN) -= (int32_t) (dletDac);
 	(*dacP) += deltNoisV;
