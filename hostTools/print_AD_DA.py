@@ -16,7 +16,7 @@ def receive_packet(s):
    fig, ax = plt.subplots()
    fig.canvas.set_window_title('Live Chart')
    ax.set_title("detect velocity adc val")
-   ax.set_ylim(1000, 3000)  # 设置 y 坐标范围
+   ax.set_ylim(-10, 3000)  # 设置 y 坐标范围
    while True:
        data = s.recv(1024)  # 一次性读取更多数据
        if not data:
@@ -61,7 +61,7 @@ def receive_packet(s):
 
 
 def main():
-   HOST = '192.168.0.70'  # 远程主机的IP地址
+   HOST = '10.10.0.1'  # 远程主机的IP地址
    PORT = 6100  # 远程主机的端口号
 
    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:

@@ -1,0 +1,3 @@
+/home/cahill/stm32cubeMx/stm32_workbench/stm32f405rgt6_detect_velocity/hostTools/plt_bindC++/build/CMakeFiles/netOcd.dir
+/home/cahill/stm32cubeMx/stm32_workbench/stm32f405rgt6_detect_velocity/hostTools/plt_bindC++/build/CMakeFiles/edit_cache.dir
+/home/cahill/stm32cubeMx/stm32_workbench/stm32f405rgt6_detect_velocity/hostTools/plt_bindC++/build/CMakeFiles/rebuild_cache.dir

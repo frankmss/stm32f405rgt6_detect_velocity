@@ -1,0 +1,1 @@
+/usr/bin/c++ -fPIC -flto -shared  -o netOcd.cpython-39-x86_64-linux-gnu.so CMakeFiles/netOcd.dir/src/main.cpp.o 

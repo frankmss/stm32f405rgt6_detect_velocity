@@ -16,11 +16,14 @@ struct adc_buf_t{
 };
 
 //用于通过uart2向host发送过程数据
+#pragma pack(1)
 struct log_para_t{
+	char     sbs;
 	uint16_t mean_adc_val;
 	uint32_t dac_val_p;
 	uint32_t dac_val_n;
 };
+#pragma pack()
 
 void mainLoop(void);
 void mainLoop1(void);

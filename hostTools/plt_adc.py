@@ -9,7 +9,7 @@ def tcp_send_command_thread(stop_event):
     # Configure Socket
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         # Connect to motor
-        s.connect(('192.168.1.102', 1000))
+        s.connect(('192.168.1.79', 1000))
 
         # Compose String to send to the drive
         st = '"<control pos=\"15000\" frequency=\"20\" torque=\"200\" mode=\"135\" offset=\"0\" phase=\"0\" />"'

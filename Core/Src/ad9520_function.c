@@ -179,8 +179,10 @@ void set_custom_val(uint32_t setPumpUpDown){
     ad9520_regs.divider_0_1.reg_setval = ad9520_regs.divider_0_1.reg_setval | 0x80;
 	
 	//2024.3.8 for output9pin clk 
-		ad9520_regs.divider_3_0.reg_setval = 0x22;
-		//ad9520_regs.divider_3_1.reg_setval = ad9520_regs.divider_3_1.reg_setval | 0x80;
+	ad9520_regs.divider_3_0.reg_setval = 0x10;
+    //2024.5.13 test output9-pin
+	//ad9520_regs.divider_3_1.reg_setval = ad9520_regs.divider_3_1.reg_setval | 0x80;
+    ad9520_regs.divider_3_1.reg_setval = ad9520_regs.divider_3_1.reg_setval | 0x40;
 //    ad9520_regs.divider_3_0.reg_setval = 0x00;
 //    ad9520_regs.divider_3_1.reg_setval = ad9520_regs.divider_3_1.reg_setval | 0x80;
 
