@@ -29,7 +29,7 @@ py::tuple parsePkg(char *src) {
     //        plog->dac_val_n);
 
     return py::make_tuple(convertADC(plog->mean_adc_val), convertADC((plog->dac_val_p)&0XFFF),
-                          convertADC((plog->dac_val_n>>12)&0XFFF));
+                          convertADC((plog->dac_val_n)&0XFFF));
   } else {
     return py::make_tuple(-100, -100, -100);
   }

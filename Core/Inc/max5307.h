@@ -34,4 +34,5 @@ void max5307_w_chanel(enum max5306_chanel chanel, uint32_t val, enum max5306_oup
 void max5307_loadpin(void);
 void max5307_enable_chanel(enum max5306_chanel chanel);
 void max5307_disable_chanel(enum max5306_chanel chanel);
+void max5307_enable_ori_chanel(uint16_t oriChanelNo);
 #endif

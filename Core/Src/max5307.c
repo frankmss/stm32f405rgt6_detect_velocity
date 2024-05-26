@@ -62,6 +62,18 @@ void max5307_enable_chanel(enum max5306_chanel chanel){
   HAL_GPIO_WritePin(DAC_CS_GPIO_Port, DAC_CS_Pin, GPIO_PIN_SET);
 }
 
+void max5307_enable_ori_chanel(uint16_t oriChanelNo){
+	uint16_t dat;
+	HAL_GPIO_WritePin(DAC_CS_GPIO_Port, DAC_CS_Pin, GPIO_PIN_RESET);
+  
+	dat = 0xe000 | oriChanelNo | outputList;
+	outputList = outputList | oriChanelNo;
+	HAL_SPI_Transmit(&hspi2, (uint8_t *)&dat, 1, 10);
+	
+  //HAL_Delay(3);
+  HAL_GPIO_WritePin(DAC_CS_GPIO_Port, DAC_CS_Pin, GPIO_PIN_SET);	
+}
+
 void max5307_disable_chanel(enum max5306_chanel chanel){
 	uint16_t dat;
 	HAL_GPIO_WritePin(DAC_CS_GPIO_Port, DAC_CS_Pin, GPIO_PIN_RESET);

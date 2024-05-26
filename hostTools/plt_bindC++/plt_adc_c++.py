@@ -12,19 +12,19 @@ import netOcd
 
 STEP=1.5
 BUFSIZE=10000
-def tcp_send_command_thread(stop_event):
-    # Configure Socket
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        # Connect to motor
-        s.connect(('192.168.1.102', 1000))
+# def tcp_send_command_thread(stop_event):
+#     # Configure Socket
+#     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+#         # Connect to motor
+#         s.connect(('192.168.1.102', 1000))
 
-        # Compose String to send to the drive
-        st = '"<control pos=\"15000\" frequency=\"20\" torque=\"200\" mode=\"135\" offset=\"0\" phase=\"0\" />"'
-        s.sendall(st.encode('ascii')) # send XML command  
+#         # Compose String to send to the drive
+#         st = '"<control pos=\"15000\" frequency=\"20\" torque=\"200\" mode=\"135\" offset=\"0\" phase=\"0\" />"'
+#         s.sendall(st.encode('ascii')) # send XML command  
         
-        # The main thread can continue executing other tasks
-        while not stop_event.is_set():
-            time.sleep(1)
+#         # The main thread can continue executing other tasks
+#         while not stop_event.is_set():
+#             time.sleep(1)
 
 def receive_packet(s,ring_buffer):
    buffer = b''  # 初始化数据缓冲区
@@ -32,6 +32,7 @@ def receive_packet(s,ring_buffer):
    start_time = time.time()
    adc_values = []
    dacp_values = []
+   dacn_values = []
    showAdcMeanList = []
    index = 0
    times = 0
@@ -59,6 +60,7 @@ def receive_packet(s,ring_buffer):
                 #    print(f"c++ data:{cppResult[0]},{cppResult[1]},{cppResult[2]}")
                    adc_values.append(cppResult[0])
                    dacp_values.append(cppResult[1])
+                   dacn_values.append(cppResult[2])
                    frames_received += 1
                except struct.error:
                    print("Error parsing packet")
@@ -72,21 +74,23 @@ def receive_packet(s,ring_buffer):
        if (elapsed_time >= STEP) and (len(adc_values) != 0):
            meanADC = sum(adc_values) / len(adc_values)
            meanDAP = sum(dacp_values) / len(dacp_values)
+           meanDAN = sum(dacn_values) / len(dacn_values)
         #    meanDAP = meanDAP%1000
            
-           print(f"Frames received in the last second: {frames_received}, meanADC={meanADC}, meanDAC={meanDAP}")
+           print(f"Frames received in the last second: {frames_received}, meanADC={meanADC}, meanDAP={meanDAP}, meanDAN={meanDAN}")
            frames_received = 0
            start_time = time.time()
-           ring_buffer[index] = [times, meanADC, meanDAP]
+           ring_buffer[index] = [times, meanADC, meanDAP, meanDAN]
            index = (index + 1) % len(ring_buffer)
            times = times + 1
            adc_values = []
            dacp_values = []
+           dacn_values = []
    remaining_data = buffer  # 保留超出11个字节的部分
 
 
 def receive_tcp_data(udp_port, stop_event, ring_buffer):
-    HOST = '192.168.0.70'  # 远程主机的IP地址
+    HOST = '192.168.0.83'  # 远程主机的IP地址
     PORT = 6100  # 远程主机的端口号
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -106,7 +110,7 @@ if __name__ == '__main__':
     stop_event = threading.Event()  # create an event object
 
     # Initialize the ring buffer
-    ring_buffer = [[0, -1, 0] for i in range(BUFSIZE)]
+    ring_buffer = [[0, -1, 0, 0] for i in range(BUFSIZE)]
 
     # create a thread that receives on UDP port 1001    
     udp_receive_thread = threading.Thread(target=receive_tcp_data, args=(1001, stop_event, ring_buffer))
@@ -138,11 +142,12 @@ if __name__ == '__main__':
         # Get the latest data from the ring buffer
         time_values = [entry[0] for entry in ring_buffer]
         y_values = [entry[1] for entry in ring_buffer]
-        dac_values = [entry[2] for entry in ring_buffer]
+        dac_values_p = [entry[2] for entry in ring_buffer]
+        dac_values_n = [entry[3] for entry in ring_buffer]
         non_negative_indices = [i for i, val in enumerate(y_values) if val != -1]
-        y_non_negative = [y_values[i] for i in non_negative_indices]
-        dac_non_negative = [dac_values[i] for i in non_negative_indices]
-
+        y_non_negative =   [y_values[i] for i in non_negative_indices]
+        dac_non_negative = [dac_values_p[i] for i in non_negative_indices]
+        dac_negative =     [dac_values_n[i] for i in non_negative_indices]
         if y_non_negative:
         #   ax.clear()  # Clear the previous plot
         #   ax.plot(y_non_negative, color='r', label='cp_values')  # Plot the non-negative y_values
@@ -159,7 +164,8 @@ if __name__ == '__main__':
             # ax1.set_title('Plot of y_non_negative')  # 设置子图标题
     
             # 第二个子图显示 dac_non_negative
-            ax2.plot(dac_non_negative, color='b', label='dac_values')  # 绘制非负的 dac 值
+            ax2.plot(dac_non_negative, color='b', label='dac_p')  # 绘制非负的 dac 值
+            ax2.plot(dac_negative,     color='r', label='dac_n')  # 绘制非负的 dac 值
             #ax2.legend()  # 显示图例
             # ax2.set_ylim(0.5, 3.3)  # 设置 y 轴范围
             # ax2.set_title('Plot of dac_non_negative')  # 设置子图标题

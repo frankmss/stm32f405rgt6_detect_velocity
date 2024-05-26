@@ -61,7 +61,7 @@ def receive_packet(s):
 
 
 def main():
-   HOST = '10.10.0.1'  # 远程主机的IP地址
+   HOST = '192.168.0.83'  # 远程主机的IP地址
    PORT = 6100  # 远程主机的端口号
 
    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:

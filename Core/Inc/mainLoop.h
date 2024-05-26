@@ -27,4 +27,6 @@ struct log_para_t{
 
 void mainLoop(void);
 void mainLoop1(void);
+void preMainLoop1(void);
+void MX_USART2_UART_Init(void);
 #endif
