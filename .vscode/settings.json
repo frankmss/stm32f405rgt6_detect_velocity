@@ -4,7 +4,8 @@
     "typeinfo": "cpp",
     "main.h": "c",
     "stm32f4xx_hal.h": "c",
-    "mainloop.h": "c"
+    "mainloop.h": "c",
+    "arm_math.h": "c"
   },
   "digital-ide.welcome.show": false
 }

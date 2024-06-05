@@ -7,6 +7,7 @@
 //200 mean 1ms
 #define ADC_BUF_T_SIZE 100
 #define ADCCAPOK (0x00005555)
+#define ADCCAPWAIT (0X00003333)
 #define CALOK    (0X0000FFFF)
 struct adc_buf_t{
 	int32_t adc_cap_ok;  //1:adc_cap_ok; 0:calculate ok;
@@ -28,5 +29,5 @@ struct log_para_t{
 void mainLoop(void);
 void mainLoop1(void);
 void preMainLoop1(void);
-void MX_USART2_UART_Init(void);
+//void MX_USART2_UART_Init(void);
 #endif

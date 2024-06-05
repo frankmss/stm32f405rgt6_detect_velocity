@@ -1,7 +1,7 @@
 #include "mainLoop.h"
 
 #include <stdio.h>
-
+//#include "arm_math.h"
 #include "ad9520_function.h"
 #include "main.h"
 #include "math.h"
@@ -378,20 +378,21 @@ int32_t cal_value_cp(void) {
 }
 
 // 1Hz 10
-//adcsumarray_size=2,1,1k收敛很快，
-#define ADCSUMARRAY_SIZE (2)  
+// adcsumarray_size=2,1,1k收敛很快，
+#define ADCSUMARRAY_SIZE (1000)
 // #define ADCSUMARRAY_SIZE (300)
 int32_t adcSumArray[ADCSUMARRAY_SIZE];
 int32_t pidP = 0, pidI = 0, pidD = 0;
-double_t dletDac = 0;
+float_t dletDac = 0;
 
 // 1hz
 // #define kP (-0.005)
 // #define kI (+0.001)
 // #define kD (0.005)
 // void cal_cp_output_dac(struct adc_buf_t* adc_buf, uint32_t *dacP, uint32_t
-// *dacN){ 	int32_t i=0; 	int32_t N=ADC_BUF_T_SIZE*2; 	int32_t allSum=0; 	uint32_t
-//tmpUint32=0; 	for(i=0; i<N; i++){ 		allSum += (int32_t)
+// *dacN){ 	int32_t i=0; 	int32_t N=ADC_BUF_T_SIZE*2; 	int32_t
+// allSum=0; 	uint32_t
+// tmpUint32=0; 	for(i=0; i<N; i++){ 		allSum += (int32_t)
 //((adc_buf->buf[i/2]&0x0fff));
 //	}
 //	allSum = allSum/N - TARGET_CPV;
@@ -409,8 +410,9 @@ double_t dletDac = 0;
 //	}
 //	pidI = pidI/ADCSUMARRAY_SIZE;
 //	pidD = adcSumArray[ADCSUMARRAY_SIZE-1] -
-//adcSumArray[ADCSUMARRAY_SIZE-2]; 	dletDac = kP*((float_t)pidP) +
-//kI*((float_t)pidI) + kD*((float_t)pidD); 	tmpUint32 = abs((int32_t) (dletDac));
+// adcSumArray[ADCSUMARRAY_SIZE-2]; 	dletDac = kP*((float_t)pidP) +
+// kI*((float_t)pidI) + kD*((float_t)pidD); 	tmpUint32 = abs((int32_t)
+// (dletDac));
 //	(*dacP) += (int32_t) (dletDac);
 //	(*dacN) -= (int32_t) (dletDac);
 //	max5307_w_chanel(DACP_1,  (*dacP)>>12,      max_outenable);
@@ -572,7 +574,7 @@ void cal_cp_output_dac_ext(struct adc_buf_t *adc_buf, uint32_t *dacP,
   HAL_GPIO_WritePin(LED4_GPIO_Port, LED4_Pin, GPIO_PIN_RESET);
 }
 
-uint16_t forSaveAllSum = 1500;
+uint16_t forSaveAllSum = 0;
 // 2024.4.26调整跟踪算法，以前的算法有可能会出现同步现象
 #define TARGET_CPV_1 (2048)
 void cal_cp_output_dac_ext_1(struct adc_buf_t *adc_buf, uint32_t *dacP,
@@ -580,18 +582,23 @@ void cal_cp_output_dac_ext_1(struct adc_buf_t *adc_buf, uint32_t *dacP,
   int32_t i = 0;
   int32_t N = ADC_BUF_T_SIZE;
   int32_t allSum = 0;
-  
+
   uint32_t tmpUint32 = 0;
   int32_t deltNoisV = 0;
   HAL_GPIO_WritePin(LED4_GPIO_Port, LED4_Pin, GPIO_PIN_SET);
+
   for (i = 0; i < N; i++) {
     allSum += (int32_t)((adc_buf->buf[i] & 0x0fff));
     allSum += (int32_t)(((adc_buf->buf[i] >> 16) & 0x0fff));
   }
   allSum = allSum / (N * 2);
-  // allSum = (adc_buf->buf[99]&0x0fff);
+  allSum = adc_buf->buf[0];
+  //  allSum = (adc_buf->buf[99]&0x0fff);
   forSaveAllSum = allSum;
-  allSum = allSum - TARGET_CPV_1;
+  // max5307_w_chanel(DACP_1,  (((adc_buf->buf[0]) >> 0)&0xfff), max_outenable);
+  // max5307_w_chanel(DACN_1,  (((adc_buf->buf[0]) >> 0)&0xfff), max_outenable);
+  // return;
+  // allSum = allSum - TARGET_CPV_1;
   forSaveAllSum = abs(allSum);
   // insertMeanVal(allSum,adc_buf);
   // meanVal_view = adc_buf->adcMeanVal;
@@ -611,19 +618,19 @@ void cal_cp_output_dac_ext_1(struct adc_buf_t *adc_buf, uint32_t *dacP,
   pidI = pidI / ADCSUMARRAY_SIZE;
   pidD = adcSumArray[ADCSUMARRAY_SIZE - 1] - adcSumArray[ADCSUMARRAY_SIZE - 2];
 
-#define kP_1 (-100.05)
-#define kI_1 (+100.51)
-#define kD_1 (100.1275)
-//1,1k,1M三段可以收敛
-// #define kP_1 (-1000.05)
-// #define kI_1 (+1000.51)
-// #define kD_1 (1000.1275)
-  //1,1k两段可以收敛
-  // #define kP (-0.0005)
-  // #define kI (+0.0051)
-  // #define kD (1.1275)
-  dletDac =
-      kP_1 * ((double_t)pidP) + kI_1 * ((double_t)pidI) + kD_1 * ((double_t)pidD);
+#define kP_1 ( 0.000000100000105)
+#define kI_1 (-0.00000010551)
+#define kD_1 (-0.00026)
+  // 1,1k,1M三段可以收敛
+  //  #define kP_1 (-1000.05)
+  //  #define kI_1 (+1000.51)
+  //  #define kD_1 (1000.1275)
+  // 1,1k两段可以收敛
+  //  #define kP (-0.0005)
+  //  #define kI (+0.0051)
+  //  #define kD (1.1275)
+  dletDac = kP_1 * ((double_t)pidP) + kI_1 * ((double_t)pidI) +
+            kD_1 * ((double_t)pidD);
   tmpUint32 = abs((int32_t)(dletDac));
 
   deltNoisV = 0;
@@ -641,24 +648,21 @@ void cal_cp_output_dac_ext_1(struct adc_buf_t *adc_buf, uint32_t *dacP,
   (*dacN) -= (int32_t)(dletDac);
   (*dacP) += deltNoisV;
   (*dacN) -= deltNoisV;
-	max5307_w_chanel(DACP_1,  (((*dacP) >> 20)&0xffc), max_outdisable);
-  max5307_w_chanel(DACP_1K, (((*dacP) >> 10)&0xffc), max_outdisable);
-	max5307_w_chanel(DACP_1M, ((*dacP)&0xfff)&0xfff, max_outdisable);
-  max5307_w_chanel(DACN_1,  (((*dacN) >> 20)&0xffc), max_outdisable);
-  max5307_w_chanel(DACN_1K, (((*dacN) >> 10)&0xffc), max_outdisable);
-	max5307_w_chanel(DACN_1M, ((*dacN)&0xfff)&0xfff, max_outdisable);
+  max5307_w_chanel(DACP_1, (((*dacP) >> 20) & 0xffc), max_outdisable);
+  max5307_w_chanel(DACP_1K, (((*dacP) >> 10) & 0xffc), max_outdisable);
+  max5307_w_chanel(DACP_1M, ((*dacP) & 0xfff) & 0xfff, max_outdisable);
+  max5307_w_chanel(DACN_1, (((*dacN) >> 20) & 0xffc), max_outdisable);
+  max5307_w_chanel(DACN_1K, (((*dacN) >> 10) & 0xffc), max_outdisable);
+  max5307_w_chanel(DACN_1M, ((*dacN) & 0xfff) & 0xfff, max_outdisable);
 
-	do{
-		uint16_t chanelNo = 0;
-		chanelNo = 0x01<<(DACP_1+2)  | 
-							 0x01<<(DACP_1K+2) |
-							 0x01<<(DACP_1M+2) |
-							 0x01<<(DACN_1+2)  |
-							 0x01<<(DACN_1K+2) |
-							 0x01<<(DACN_1M+2) ; 
-		max5307_enable_ori_chanel(chanelNo);
-	}while(0);
-	
+  do {
+    uint16_t chanelNo = 0;
+    chanelNo = 0x01 << (DACP_1 + 2) | 0x01 << (DACP_1K + 2) |
+               0x01 << (DACP_1M + 2) | 0x01 << (DACN_1 + 2) |
+               0x01 << (DACN_1K + 2) | 0x01 << (DACN_1M + 2);
+    max5307_enable_ori_chanel(chanelNo);
+  } while (0);
+
   // clear buf
   for (i = 0; i < ADC_BUF_T_SIZE; i++) {
     adc_buf->buf[i] = 0;
@@ -671,9 +675,102 @@ void cal_cp_output_dac_ext_1(struct adc_buf_t *adc_buf, uint32_t *dacP,
   HAL_GPIO_WritePin(LED4_GPIO_Port, LED4_Pin, GPIO_PIN_RESET);
 }
 
+// 2024.4.26调整跟踪算法，以前的算法有可能会出现同步现象
+// 函数名void cal_cp_output_dac_ext_2
+//(struct adc_buf_t *adc_buf, uint32_t *dacP,
+//  uint32_t *dacN, int32_t runTime500us)
+// 参数保持不变，只是调整了跟踪算法
+// 具体思路，求原始adc_buf的导数，根据斜率调整dac输出
+void cal_cp_output_dac_ext_2(struct adc_buf_t *adc_buf, uint32_t *dacP,
+                             uint32_t *dacN, int32_t runTime500us) {
+  int32_t i = 0;
+  int32_t N = ADC_BUF_T_SIZE;
+
+  uint32_t tmpUint32 = 0;
+  int32_t deltNoisV = 0;
+  int32_t difAdcValBuf[ADC_BUF_T_SIZE];
+  int32_t tmpdif1, tmpdif2;
+  int32_t allSum = 0;
+  float_t allSumF = 0;
+  HAL_GPIO_WritePin(LED4_GPIO_Port, LED4_Pin, GPIO_PIN_SET);
+
+  memset(difAdcValBuf, 0, sizeof(difAdcValBuf));
+  for (i = 0; i < N; i++) {
+    tmpdif1 = (int32_t)((adc_buf->buf[i] & 0x0fff));
+    tmpdif2 = (int32_t)(((adc_buf->buf[i] >> 16) & 0x0fff));
+    difAdcValBuf[i] = tmpdif1 - tmpdif2;
+  }
+  // 计算导数的斜率，统计difAdcValBuf中的正负值，并以正负值的个数差值作为斜率
+  // 结论这种思路不行
+  // allSum = 0;
+  // for (i = 0; i < N; i++) {
+  //   if (difAdcValBuf[i] > 0) {
+  //     allSum += 1;
+  //   } else if (difAdcValBuf[i] < 0) {
+  //     allSum -= 1;
+  //   }
+  // }
+  // allSumF = ((float_t)allSum) / N;
+
+  //筛选导数值，只保留绝对值小于100的值
+  allSum = 0;
+  for (i = 0; i < N; i++) {
+    if (abs(difAdcValBuf[i]) < 50) {
+      allSum += difAdcValBuf[i];
+    }
+  }
+  allSumF = ((float_t)allSum) / N;
+
+  // 根据斜率调整dac输出
+#define kP_2 (+5.0)
+  dletDac = ((float_t)allSumF) * kP_2;
+
+  tmpUint32 = abs((int32_t)(dletDac));
+
+  deltNoisV = 0;
+
+  (*dacP) += (int32_t)(dletDac);
+  (*dacN) -= (int32_t)(dletDac);
+  (*dacP) += deltNoisV;
+  (*dacN) -= deltNoisV;
+  max5307_w_chanel(DACP_1, (((*dacP) >> 20) & 0xffc), max_outdisable);
+  max5307_w_chanel(DACP_1K, (((*dacP) >> 10) & 0xffc), max_outdisable);
+  max5307_w_chanel(DACP_1M, ((*dacP) & 0xfff) & 0xfff, max_outdisable);
+  max5307_w_chanel(DACN_1, (((*dacN) >> 20) & 0xffc), max_outdisable);
+  max5307_w_chanel(DACN_1K, (((*dacN) >> 10) & 0xffc), max_outdisable);
+  max5307_w_chanel(DACN_1M, ((*dacN) & 0xfff) & 0xfff, max_outdisable);
+
+  do {
+    uint16_t chanelNo = 0;
+    chanelNo = 0x01 << (DACP_1 + 2) | 0x01 << (DACP_1K + 2) |
+               0x01 << (DACP_1M + 2) | 0x01 << (DACN_1 + 2) |
+               0x01 << (DACN_1K + 2) | 0x01 << (DACN_1M + 2);
+    max5307_enable_ori_chanel(chanelNo);
+  } while (0);
+
+  // clear buf
+  for (i = 0; i < ADC_BUF_T_SIZE; i++) {
+    adc_buf->buf[i] = 0;
+  }
+  logPara.mean_adc_val = forSaveAllSum;
+  // logPara.mean_adc_val = pidI;
+  logPara.dac_val_n = (*dacN);
+  logPara.dac_val_p = (*dacP);
+  // HAL_GPIO_TogglePin(LED4_GPIO_Port, LED4_Pin);
+  HAL_GPIO_WritePin(LED4_GPIO_Port, LED4_Pin, GPIO_PIN_RESET);
+}
+
+//
+void cal_cp_output_dac_ext_3(struct adc_buf_t *adc_buf, uint32_t *dacP,
+                             uint32_t *dacN, int32_t runTime500us){
+
+}
+
+
 uint32_t adc1_ok = 0, adc2_ok = 0;
 #define MID_CP_VALUE (2048)
-uint32_t value_dacP = 0x8020200, value_dacN = 0x8020200;
+// uint32_t value_dacP = 0x8020200, value_dacN = 0x8020200;
+uint32_t value_dacP = 0x80200800, value_dacN = 0x80200800;
 int32_t mainCp = 0, mainCpLast = 0;
 struct adc_buf_t adc1_t1, adc1_t2;
 
@@ -737,8 +834,8 @@ void mainLoop1(void) {
   } while (0);
 
   init_ad9520();
-  SystemClock_Config();
-  MX_USART2_UART_Init();
+  // SystemClock_Config();
+  // MX_USART2_UART_Init();
   // fprintf(logBufDma,"helloworld");
   //  for(int i=0;i<10;i++){
   //  	logBufDma[i] = 65 + i;
@@ -752,38 +849,88 @@ void mainLoop1(void) {
   HAL_Delay(1);
   adc1_ok = 0;
   adc2_ok = 0;
+  //在下面的代码中使用while(1)循环测试adc采样，dac输出，这是一段临时测试代码
+    //HAL_ADC_Start(&hadc2);
+  //   uint32_t adcVal = 0;
+  //   int32_t adcCalVal = 0;
+  //   int32_t nowVal=0,lastVal=0;
+  //   double adcValF = 0;
+  //   uint32_t dacP=value_dacP, dacN=value_dacN;
+  //   HAL_ADC_Start_DMA(&hadc2, (uint32_t *)(&adcVal), 1);
+  //   while(1){
+      
+  //     if(adc1_t1.adc_cap_ok == ADCCAPOK){
+  //       adc1_t1.adc_cap_ok = ADCCAPWAIT;
+  //       lastVal = nowVal;
+  //       nowVal = (adcVal&0xfff);
+  //       adcCalVal = (int32_t)nowVal - (int32_t)lastVal;
+  //       HAL_ADC_Start_DMA(&hadc2, (uint32_t *)(&adcVal), 1);
+  //     #define kP_3 (-5000.0)
+  //     #define DELV (10)
+  //       if(adcCalVal < 20){
+  //         dletDac = ((float_t)adcCalVal) * kP_2;
+  //         if(dletDac>0){
+  //           (dacP) += DELV;
+  //           (dacN) -= DELV;
+  //         }else{
+  //           (dacP) -= DELV;
+  //           (dacN) += DELV;
+  //         }
+  //       }
+  //       //int32_t tmpUint32 = abs((int32_t)(dletDac));
+  //       // (dacP) += (int32_t)(dletDac);
+  //       // (dacN) -= (int32_t)(dletDac);
+        
+  //     // (dacP) += deltNoisV;
+  //     // (dacN) -= deltNoisV;
+  //       max5307_w_chanel(DACP_1, (((dacP) >> 10) & 0xffc), max_outdisable);
+  //       max5307_w_chanel(DACP_1K, (((dacP) >> 10) & 0xffc), max_outdisable);
+  //       max5307_w_chanel(DACP_1M, ((dacP) & 0xfff) & 0xfff, max_outdisable);
+  //       max5307_w_chanel(DACN_1, (((dacN) >> 10) & 0xffc), max_outdisable);
+  //       max5307_w_chanel(DACN_1K, (((dacN) >> 10) & 0xffc), max_outdisable);
+  //       max5307_w_chanel(DACN_1M, ((dacN) & 0xfff) & 0xfff, max_outdisable);
 
-  HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc1_t1.buf, ADC_BUF_T_SIZE * 2);
-  int32_t deltaDAC=0;
-  while(0){
+  //       do {
+  //         uint16_t chanelNo = 0;
+  //         chanelNo = 0x01 << (DACP_1 + 2) | 0x01 << (DACP_1K + 2) |
+  //                    0x01 << (DACP_1M + 2) | 0x01 << (DACN_1 + 2) |
+  //                    0x01 << (DACN_1K + 2) | 0x01 << (DACN_1M + 2);
+  //         max5307_enable_ori_chanel(chanelNo);
+  //       } while (0);
+  //       // max5307_w_chanel(DACP_1,  (((adcCalVal) >> 0)&0xfff), max_outenable);
+  //       HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
+  //     }
+  //  }
+
+  HAL_ADC_Start_DMA(&hadc2, (uint32_t *)adc1_t1.buf, ADC_BUF_T_SIZE * 2);
+  int32_t deltaDAC = 0;
+  while (0) {
     value_dacP += deltaDAC;
     value_dacN -= deltaDAC;
-    deltaDAC+=1;
+    deltaDAC += 1;
 
-  // max5307_w_chanel(DACP_1, (value_dacP  >> 12)&0xffc, max_outdisable);
-  // max5307_w_chanel(DACP_1K, ((value_dacP>>0) & 0xfff), max_outdisable);
-  // max5307_w_chanel(DACN_1, (value_dacN  >> 12)&0xffc, max_outdisable);
-  // max5307_w_chanel(DACN_1K, ((value_dacN>>0) & 0xfff), max_outdisable);
+    // max5307_w_chanel(DACP_1, (value_dacP  >> 12)&0xffc, max_outdisable);
+    // max5307_w_chanel(DACP_1K, ((value_dacP>>0) & 0xfff), max_outdisable);
+    // max5307_w_chanel(DACN_1, (value_dacN  >> 12)&0xffc, max_outdisable);
+    // max5307_w_chanel(DACN_1K, ((value_dacN>>0) & 0xfff), max_outdisable);
 
-	max5307_w_chanel(DACP_1,  (((value_dacP) >> 20)&0xffc), max_outdisable);
-  max5307_w_chanel(DACP_1K, (((value_dacP) >> 10)&0xffc), max_outdisable);
-	max5307_w_chanel(DACP_1M, ((value_dacP)&0xfff)&0xfff, max_outdisable);
-  max5307_w_chanel(DACN_1,  (((value_dacN) >> 20)&0xffc), max_outdisable);
-  max5307_w_chanel(DACN_1K, (((value_dacN) >> 10)&0xffc), max_outdisable);
-	max5307_w_chanel(DACN_1M, ((value_dacN)&0xfff)&0xfff, max_outdisable);
+    max5307_w_chanel(DACP_1, (((value_dacP) >> 20) & 0xffc), max_outdisable);
+    max5307_w_chanel(DACP_1K, (((value_dacP) >> 10) & 0xffc), max_outdisable);
+    max5307_w_chanel(DACP_1M, ((value_dacP) & 0xfff) & 0xfff, max_outdisable);
+    max5307_w_chanel(DACN_1, (((value_dacN) >> 20) & 0xffc), max_outdisable);
+    max5307_w_chanel(DACN_1K, (((value_dacN) >> 10) & 0xffc), max_outdisable);
+    max5307_w_chanel(DACN_1M, ((value_dacN) & 0xfff) & 0xfff, max_outdisable);
 
-	do{
-		uint16_t chanelNo = 0;
-		chanelNo = 0x01<<(DACP_1+2)  | 
-							 0x01<<(DACP_1K+2) |
-							 0x01<<(DACP_1M+2) |
-							 0x01<<(DACN_1+2)  |
-							 0x01<<(DACN_1K+2) |
-							 0x01<<(DACN_1M+2) ; 
-		max5307_enable_ori_chanel(chanelNo);
-	}while(0);
- // HAL_Delay(1);
+    do {
+      uint16_t chanelNo = 0;
+      chanelNo = 0x01 << (DACP_1 + 2) | 0x01 << (DACP_1K + 2) |
+                 0x01 << (DACP_1M + 2) | 0x01 << (DACN_1 + 2) |
+                 0x01 << (DACN_1K + 2) | 0x01 << (DACN_1M + 2);
+      max5307_enable_ori_chanel(chanelNo);
+    } while (0);
+    // HAL_Delay(1);
   }
+
   /* USER CODE END 2 */
 
   while (1) {
@@ -791,7 +938,7 @@ void mainLoop1(void) {
       // cal t1
       // HAL_ADC_Start_DMA(&hadc1,(uint32_t*)adc1_t2.buf ,ADC_BUF_T_SIZE*2);
       // cal_cp_output_dac(&adc1_t1, &value_dacP, &value_dacN);
-      cal_cp_output_dac_ext_1(&adc1_t1, &value_dacP, &value_dacN, runTimes);
+      cal_cp_output_dac_ext_2(&adc1_t1, &value_dacP, &value_dacN, runTimes);
       adc1_t1.adc_cap_ok = CALOK;
       runTimes++;  // log run time runTimes+1 = 500us,
 
@@ -799,7 +946,7 @@ void mainLoop1(void) {
       // cal t2
       // HAL_ADC_Start_DMA(&hadc1,(uint32_t*)adc1_t1.buf ,ADC_BUF_T_SIZE*2);
       // cal_cp_output_dac(&adc1_t2, &value_dacP, &value_dacN);
-      cal_cp_output_dac_ext_1(&adc1_t2, &value_dacP, &value_dacN, runTimes);
+      cal_cp_output_dac_ext_2(&adc1_t2, &value_dacP, &value_dacN, runTimes);
       adc1_t2.adc_cap_ok = CALOK;
       runTimes++;  // log run time runTimes+1 = 500us,
     }
@@ -808,25 +955,40 @@ void mainLoop1(void) {
   }
 }
 
+//用于快速adc采样，采用dma方式，每次只采样一个数值，dma中断代码中设置标志，通知主程序采样完成
+//主程序接收到标志后，可以读取adc采样值，并开启下一次adc dma采样
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
-  // 这里是当ADC转换完成时执行的代码
-  // 可以设置标志，通知主程序采样已经完成
-  if (hadc == &hadc2) {
-    adc2_ok = 1;
-    HAL_ADC_Start_DMA(&hadc2, (uint32_t *)value_adc2, ADC_TIMES_N);
-  }
+
   if (hadc == &hadc1) {
-    if (adc1_t1.adc_cap_ok == CALOK) {
-      HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc1_t1.buf, ADC_BUF_T_SIZE * 2);
-      adc1_t1.adc_cap_ok = ADCCAPOK;
-    } else if (adc1_t2.adc_cap_ok == CALOK) {
-      HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc1_t2.buf, ADC_BUF_T_SIZE * 2);
-      adc1_t2.adc_cap_ok = ADCCAPOK;
-    } else {
-    }
-    HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
+    adc1_ok = 1;
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc1_t1.buf, ADC_BUF_T_SIZE * 2);
+  }
+  if (hadc == &hadc2) {
+    adc1_t1.adc_cap_ok = ADCCAPOK;
+    
   }
 }
+
+
+// void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
+//   // 这里是当ADC转换完成时执行的代码
+//   // 可以设置标志，通知主程序采样已经完成
+//   if (hadc == &hadc1) {
+//     adc2_ok = 1;
+//     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)value_adc2, ADC_TIMES_N);
+//   }
+//   if (hadc == &hadc2) {
+//     if (adc1_t1.adc_cap_ok == CALOK) {
+//       HAL_ADC_Start_DMA(&hadc2, (uint32_t *)adc1_t1.buf, ADC_BUF_T_SIZE * 2);
+//       adc1_t1.adc_cap_ok = ADCCAPOK;
+//     } else if (adc1_t2.adc_cap_ok == CALOK) {
+//       HAL_ADC_Start_DMA(&hadc2, (uint32_t *)adc1_t2.buf, ADC_BUF_T_SIZE * 2);
+//       adc1_t2.adc_cap_ok = ADCCAPOK;
+//     } else {
+//     }
+//     HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
+//   }
+// }
 
 // void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef *huart){
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
