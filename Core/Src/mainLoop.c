@@ -379,7 +379,7 @@ int32_t cal_value_cp(void) {
 
 // 1Hz 10
 // adcsumarray_size=2,1,1k收敛很快，
-#define ADCSUMARRAY_SIZE (1000)
+#define ADCSUMARRAY_SIZE (2)
 // #define ADCSUMARRAY_SIZE (300)
 int32_t adcSumArray[ADCSUMARRAY_SIZE];
 int32_t pidP = 0, pidI = 0, pidD = 0;
@@ -592,13 +592,13 @@ void cal_cp_output_dac_ext_1(struct adc_buf_t *adc_buf, uint32_t *dacP,
     allSum += (int32_t)(((adc_buf->buf[i] >> 16) & 0x0fff));
   }
   allSum = allSum / (N * 2);
-  allSum = adc_buf->buf[0];
+  //allSum = adc_buf->buf[0];
   //  allSum = (adc_buf->buf[99]&0x0fff);
   forSaveAllSum = allSum;
   // max5307_w_chanel(DACP_1,  (((adc_buf->buf[0]) >> 0)&0xfff), max_outenable);
   // max5307_w_chanel(DACN_1,  (((adc_buf->buf[0]) >> 0)&0xfff), max_outenable);
   // return;
-  // allSum = allSum - TARGET_CPV_1;
+  allSum = allSum - TARGET_CPV_1;
   forSaveAllSum = abs(allSum);
   // insertMeanVal(allSum,adc_buf);
   // meanVal_view = adc_buf->adcMeanVal;
@@ -617,10 +617,13 @@ void cal_cp_output_dac_ext_1(struct adc_buf_t *adc_buf, uint32_t *dacP,
   }
   pidI = pidI / ADCSUMARRAY_SIZE;
   pidD = adcSumArray[ADCSUMARRAY_SIZE - 1] - adcSumArray[ADCSUMARRAY_SIZE - 2];
+#define kP_1 (  -0.50100000105)
+#define kI_1 (  -5.0610551)
+#define kD_1 ( -50.1026)
 
-#define kP_1 ( 0.000000100000105)
-#define kI_1 (-0.00000010551)
-#define kD_1 (-0.00026)
+// #define kP_1 (  -0.50100000105)
+// #define kI_1 (  -5.0610551)
+// #define kD_1 ( -50.1026)
   // 1,1k,1M三段可以收敛
   //  #define kP_1 (-1000.05)
   //  #define kI_1 (+1000.51)
@@ -938,7 +941,7 @@ void mainLoop1(void) {
       // cal t1
       // HAL_ADC_Start_DMA(&hadc1,(uint32_t*)adc1_t2.buf ,ADC_BUF_T_SIZE*2);
       // cal_cp_output_dac(&adc1_t1, &value_dacP, &value_dacN);
-      cal_cp_output_dac_ext_2(&adc1_t1, &value_dacP, &value_dacN, runTimes);
+      cal_cp_output_dac_ext_1(&adc1_t1, &value_dacP, &value_dacN, runTimes);
       adc1_t1.adc_cap_ok = CALOK;
       runTimes++;  // log run time runTimes+1 = 500us,
 
@@ -946,7 +949,7 @@ void mainLoop1(void) {
       // cal t2
       // HAL_ADC_Start_DMA(&hadc1,(uint32_t*)adc1_t1.buf ,ADC_BUF_T_SIZE*2);
       // cal_cp_output_dac(&adc1_t2, &value_dacP, &value_dacN);
-      cal_cp_output_dac_ext_2(&adc1_t2, &value_dacP, &value_dacN, runTimes);
+      cal_cp_output_dac_ext_1(&adc1_t2, &value_dacP, &value_dacN, runTimes);
       adc1_t2.adc_cap_ok = CALOK;
       runTimes++;  // log run time runTimes+1 = 500us,
     }
@@ -957,38 +960,38 @@ void mainLoop1(void) {
 
 //用于快速adc采样，采用dma方式，每次只采样一个数值，dma中断代码中设置标志，通知主程序采样完成
 //主程序接收到标志后，可以读取adc采样值，并开启下一次adc dma采样
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
-
-  if (hadc == &hadc1) {
-    adc1_ok = 1;
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc1_t1.buf, ADC_BUF_T_SIZE * 2);
-  }
-  if (hadc == &hadc2) {
-    adc1_t1.adc_cap_ok = ADCCAPOK;
-    
-  }
-}
-
-
 // void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
-//   // 这里是当ADC转换完成时执行的代码
-//   // 可以设置标志，通知主程序采样已经完成
+
 //   if (hadc == &hadc1) {
-//     adc2_ok = 1;
-//     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)value_adc2, ADC_TIMES_N);
+//     adc1_ok = 1;
+//     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc1_t1.buf, ADC_BUF_T_SIZE * 2);
 //   }
 //   if (hadc == &hadc2) {
-//     if (adc1_t1.adc_cap_ok == CALOK) {
-//       HAL_ADC_Start_DMA(&hadc2, (uint32_t *)adc1_t1.buf, ADC_BUF_T_SIZE * 2);
-//       adc1_t1.adc_cap_ok = ADCCAPOK;
-//     } else if (adc1_t2.adc_cap_ok == CALOK) {
-//       HAL_ADC_Start_DMA(&hadc2, (uint32_t *)adc1_t2.buf, ADC_BUF_T_SIZE * 2);
-//       adc1_t2.adc_cap_ok = ADCCAPOK;
-//     } else {
-//     }
-//     HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
+//     adc1_t1.adc_cap_ok = ADCCAPOK;
+    
 //   }
 // }
+
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
+  // 这里是当ADC转换完成时执行的代码
+  // 可以设置标志，通知主程序采样已经完成
+  if (hadc == &hadc1) {
+    adc2_ok = 1;
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)value_adc2, ADC_TIMES_N);
+  }
+  if (hadc == &hadc2) {
+    if (adc1_t1.adc_cap_ok == CALOK) {
+      HAL_ADC_Start_DMA(&hadc2, (uint32_t *)adc1_t1.buf, ADC_BUF_T_SIZE * 2);
+      adc1_t1.adc_cap_ok = ADCCAPOK;
+    } else if (adc1_t2.adc_cap_ok == CALOK) {
+      HAL_ADC_Start_DMA(&hadc2, (uint32_t *)adc1_t2.buf, ADC_BUF_T_SIZE * 2);
+      adc1_t2.adc_cap_ok = ADCCAPOK;
+    } else {
+    }
+    HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
+  }
+}
 
 // void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef *huart){
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
