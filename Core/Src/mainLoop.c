@@ -379,7 +379,7 @@ int32_t cal_value_cp(void) {
 
 // 1Hz 10
 // adcsumarray_size=2,1,1k收敛很快，
-#define ADCSUMARRAY_SIZE (2)
+#define ADCSUMARRAY_SIZE (10)
 // #define ADCSUMARRAY_SIZE (300)
 int32_t adcSumArray[ADCSUMARRAY_SIZE];
 int32_t pidP = 0, pidI = 0, pidD = 0;
@@ -617,9 +617,9 @@ void cal_cp_output_dac_ext_1(struct adc_buf_t *adc_buf, uint32_t *dacP,
   }
   pidI = pidI / ADCSUMARRAY_SIZE;
   pidD = adcSumArray[ADCSUMARRAY_SIZE - 1] - adcSumArray[ADCSUMARRAY_SIZE - 2];
-#define kP_1 (  -0.50100000105)
-#define kI_1 (  -5.0610551)
-#define kD_1 ( -50.1026)
+#define kP_1 (  -5.0100000105)
+#define kI_1 (  -50.610551)
+#define kD_1 ( -500.26)
 
 // #define kP_1 (  -0.50100000105)
 // #define kI_1 (  -5.0610551)
