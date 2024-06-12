@@ -5,6 +5,7 @@ import threading
 import time
 import signal
 import matplotlib.pyplot as plt
+import numpy as np
 
 import sys
 sys.path.append("./build")
@@ -76,8 +77,8 @@ def receive_packet(s,ring_buffer):
            meanDAP = sum(dacp_values) / len(dacp_values)
            meanDAN = sum(dacn_values) / len(dacn_values)
         #    meanDAP = meanDAP%1000
-           
-           print(f"Frames received in the last second: {frames_received}, meanADC={meanADC}, meanDAP={meanDAP}, meanDAN={meanDAN}")
+           #meanDAP和meanDAN显示小数点后固定长度，长度为10位,不足的用0补齐
+           print(f"Frames received in the last second: {frames_received}, meanADC={meanADC:010.10f}, meanDAP={meanDAP:010.10f}, meanDAN={meanDAN:010.10f}")
            frames_received = 0
            start_time = time.time()
            ring_buffer[index] = [times, meanADC, meanDAP, meanDAN]
@@ -90,7 +91,7 @@ def receive_packet(s,ring_buffer):
 
 
 def receive_tcp_data(udp_port, stop_event, ring_buffer):
-    HOST = '192.168.0.83'  # 远程主机的IP地址
+    HOST = '192.168.0.61'  # 远程主机的IP地址
     PORT = 6100  # 远程主机的端口号
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -111,7 +112,7 @@ if __name__ == '__main__':
 
     # Initialize the ring buffer
     ring_buffer = [[0, -1, 0, 0] for i in range(BUFSIZE)]
-
+    distribution_data = []
     # create a thread that receives on UDP port 1001    
     udp_receive_thread = threading.Thread(target=receive_tcp_data, args=(1001, stop_event, ring_buffer))
     udp_receive_thread.start()
@@ -127,14 +128,17 @@ if __name__ == '__main__':
 
     plt.ion()
     #fig, ax = plt.subplots()
-    fig, (ax1, ax2) = plt.subplots(2, 1)  # 创建两个子图
+    fig, (ax1, ax2, ax3) = plt.subplots(3, 1)  # 创建两个子图
     ax1.set_xlabel('Time') # Set the x-axis label
     ax2.set_xlabel('Time') # Set the x-axis label
     ax1.set_ylim(0.0, 3.3)  # 设置 y 轴范围
     ax1.set_title('Plot of CP ADC')  # 设置子图标题
     ax2.set_ylim(0.0, 3.3)  # 设置 y 轴范围
     ax2.set_title('Plot of dac_non_negative')  # 设置子图标题
+    ax3.set_xlim(1.536 , 1.538)
     plt.tight_layout()  # 调整图形布局，防止重叠
+
+
     fnum = 0
     # The main thread can continue executing other tasks
     while True:
@@ -173,5 +177,22 @@ if __name__ == '__main__':
             # plt.tight_layout()  # 调整图形布局，防止重叠
             # plt.show()  # 显示图形
 
-        # Show the plot
+
+
+            #2024.6.11
+            #show distribution of data
+            distribution_data.append(dac_non_negative[-1])
+            ax3.cla()  # Clear the previous plot
+            ax3.hist(distribution_data, bins=200, density=True, alpha=0.6, color='g')
+            mean= np.mean(distribution_data)
+            ax3.axvline(mean, color='b', linestyle='dashed', linewidth=2, label=f'均值={mean:.2f}')
+            #ax3.xlabel('data')
+            #ax3.ylabel('happend')
+            #ax3.title('disturbution of data')
+            #ax3.legend()
+            #ax3.show()
+
+            # Show the plot
+            plt.draw()
             plt.pause(0.1)  # Give the plot time to refresh
+            

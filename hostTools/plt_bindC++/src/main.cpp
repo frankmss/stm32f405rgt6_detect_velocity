@@ -16,8 +16,10 @@ struct log_para_t {
 #pragma pack()
 
 #define DIFVAL (3.0 / 4095.0)
+#define DIFVAL32 (3.0 / (1000.0 * 1000.0 * 4095.0))
 
 float convertADC(uint16_t adc) { return adc * DIFVAL; }
+double convertADC32bit(uint32_t adc) { return adc * DIFVAL32; }
 
 py::tuple parsePkg(char *src) {
   // printf("src:%s\n",src);
@@ -28,8 +30,8 @@ py::tuple parsePkg(char *src) {
     //        plog->mean_adc_val, plog->mean_adc_val, plog->dac_val_p,
     //        plog->dac_val_n);
 
-    return py::make_tuple(convertADC(plog->mean_adc_val), convertADC((plog->dac_val_p)&0XFFF),
-                          convertADC((plog->dac_val_n)&0XFFF));
+    return py::make_tuple(convertADC(plog->mean_adc_val), convertADC32bit((plog->dac_val_p)),
+                          convertADC32bit((plog->dac_val_n)));
   } else {
     return py::make_tuple(-100, -100, -100);
   }

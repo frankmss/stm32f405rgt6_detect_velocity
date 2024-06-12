@@ -9,6 +9,9 @@
 #define ADCCAPOK (0x00005555)
 #define ADCCAPWAIT (0X00003333)
 #define CALOK    (0X0000FFFF)
+#define UART_TRI_OK ADCCAPOK
+#define UART_TRI_WAIT ADCCAPWAIT
+
 struct adc_buf_t{
 	int32_t adc_cap_ok;  //1:adc_cap_ok; 0:calculate ok;
 	uint32_t buf[ADC_BUF_T_SIZE];

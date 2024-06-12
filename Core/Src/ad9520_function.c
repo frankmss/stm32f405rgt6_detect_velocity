@@ -248,8 +248,8 @@ void set_custom_val(uint32_t setPumpUpDown){
         //设置PDF寄存器，
     ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval & 0X00;
     //    使能pll ， cp current = 4.8mA，
-		//ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval | 0b01110000; //0x010[1:0] = 01b 4.8mA
-		ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval | 0b00110000; //0x010[1:0] = 01b 2.4mA
+		ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval | 0b01110000; //0x010[1:0] = 01b 4.8mA
+		//ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval | 0b00110000; //0x010[1:0] = 01b 2.4mA
     //ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval | 0b00000000; //0x010[1:0] = 01b 0.6mA
     if(setPumpUpDown == PUMP_UP){
         ad9520_regs.PFD_charge_pump.reg_setval = ad9520_regs.PFD_charge_pump.reg_setval | 0b00000100; //source current up;   

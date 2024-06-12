@@ -29,6 +29,17 @@ int _write(int fd, char *ptr, int len) {
 //    return ch;
 //  }
 
+//全局参数
+uint32_t adc1_ok = 0, adc2_ok = 0;
+#define MID_CP_VALUE (2048)
+// uint32_t value_dacP = 0x8020200, value_dacN = 0x8020200;
+uint32_t value_dacP = 0x80200800, value_dacN = 0x80200800;
+int32_t mainCp = 0, mainCpLast = 0;
+struct adc_buf_t adc1_t1, adc1_t2;
+int32_t uartDMA_tri_sign = ADCCAPWAIT;
+struct log_para_t logBufDma;
+
+
 #define CAPNUM 100
 uint32_t chanl1_capNum[CAPNUM];
 uint32_t chanl2_capNum[CAPNUM];
@@ -575,6 +586,7 @@ void cal_cp_output_dac_ext(struct adc_buf_t *adc_buf, uint32_t *dacP,
 }
 
 uint16_t forSaveAllSum = 0;
+
 // 2024.4.26调整跟踪算法，以前的算法有可能会出现同步现象
 #define TARGET_CPV_1 (2048)
 void cal_cp_output_dac_ext_1(struct adc_buf_t *adc_buf, uint32_t *dacP,
@@ -617,7 +629,7 @@ void cal_cp_output_dac_ext_1(struct adc_buf_t *adc_buf, uint32_t *dacP,
   }
   pidI = pidI / ADCSUMARRAY_SIZE;
   pidD = adcSumArray[ADCSUMARRAY_SIZE - 1] - adcSumArray[ADCSUMARRAY_SIZE - 2];
-#define kP_1 (  -5.0100000105)
+#define kP_1 (  -5.000260100000105)
 #define kI_1 (  -50.610551)
 #define kD_1 ( -500.26)
 
@@ -675,6 +687,17 @@ void cal_cp_output_dac_ext_1(struct adc_buf_t *adc_buf, uint32_t *dacP,
   logPara.dac_val_n = (*dacN);
   logPara.dac_val_p = (*dacP);
   // HAL_GPIO_TogglePin(LED4_GPIO_Port, LED4_Pin);
+  //2024.6.11为了保证串口数据的完整性，加入下面代码
+  
+  if(uartDMA_tri_sign == UART_TRI_OK){
+    logBufDma.mean_adc_val = logPara.mean_adc_val;
+    logBufDma.dac_val_p = logPara.dac_val_p;
+    logBufDma.dac_val_n = logPara.dac_val_n;
+    uartDMA_tri_sign = UART_TRI_WAIT;
+    HAL_UART_Transmit_DMA(&huart2, (uint8_t *)&logBufDma,
+                          sizeof(struct log_para_t));
+  }
+  
   HAL_GPIO_WritePin(LED4_GPIO_Port, LED4_Pin, GPIO_PIN_RESET);
 }
 
@@ -770,13 +793,6 @@ void cal_cp_output_dac_ext_3(struct adc_buf_t *adc_buf, uint32_t *dacP,
 }
 
 
-uint32_t adc1_ok = 0, adc2_ok = 0;
-#define MID_CP_VALUE (2048)
-// uint32_t value_dacP = 0x8020200, value_dacN = 0x8020200;
-uint32_t value_dacP = 0x80200800, value_dacN = 0x80200800;
-int32_t mainCp = 0, mainCpLast = 0;
-struct adc_buf_t adc1_t1, adc1_t2;
-
 void fakeDelay(int32_t delay) {
   int32_t i = 0, k = 0;
   int32_t tmp = 0;
@@ -809,7 +825,7 @@ void preMainLoop1(void) {
   init_ad9520();
 }
 
-struct log_para_t logBufDma;
+
 uint16_t ad9520_reg = 0;
 uint32_t locked = 0;
 uint32_t adcVal, lastAdcVal;
@@ -853,7 +869,7 @@ void mainLoop1(void) {
   adc1_ok = 0;
   adc2_ok = 0;
   //在下面的代码中使用while(1)循环测试adc采样，dac输出，这是一段临时测试代码
-    //HAL_ADC_Start(&hadc2);
+  //   HAL_ADC_Start(&hadc2);
   //   uint32_t adcVal = 0;
   //   int32_t adcCalVal = 0;
   //   int32_t nowVal=0,lastVal=0;
@@ -869,9 +885,9 @@ void mainLoop1(void) {
   //       adcCalVal = (int32_t)nowVal - (int32_t)lastVal;
   //       HAL_ADC_Start_DMA(&hadc2, (uint32_t *)(&adcVal), 1);
   //     #define kP_3 (-5000.0)
-  //     #define DELV (10)
-  //       if(adcCalVal < 20){
-  //         dletDac = ((float_t)adcCalVal) * kP_2;
+  //     #define DELV (100)
+  //       if( (abs(adcCalVal) < 100) && (abs(adcCalVal) > 20)){
+  //         dletDac = ((float_t)adcCalVal) * kP_3;
   //         if(dletDac>0){
   //           (dacP) += DELV;
   //           (dacN) -= DELV;
@@ -879,27 +895,23 @@ void mainLoop1(void) {
   //           (dacP) -= DELV;
   //           (dacN) += DELV;
   //         }
-  //       }
-  //       //int32_t tmpUint32 = abs((int32_t)(dletDac));
-  //       // (dacP) += (int32_t)(dletDac);
-  //       // (dacN) -= (int32_t)(dletDac);
-        
-  //     // (dacP) += deltNoisV;
-  //     // (dacN) -= deltNoisV;
-  //       max5307_w_chanel(DACP_1, (((dacP) >> 10) & 0xffc), max_outdisable);
-  //       max5307_w_chanel(DACP_1K, (((dacP) >> 10) & 0xffc), max_outdisable);
-  //       max5307_w_chanel(DACP_1M, ((dacP) & 0xfff) & 0xfff, max_outdisable);
-  //       max5307_w_chanel(DACN_1, (((dacN) >> 10) & 0xffc), max_outdisable);
-  //       max5307_w_chanel(DACN_1K, (((dacN) >> 10) & 0xffc), max_outdisable);
-  //       max5307_w_chanel(DACN_1M, ((dacN) & 0xfff) & 0xfff, max_outdisable);
+  //         max5307_w_chanel(DACP_1, (((dacP) >> 20) & 0xffc), max_outdisable);
+  //         max5307_w_chanel(DACP_1K, (((dacP) >> 10) & 0xffc), max_outdisable);
+  //         max5307_w_chanel(DACP_1M, ((dacP) & 0xfff) & 0xfff, max_outdisable);
+  //         max5307_w_chanel(DACN_1, (((dacN) >> 20) & 0xffc), max_outdisable);
+  //         max5307_w_chanel(DACN_1K, (((dacN) >> 10) & 0xffc), max_outdisable);
+  //         max5307_w_chanel(DACN_1M, ((dacN) & 0xfff) & 0xfff, max_outdisable);
 
-  //       do {
-  //         uint16_t chanelNo = 0;
-  //         chanelNo = 0x01 << (DACP_1 + 2) | 0x01 << (DACP_1K + 2) |
+  //         do {
+  //           uint16_t chanelNo = 0;
+  //           chanelNo = 0x01 << (DACP_1 + 2) | 0x01 << (DACP_1K + 2) |
   //                    0x01 << (DACP_1M + 2) | 0x01 << (DACN_1 + 2) |
   //                    0x01 << (DACN_1K + 2) | 0x01 << (DACN_1M + 2);
-  //         max5307_enable_ori_chanel(chanelNo);
-  //       } while (0);
+  //           max5307_enable_ori_chanel(chanelNo);
+  //         } while (0);
+  //       }
+       
+
   //       // max5307_w_chanel(DACP_1,  (((adcCalVal) >> 0)&0xfff), max_outenable);
   //       HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
   //     }
@@ -961,7 +973,6 @@ void mainLoop1(void) {
 //用于快速adc采样，采用dma方式，每次只采样一个数值，dma中断代码中设置标志，通知主程序采样完成
 //主程序接收到标志后，可以读取adc采样值，并开启下一次adc dma采样
 // void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
-
 //   if (hadc == &hadc1) {
 //     adc1_ok = 1;
 //     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc1_t1.buf, ADC_BUF_T_SIZE * 2);
@@ -996,14 +1007,14 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
 // void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef *huart){
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
   if (huart == &huart2) {
-    // uint16_t *padcv = (uint16_t *)(&logBufDma[1]);
-    // uint32_t *pdacp = (uint32_t *)(&logBufDma[3]);
-    // uint32_t *pdacn = (uint32_t *)(&logBufDma[7]);
-    logBufDma.mean_adc_val = logPara.mean_adc_val;
-    logBufDma.dac_val_p = logPara.dac_val_p;
-    logBufDma.dac_val_n = logPara.dac_val_n;
 
-    HAL_UART_Transmit_DMA(&huart2, (uint8_t *)&logBufDma,
-                          sizeof(struct log_para_t));
+    // logBufDma.mean_adc_val = logPara.mean_adc_val;
+    // logBufDma.dac_val_p = logPara.dac_val_p;
+    // logBufDma.dac_val_n = logPara.dac_val_n;
+    // HAL_UART_Transmit_DMA(&huart2, (uint8_t *)&logBufDma,
+    //                       sizeof(struct log_para_t));
+
+    // 2024.6.11 为了保证每次发送数据的完整，设置标志位，用来启动下一次发送
+    uartDMA_tri_sign = UART_TRI_OK;
   }
 }
