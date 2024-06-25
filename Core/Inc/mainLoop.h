@@ -24,8 +24,9 @@ struct adc_buf_t{
 struct log_para_t{
 	char     sbs;
 	uint16_t mean_adc_val;
-	uint32_t dac_val_p;
-	uint32_t dac_val_n;
+	int32_t dac_val_p;
+	int32_t dac_val_n;
+	uint32_t checkBits;
 };
 #pragma pack()
 

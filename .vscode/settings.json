@@ -7,5 +7,6 @@
     "mainloop.h": "c",
     "arm_math.h": "c"
   },
-  "digital-ide.welcome.show": false
+  "digital-ide.welcome.show": false,
+  "cmake.sourceDirectory": "/home/cahill/stm32cubeMx/stm32_workbench/stm32f405rgt6_detect_velocity/hostTools/cmake_example"
 }

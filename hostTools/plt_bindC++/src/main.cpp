@@ -10,8 +10,9 @@ namespace py = pybind11;
 struct log_para_t {
   char sbs;
   uint16_t mean_adc_val;
-  uint32_t dac_val_p;
-  uint32_t dac_val_n;
+  int32_t dac_val_p;
+  int32_t dac_val_n;
+  uint32_t checkBits;
 };
 #pragma pack()
 
@@ -19,7 +20,7 @@ struct log_para_t {
 #define DIFVAL32 (3.0 / (1000.0 * 1000.0 * 4095.0))
 
 float convertADC(uint16_t adc) { return adc * DIFVAL; }
-double convertADC32bit(uint32_t adc) { return adc * DIFVAL32; }
+int32_t convertADC32bit(int32_t adc) { return adc ; }
 
 py::tuple parsePkg(char *src) {
   // printf("src:%s\n",src);
@@ -29,9 +30,19 @@ py::tuple parsePkg(char *src) {
     // printf("mean_adc_val:0x%x(%d),dac_val_p:0x%x,dac_val_n:0x%x\n",
     //        plog->mean_adc_val, plog->mean_adc_val, plog->dac_val_p,
     //        plog->dac_val_n);
-
-    return py::make_tuple(convertADC(plog->mean_adc_val), convertADC32bit((plog->dac_val_p)),
+    uint32_t checkBits_tmp = ((uint32_t) plog->mean_adc_val)+
+                             ((uint32_t) plog->dac_val_p)+
+                             ((uint32_t) plog->dac_val_n);
+    
+    if(plog->checkBits == checkBits_tmp){
+      
+      return py::make_tuple(convertADC(plog->mean_adc_val), convertADC32bit((plog->dac_val_p)),
                           convertADC32bit((plog->dac_val_n)));
+    }else{
+      printf("checkBits %08x != %08x\n",plog->checkBits,checkBits_tmp);
+      return py::make_tuple(-100, -100, -100);
+    }
+    
   } else {
     return py::make_tuple(-100, -100, -100);
   }

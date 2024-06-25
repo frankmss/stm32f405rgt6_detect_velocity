@@ -1,7 +1,7 @@
 #include "mainLoop.h"
 
 #include <stdio.h>
-//#include "arm_math.h"
+// #include "arm_math.h"
 #include "ad9520_function.h"
 #include "main.h"
 #include "math.h"
@@ -29,7 +29,7 @@ int _write(int fd, char *ptr, int len) {
 //    return ch;
 //  }
 
-//全局参数
+// 全局参数
 uint32_t adc1_ok = 0, adc2_ok = 0;
 #define MID_CP_VALUE (2048)
 // uint32_t value_dacP = 0x8020200, value_dacN = 0x8020200;
@@ -38,7 +38,6 @@ int32_t mainCp = 0, mainCpLast = 0;
 struct adc_buf_t adc1_t1, adc1_t2;
 int32_t uartDMA_tri_sign = ADCCAPWAIT;
 struct log_para_t logBufDma;
-
 
 #define CAPNUM 100
 uint32_t chanl1_capNum[CAPNUM];
@@ -390,7 +389,7 @@ int32_t cal_value_cp(void) {
 
 // 1Hz 10
 // adcsumarray_size=2,1,1k收敛很快，
-#define ADCSUMARRAY_SIZE (10)
+#define ADCSUMARRAY_SIZE (2)
 // #define ADCSUMARRAY_SIZE (300)
 int32_t adcSumArray[ADCSUMARRAY_SIZE];
 int32_t pidP = 0, pidI = 0, pidD = 0;
@@ -586,7 +585,8 @@ void cal_cp_output_dac_ext(struct adc_buf_t *adc_buf, uint32_t *dacP,
 }
 
 uint16_t forSaveAllSum = 0;
-
+static double nowXn = 0;
+static double lastXn = 0;
 // 2024.4.26调整跟踪算法，以前的算法有可能会出现同步现象
 #define TARGET_CPV_1 (2048)
 void cal_cp_output_dac_ext_1(struct adc_buf_t *adc_buf, uint32_t *dacP,
@@ -604,8 +604,8 @@ void cal_cp_output_dac_ext_1(struct adc_buf_t *adc_buf, uint32_t *dacP,
     allSum += (int32_t)(((adc_buf->buf[i] >> 16) & 0x0fff));
   }
   allSum = allSum / (N * 2);
-  //allSum = adc_buf->buf[0];
-  //  allSum = (adc_buf->buf[99]&0x0fff);
+  // allSum = adc_buf->buf[0];
+  //   allSum = (adc_buf->buf[99]&0x0fff);
   forSaveAllSum = allSum;
   // max5307_w_chanel(DACP_1,  (((adc_buf->buf[0]) >> 0)&0xfff), max_outenable);
   // max5307_w_chanel(DACN_1,  (((adc_buf->buf[0]) >> 0)&0xfff), max_outenable);
@@ -629,13 +629,13 @@ void cal_cp_output_dac_ext_1(struct adc_buf_t *adc_buf, uint32_t *dacP,
   }
   pidI = pidI / ADCSUMARRAY_SIZE;
   pidD = adcSumArray[ADCSUMARRAY_SIZE - 1] - adcSumArray[ADCSUMARRAY_SIZE - 2];
-#define kP_1 (  -5.000260100000105)
-#define kI_1 (  -50.610551)
-#define kD_1 ( -500.26)
+#define kP_1 (-1.105000260100000105)
+#define kI_1 (-5.55610551)
+#define kD_1 (-50.526)
 
-// #define kP_1 (  -0.50100000105)
-// #define kI_1 (  -5.0610551)
-// #define kD_1 ( -50.1026)
+  // #define kP_1 (  -0.50100000105)
+  // #define kI_1 (  -5.0610551)
+  // #define kD_1 ( -50.1026)
   // 1,1k,1M三段可以收敛
   //  #define kP_1 (-1000.05)
   //  #define kI_1 (+1000.51)
@@ -687,17 +687,28 @@ void cal_cp_output_dac_ext_1(struct adc_buf_t *adc_buf, uint32_t *dacP,
   logPara.dac_val_n = (*dacN);
   logPara.dac_val_p = (*dacP);
   // HAL_GPIO_TogglePin(LED4_GPIO_Port, LED4_Pin);
-  //2024.6.11为了保证串口数据的完整性，加入下面代码
-  
-  if(uartDMA_tri_sign == UART_TRI_OK){
-    logBufDma.mean_adc_val = logPara.mean_adc_val;
-    logBufDma.dac_val_p = logPara.dac_val_p;
-    logBufDma.dac_val_n = logPara.dac_val_n;
-    uartDMA_tri_sign = UART_TRI_WAIT;
-    HAL_UART_Transmit_DMA(&huart2, (uint8_t *)&logBufDma,
-                          sizeof(struct log_para_t));
-  }
-  
+  // 2024.6.11为了保证串口数据的完整性，加入下面代码
+  do {
+      nowXn = (double)(dletDac);
+      double tmpLPFdeltDac = 0.999 * lastXn + 0.001 * nowXn;
+      lastXn = tmpLPFdeltDac;
+      if (uartDMA_tri_sign == UART_TRI_OK) {
+        logBufDma.mean_adc_val = logPara.mean_adc_val;
+        // logBufDma.dac_val_p = logPara.dac_val_p;
+        // logBufDma.dac_val_n = logPara.dac_val_n;
+        // lastXn = nowXn;
+
+        logBufDma.dac_val_p = (int32_t)tmpLPFdeltDac;
+        logBufDma.dac_val_n = (int32_t)tmpLPFdeltDac;
+        logBufDma.checkBits = ((uint32_t)logBufDma.mean_adc_val) +
+                              ((uint32_t)logBufDma.dac_val_p) +
+                              ((uint32_t)logBufDma.dac_val_n);
+        uartDMA_tri_sign = UART_TRI_WAIT;
+        HAL_UART_Transmit_DMA(&huart2, (uint8_t *)&logBufDma,
+                            sizeof(struct log_para_t));
+      }
+  } while (0);
+
   HAL_GPIO_WritePin(LED4_GPIO_Port, LED4_Pin, GPIO_PIN_RESET);
 }
 
@@ -738,7 +749,7 @@ void cal_cp_output_dac_ext_2(struct adc_buf_t *adc_buf, uint32_t *dacP,
   // }
   // allSumF = ((float_t)allSum) / N;
 
-  //筛选导数值，只保留绝对值小于100的值
+  // 筛选导数值，只保留绝对值小于100的值
   allSum = 0;
   for (i = 0; i < N; i++) {
     if (abs(difAdcValBuf[i]) < 50) {
@@ -788,10 +799,7 @@ void cal_cp_output_dac_ext_2(struct adc_buf_t *adc_buf, uint32_t *dacP,
 
 //
 void cal_cp_output_dac_ext_3(struct adc_buf_t *adc_buf, uint32_t *dacP,
-                             uint32_t *dacN, int32_t runTime500us){
-
-}
-
+                             uint32_t *dacN, int32_t runTime500us) {}
 
 void fakeDelay(int32_t delay) {
   int32_t i = 0, k = 0;
@@ -824,7 +832,6 @@ void preMainLoop1(void) {
   } while (0);
   init_ad9520();
 }
-
 
 uint16_t ad9520_reg = 0;
 uint32_t locked = 0;
@@ -868,16 +875,16 @@ void mainLoop1(void) {
   HAL_Delay(1);
   adc1_ok = 0;
   adc2_ok = 0;
-  //在下面的代码中使用while(1)循环测试adc采样，dac输出，这是一段临时测试代码
-  //   HAL_ADC_Start(&hadc2);
-  //   uint32_t adcVal = 0;
-  //   int32_t adcCalVal = 0;
-  //   int32_t nowVal=0,lastVal=0;
-  //   double adcValF = 0;
-  //   uint32_t dacP=value_dacP, dacN=value_dacN;
-  //   HAL_ADC_Start_DMA(&hadc2, (uint32_t *)(&adcVal), 1);
-  //   while(1){
-      
+  // 在下面的代码中使用while(1)循环测试adc采样，dac输出，这是一段临时测试代码
+  //    HAL_ADC_Start(&hadc2);
+  //    uint32_t adcVal = 0;
+  //    int32_t adcCalVal = 0;
+  //    int32_t nowVal=0,lastVal=0;
+  //    double adcValF = 0;
+  //    uint32_t dacP=value_dacP, dacN=value_dacN;
+  //    HAL_ADC_Start_DMA(&hadc2, (uint32_t *)(&adcVal), 1);
+  //    while(1){
+
   //     if(adc1_t1.adc_cap_ok == ADCCAPOK){
   //       adc1_t1.adc_cap_ok = ADCCAPWAIT;
   //       lastVal = nowVal;
@@ -896,11 +903,12 @@ void mainLoop1(void) {
   //           (dacN) += DELV;
   //         }
   //         max5307_w_chanel(DACP_1, (((dacP) >> 20) & 0xffc), max_outdisable);
-  //         max5307_w_chanel(DACP_1K, (((dacP) >> 10) & 0xffc), max_outdisable);
-  //         max5307_w_chanel(DACP_1M, ((dacP) & 0xfff) & 0xfff, max_outdisable);
-  //         max5307_w_chanel(DACN_1, (((dacN) >> 20) & 0xffc), max_outdisable);
-  //         max5307_w_chanel(DACN_1K, (((dacN) >> 10) & 0xffc), max_outdisable);
-  //         max5307_w_chanel(DACN_1M, ((dacN) & 0xfff) & 0xfff, max_outdisable);
+  //         max5307_w_chanel(DACP_1K, (((dacP) >> 10) & 0xffc),
+  //         max_outdisable); max5307_w_chanel(DACP_1M, ((dacP) & 0xfff) &
+  //         0xfff, max_outdisable); max5307_w_chanel(DACN_1, (((dacN) >> 20) &
+  //         0xffc), max_outdisable); max5307_w_chanel(DACN_1K, (((dacN) >> 10)
+  //         & 0xffc), max_outdisable); max5307_w_chanel(DACN_1M, ((dacN) &
+  //         0xfff) & 0xfff, max_outdisable);
 
   //         do {
   //           uint16_t chanelNo = 0;
@@ -910,10 +918,9 @@ void mainLoop1(void) {
   //           max5307_enable_ori_chanel(chanelNo);
   //         } while (0);
   //       }
-       
 
-  //       // max5307_w_chanel(DACP_1,  (((adcCalVal) >> 0)&0xfff), max_outenable);
-  //       HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
+  //       // max5307_w_chanel(DACP_1,  (((adcCalVal) >> 0)&0xfff),
+  //       max_outenable); HAL_GPIO_TogglePin(LED3_GPIO_Port, LED3_Pin);
   //     }
   //  }
 
@@ -970,19 +977,18 @@ void mainLoop1(void) {
   }
 }
 
-//用于快速adc采样，采用dma方式，每次只采样一个数值，dma中断代码中设置标志，通知主程序采样完成
-//主程序接收到标志后，可以读取adc采样值，并开启下一次adc dma采样
-// void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
-//   if (hadc == &hadc1) {
-//     adc1_ok = 1;
-//     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc1_t1.buf, ADC_BUF_T_SIZE * 2);
-//   }
-//   if (hadc == &hadc2) {
-//     adc1_t1.adc_cap_ok = ADCCAPOK;
-    
+// 用于快速adc采样，采用dma方式，每次只采样一个数值，dma中断代码中设置标志，通知主程序采样完成
+// 主程序接收到标志后，可以读取adc采样值，并开启下一次adc dma采样
+//  void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
+//    if (hadc == &hadc1) {
+//      adc1_ok = 1;
+//      HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc1_t1.buf, ADC_BUF_T_SIZE * 2);
+//    }
+//    if (hadc == &hadc2) {
+//      adc1_t1.adc_cap_ok = ADCCAPOK;
+
 //   }
 // }
-
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
   // 这里是当ADC转换完成时执行的代码
@@ -1007,7 +1013,6 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc) {
 // void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef *huart){
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
   if (huart == &huart2) {
-
     // logBufDma.mean_adc_val = logPara.mean_adc_val;
     // logBufDma.dac_val_p = logPara.dac_val_p;
     // logBufDma.dac_val_n = logPara.dac_val_n;

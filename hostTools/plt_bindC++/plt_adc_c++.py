@@ -11,6 +11,16 @@ import sys
 sys.path.append("./build")
 import netOcd
 
+def calculate_median(sequence):
+    sorted_seq = sorted(sequence)
+    n = len(sorted_seq)
+    if n % 2 == 0:
+        median = (sorted_seq[n//2 - 1] + sorted_seq[n//2]) / 2
+    else:
+        median = sorted_seq[n//2]
+    return median
+
+
 STEP=1.5
 BUFSIZE=10000
 # def tcp_send_command_thread(stop_event):
@@ -37,6 +47,11 @@ def receive_packet(s,ring_buffer):
    showAdcMeanList = []
    index = 0
    times = 0
+   #2024.6.19 统计长期的稳定度，
+   dacp_lastXn = 0
+   dacn_lastXn = 0
+   dacp_nowXn  = 0
+   dacn_nowXn  = 0
   #  plt.ion() # <-- work in "interactive mode"
   #  fig, ax = plt.subplots()
   #  fig.canvas.set_window_title('Live Chart')
@@ -50,13 +65,15 @@ def receive_packet(s,ring_buffer):
 
        while b'#' in buffer:  # 在缓冲区中查找 #
            start_index = buffer.index(b'#')  # 找到 # 的位置
-           if len(buffer) - start_index >= 11:  # 确保剩余数据足够解析一个完整包
-               packet = buffer[start_index:start_index + 11]  # 提取一整个包的数据
-               buffer = buffer[start_index + 11:]  # 更新缓冲区数据
+           if len(buffer) - start_index >= 15:  # 确保剩余数据足够解析一个完整包
+               packet = buffer[start_index:start_index + 15]  # 提取一整个包的数据
+               buffer = buffer[start_index + 15:]  # 更新缓冲区数据
                
                try:
-                   adc, dacP, dac_n = struct.unpack('<HLL', packet[1:])
+                #    adc, dacP, dac_n = struct.unpack('<HLL', packet[1:])
                    cppResult = netOcd.parsePkg(packet)
+                   if(cppResult[0]==-100) :
+                       continue
                    #print(f"Received Data: ADC={adc}, DAC_P={dac_p}, DAC_N={dac_n}")
                 #    print(f"c++ data:{cppResult[0]},{cppResult[1]},{cppResult[2]}")
                    adc_values.append(cppResult[0])
@@ -73,17 +90,29 @@ def receive_packet(s,ring_buffer):
        # 计算每秒钟帧数
        elapsed_time = time.time() - start_time
        if (elapsed_time >= STEP) and (len(adc_values) != 0):
-           meanADC = sum(adc_values) / len(adc_values)
-           meanDAP = sum(dacp_values) / len(dacp_values)
-           meanDAN = sum(dacn_values) / len(dacn_values)
+        #    meanADC = sum(adc_values) / len(adc_values)
+        #    meanDAP = sum(dacp_values) / len(dacp_values)
+        #    meanDAN = sum(dacn_values) / len(dacn_values)
+
+           meanADC = adc_values[100]
+           meanDAP = dacp_values[100]           
+           meanDAN = dacn_values[100]
+        #    meanADC = calculate_median(adc_values)
+        #    meanDAP = calculate_median(dacp_values)
+        #    meanDAN = calculate_median(dacn_values)
+           dacp_nowXn = dacp_lastXn*0.999 + meanDAP*0.001
+           dacn_nowXn = dacn_lastXn*0.999 + meanDAN*0.001
         #    meanDAP = meanDAP%1000
            #meanDAP和meanDAN显示小数点后固定长度，长度为10位,不足的用0补齐
            print(f"Frames received in the last second: {frames_received}, meanADC={meanADC:010.10f}, meanDAP={meanDAP:010.10f}, meanDAN={meanDAN:010.10f}")
            frames_received = 0
            start_time = time.time()
            ring_buffer[index] = [times, meanADC, meanDAP, meanDAN]
+        #   ring_buffer[index] = [times, meanADC, dacp_nowXn, dacn_nowXn]
            index = (index + 1) % len(ring_buffer)
            times = times + 1
+           dacp_lastXn = dacp_nowXn
+           dacp_lastXn = dacn_nowXn
            adc_values = []
            dacp_values = []
            dacn_values = []
@@ -91,7 +120,8 @@ def receive_packet(s,ring_buffer):
 
 
 def receive_tcp_data(udp_port, stop_event, ring_buffer):
-    HOST = '192.168.0.61'  # 远程主机的IP地址
+    # HOST = '192.168.0.61'  # 远程主机的IP地址
+    HOST = '10.10.0.1'  # 远程主机的IP地址
     PORT = 6100  # 远程主机的端口号
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -133,7 +163,7 @@ if __name__ == '__main__':
     ax2.set_xlabel('Time') # Set the x-axis label
     ax1.set_ylim(0.0, 3.3)  # 设置 y 轴范围
     ax1.set_title('Plot of CP ADC')  # 设置子图标题
-    ax2.set_ylim(0.0, 3.3)  # 设置 y 轴范围
+    # ax2.set_ylim(-3.3, 3.3)  # 设置 y 轴范围
     ax2.set_title('Plot of dac_non_negative')  # 设置子图标题
     ax3.set_xlim(1.536 , 1.538)
     plt.tight_layout()  # 调整图形布局，防止重叠
@@ -183,7 +213,7 @@ if __name__ == '__main__':
             #show distribution of data
             distribution_data.append(dac_non_negative[-1])
             ax3.cla()  # Clear the previous plot
-            ax3.hist(distribution_data, bins=200, density=True, alpha=0.6, color='g')
+            ax3.hist(distribution_data, bins=100, density=False, alpha=0.6, color='g')
             mean= np.mean(distribution_data)
             ax3.axvline(mean, color='b', linestyle='dashed', linewidth=2, label=f'均值={mean:.2f}')
             #ax3.xlabel('data')
